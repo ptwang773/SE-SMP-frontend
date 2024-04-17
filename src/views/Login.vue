@@ -203,7 +203,7 @@ export default {
                 message: "登录成功"
               });
               console.log(response.data.data)
-              if (response.data.data.status === 'C') { // 管理员
+              if (response.data.data.auth !== 1) { // 管理员
                 window.location.href = '/manager/home'
               } else { // 用户
                 window.location.href = '/allProject'

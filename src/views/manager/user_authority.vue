@@ -15,9 +15,9 @@
           :items="userMessages"
           :search="search"
       >
-        <template #item.authority="{item}">
-          <v-chip :color="getColor(item.authority)" dark @click="openChangeUserAuthorityDialog(item)">
-            {{ transform(item.authority) }}
+        <template #item.auth="{item}">
+          <v-chip :color="getColor(item.auth)" dark @click="openChangeUserAuthorityDialog(item)">
+            {{ transform(item.auth) }}
 <!--            <v-text v-if="item.status==='A'"> 正常 </v-text>-->
 <!--            <v-text v-if="item.status==='B'"> 禁用 </v-text>-->
           </v-chip>
@@ -41,34 +41,20 @@
                 <v-icon>mdi-link-variant</v-icon>
               </v-btn>
             </template>
-            <span>以该用户视角进入用户端</span>
+            <span>查看该管理员管理的项目</span>
           </v-tooltip>
         </template>
       </v-data-table>
     </v-card>
-    <v-dialog v-model="showResetPassword" width="300">
-      <template>
-        <v-container class="pa-0">
-          <v-card>
-            <v-card-title class="headline font-weight text-left"> 重置用户{{ userResetPasswordDialogMessage.name }}的密码 </v-card-title>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="red" text @click="closeResetPasswordDialog">取消</v-btn>
-              <v-btn color="blue" text @click="resetPassword">确认</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-container>
-      </template>
-    </v-dialog>
     <v-dialog v-model="showChangeUserAuthority" width="300">
       <template>
         <v-container class="pa-0">
           <v-card>
-            <v-card-title class="headline font-weight text-left"> 修改用户{{userAuthorityDialogMessage.name}}的角色 </v-card-title>
+            <v-card-title class="headline font-weight text-left"> 修改用户{{userAuthorityDialogMessage.name}}的权限 </v-card-title>
             <v-divider></v-divider>
             <v-card-text>
               <v-radio-group v-model="selectedAuthority">
-                <v-radio v-for="i in AuthorityList" :key="i.value" :label="i.label" :value="i.value"></v-radio>
+                <v-radio v-for="i in authorityList" :key="i.value" :label="i.label" :value="i.value"></v-radio>
               </v-radio-group>
             </v-card-text>
             <v-card-actions>
@@ -121,49 +107,31 @@ export default {
         },
         { text: '邮箱', value: 'email' },
         { text: '注册时间', value: 'registerTime' },
-        { text: '角色', value: 'authority' },
+        { text: '权限等级', value: 'auth' },
         {
-          text: '',
-          sortable: false,
-          value: 'resetPassword'
-        },
-        // {
-        //   text: '',
-        //   sortable: false,
-        //   value: 'changeAuthority'
-        // },
-        {
-          text: '',
-          sortable: false,
-          value: 'userProfile'
-        },
-        {
-          text: '',
+          text: '权限详情',
           sortable: false,
           value: 'userProject'
         },
       ],
       userMessages: [
       ],
-      // 重置用户密码dialog相关信息
-      showResetPassword: false,
-      userResetPasswordDialogMessage: '',
-      // 用户状态dialog相关信息
+      // 用户权限dialog相关信息
       showChangeUserAuthority: false,
       userAuthorityDialogMessage: '',
       selectedAuthority: '',
       authorityList: [
         {
           label: '教师',
-          value: 'A'
+          value: 3
         },
         {
           label: '助教',
-          value: 'B'
+          value: 2
         },
         {
           label: '用户',
-          value: 'C'
+          value: 1
         },
       ],
       // 用户个人信息dialog相关信息
@@ -194,6 +162,10 @@ export default {
               });
             } else {
               this.userMessages = response.data.users
+              for (let i = 0; i < response.data.users.length; i++) {
+                console.log(response.data.users[i].auth)
+                console.log(response.data.users[i].id)
+              }
             }
           })
           .catch((err) => {
@@ -206,17 +178,17 @@ export default {
       console.log(item)
       console.log("open change user authority dialog")
       this.userAuthorityDialogMessage = item
-      this.selectedAuthority = item.authority
+      this.selectedAuthority = item.auth
       this.showChangeUserAuthority = true
     },
-    // 关闭修改用户状态窗口
+    // 关闭修改用户权限窗口
     closeChangeUserAuthorityDialog() {
       this.showChangeUserAuthority = false
       console.log("close change user authority dialog")
       this.userAuthorityDialogMessage = ''
       this.selectedAuthority = ''
     },
-    // 修改用户状态
+    // 修改用户权限
     changeAuthority() {
       console.log(this.selectedAuthority)
       let userId = this.userAuthorityDialogMessage.id
@@ -236,9 +208,9 @@ export default {
               });
             } else if (response.data.errcode === 2) {
               let showAuthority;
-              if (this.selectedAuthority === 'A') {
+              if (this.selectedAuthority === 3) {
                 showAuthority = "教师"
-              } else if (this.selectedAuthority === 'B') {
+              } else if (this.selectedAuthority === 2) {
                 showAuthority = "助教"
               } else {
                 showAuthority = "用户"
@@ -248,12 +220,12 @@ export default {
                 message: "用户" + this.userAuthorityDialogMessage.name + "的角色已为" + showAuthority
               });
             } else {
-              if (this.selectedAuthority === 'A') {
+              if (this.selectedAuthority === 3) {
                 this.$message({
                   type: 'success',
                   message: "成功将用户" + this.userAuthorityDialogMessage.name + "的角色修改为教师"
                 });
-              } else if (this.selectedAuthority === 'B') {
+              } else if (this.selectedAuthority === 2) {
                 this.$message({
                   type: 'success',
                   message: "成功将用户" + this.userAuthorityDialogMessage.name + "的角色修改为助教"
@@ -314,28 +286,28 @@ export default {
                 message: "跳转成功"
               });
               Cookies.set("from", 0)
-              window.location.href = '/allProject'
+              window.location.href = '/manager/assistantAuthority'
             }
           })
           .catch((err) => {
             console.error(err);
           })
     },
-    getColor(authority) {
-      if (authority === "A") {
+    getColor(auth) {
+      if (auth === 3) {
         return "green";
-      } else if (authority === "B") {
+      } else if (auth === 2) {
         return "orange";
-      } else if (authority === "C") {
+      } else if (auth === 1) {
         return "blue";
       }
     },
-    transform(authority) {
-      if (authority === "A") {
+    transform(auth) {
+      if (auth === 3) {
         return "教师";
-      } else if (authority === "B") {
+      } else if (auth === 2) {
         return "助教";
-      } else if (authority === "C") {
+      } else if (auth === 1) {
         return "用户";
       }
     },

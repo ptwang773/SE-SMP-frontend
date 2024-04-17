@@ -135,13 +135,9 @@ export default {
         //   sortable: false,
         //   value: 'changeStatus'
         // },
+
         {
-          text: '',
-          sortable: false,
-          value: 'userProfile'
-        },
-        {
-          text: '',
+          text: '用户端',
           sortable: false,
           value: 'userProject'
         },
