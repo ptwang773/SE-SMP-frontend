@@ -98,7 +98,6 @@
       title="创建项目"
       :visible.sync="setupDialog"
       width="50%"
-      :before-close="handleClose"
     >
       <el-form
         :label-position="labelPosition"
@@ -127,7 +126,6 @@
       title="编辑项目"
       :visible.sync="editDialog"
       width="50%"
-      :before-close="handleClose"
     >
       <el-form
         :label-position="labelPosition"
@@ -262,13 +260,6 @@ export default {
       this.form.name = row.projectName;
       this.form.intro = row.projectIntro;
       this.editDialog = true;
-    },
-    handleClose(done) {
-      this.$confirm("确认关闭？")
-        .then(() => {
-          done();
-        })
-        .catch(() => {});
     },
     handleDelete(row) {
       this.$confirm("此操作将永久删除该项目, 是否继续?", "提示", {

@@ -62,7 +62,7 @@ export const removeMember = (data) => {
 }
 
 export const modifyRole = (data) => {
-  return request.post("/api//plan/modifyRole", data);
+  return request.post("/api/plan/modifyRole", data);
 }
 
 export const addMember = (data) => {

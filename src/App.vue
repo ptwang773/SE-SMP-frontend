@@ -163,7 +163,7 @@
       <!-- <div style="background-color: aqua;width: 100%;">
 
       </div> -->
-      <v-list v-if="user.status !== 'C'">
+      <v-list v-if="user.status !== 'C'" style="padding: 0">
         <v-list-item :style="getLinearGradient(user.topic)" two-line class="px-2">
           <v-list-item-avatar size="40" color="indigo" >
 <!--            <span class="white&#45;&#45;text text-h5">{{ this.proj.projectName[0] }}</span>-->
@@ -193,7 +193,7 @@
           </v-list-item>
       </v-list>
       <v-list subheader v-if="user.status !== 'C'">
-      <v-subheader inset>规划</v-subheader>
+      <v-subheader inset style="color: white; font-size: large; margin-left: 0px; padding-top: 0; background-color: black">规划</v-subheader>
       <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/allTask'">
         <v-list-item-avatar>
           <v-icon :color="getDarkColor(user.topic)">mdi-ballot-outline</v-icon>
@@ -222,7 +222,7 @@
         </v-list-item-content>
       </v-list-item>
 
-      <v-subheader inset>开发</v-subheader>
+      <v-subheader inset style="color: white; font-size: large; margin-left: 0px; padding-top: 0; background-color: black">开发</v-subheader>
       <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/dev'">
         <v-list-item-avatar>
           <v-icon :color="getDarkColor(user.topic)">mdi-align-vertical-center</v-icon>
@@ -260,7 +260,7 @@
             <v-list-item-title>团队数据库</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-      <v-subheader inset>沟通</v-subheader>
+      <v-subheader inset style="color: white; font-size: large; margin-left: 0px; padding-top: 0; background-color: black">沟通</v-subheader>
           <v-dialog
           width="1300"
           v-model="dialog"
@@ -311,6 +311,12 @@
           ><v-icon>mdi-book-edit-outline</v-icon></v-list-item-icon
           >
           <v-list-item-title>项目信息</v-list-item-title>
+        </v-list-item>
+        <v-list-item link to="/manager/userAuthority">
+          <v-list-item-icon
+          ><v-icon>mdi-gavel</v-icon></v-list-item-icon
+          >
+          <v-list-item-title>用户权限管理</v-list-item-title>
         </v-list-item>
       </v-list>
 <!--        <v-list>-->

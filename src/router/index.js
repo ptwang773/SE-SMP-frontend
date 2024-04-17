@@ -104,6 +104,11 @@ const router = new VueRouter({
       component: () => import('../views/manager/user_login_messages.vue')
     },
     {
+      path: '/manager/userAuthority',
+      name: 'userAuthority',
+      component: () => import('../views/manager/user_authority.vue')
+    },
+    {
       path: '/hidden/corner',
       name: 'hidden corner',
       component: () => import('../views/dev/hidden_corner.vue')

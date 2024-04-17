@@ -41,6 +41,18 @@
         class="mx-4"
         style="width:30%;display: inline-block"
       ></v-text-field>
+    <v-btn
+      style="top:20%;right:14%;height:60%;width:13%;position: absolute"
+    depressed
+    :color="getTopicColor(user.topic)"
+    @click="gotoWork"
+    >管理成员权限
+    <v-icon
+          dark
+          right
+        >
+          mdi-account-details
+        </v-icon></v-btn>
       <v-btn
       style="top:20%;right:14%;height:60%;width:13%;position: absolute"
     depressed
@@ -114,7 +126,6 @@
       title="添加成员"
       :visible.sync="setupDialog"
        width="50%"
-      :before-close="handleClose"
       style="position:relative">
       <el-form :label-position="labelPosition" label-width="120px">
 <el-form-item label="用户名称/邮箱">
@@ -131,7 +142,7 @@
       :visible.sync="changeDialog"
        width="40%"
        height="30"
-      :before-close="handleClose"
+
       style="position:relative">
       <template v-slot:title>
         <div>请选择你要为该成员分配的<strong>角色</strong></div>
@@ -268,19 +279,13 @@ export default {
       this.changeDialog = true;
       console.log(this.changeRoleForm);
     },
-    handleClose(done) {
-      this.$confirm('确认关闭？')
-        .then(()=> {
-          done();
-        })
-        .catch(() => {});
-    },
     handleDelete(row) {
-      this.$confirm('此操作将移除该用户, 是否继续?', '提示', {
+      this.$confirm('此操作将移除该用户, 是否继续?', '警告！', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'error'
       }).then(() => {
+        location.reload();
         console.log(row.peopleJob);
         removeMember({projectId: this.selectedProj.projectId, personId: row.peopleId, userId: this.user.id}).then(
           res => {
@@ -295,7 +300,7 @@ export default {
           })}).catch(() => {
         this.$message({
           type: 'info',
-          message: '已取消删除'
+          message: '已取消移除'
         });          
       });
     },
