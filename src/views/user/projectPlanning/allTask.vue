@@ -126,10 +126,10 @@
                     <div>{{ item.contribute }}</div>
                   </template>
                   <template v-slot:[`item.subTaskLabel`]="{ item }">
-                    <v-chip
-                        :color="getLabelColor(item.subTaskLabel)"
-                        dark
-                        style="font-weight: bold">
+                    <v-chip v-if="item.subTaskLabel !== 'None'"
+                            :color="getLabelColor(item.subTaskLabel)"
+                            dark
+                            style="font-weight: bold">
                       {{ item.subTaskLabel }}
                     </v-chip>
                   </template>
@@ -239,22 +239,20 @@
                   </template>
                 </v-data-table>
               </v-card>
-              <div v-if="task.displayReviews" style="position: relative; margin-top: 2px; width: 100%">
-                <v-card>
-                  <v-card-title>评论区</v-card-title>
-                  <v-list>
-                    <v-list-item v-for="review in taskReviews[task.taskId]" :key="review.createTime">
-                      <v-list-item-avatar>
-                        <v-img :src="getIdenticon(review.userName, 25, 'user')"></v-img>
-                      </v-list-item-avatar>
-                      <v-list-item-content>
-                        <v-list-item-title>{{ review.userName }}</v-list-item-title>
-                        <v-list-item-subtitle>{{ review.content }}</v-list-item-subtitle>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-list>
-                </v-card>
-              </div>
+              <v-card v-if="task.displayReviews" style="position: relative; margin-top: 2px; width: 100%">
+                <v-card-title>评论区</v-card-title>
+                <v-list>
+                  <v-list-item v-for="review in taskReviews[task.taskId]" :key="review.createTime">
+                    <v-list-item-avatar>
+                      <v-img :src="getIdenticon(review.userName, 25, 'user')"></v-img>
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title>{{ review.userName }}</v-list-item-title>
+                      <v-list-item-subtitle>{{ review.content }}</v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </v-card>
               <div class="divider"></div>
             </v-row>
           </template>
@@ -1100,6 +1098,7 @@ export default {
       this.newSonForm.endTime = '';
       this.newSonForm.managerName = '';
       this.newSonForm.name = '';
+      this.newSonForm.subTaskLabel = '';
     },
     filterOnlyCapsText(value, search, item) {
       console.log(value);
