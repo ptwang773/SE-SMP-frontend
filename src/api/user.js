@@ -95,6 +95,14 @@ export const addSubTask = (data) => {
   return request.post("/api/plan/addSubTask", data);
 }
 
+export const addReview = (data) => {
+  return request.post("/api/plan/reviewTask", data);
+}
+
+export const getTaskReviews = (data) => {
+  return request.post("/api/plan/getTaskReviews", data);
+}
+
 export const changeOrder = (data) => {
   return request.post("/api/plan/changeOrder", data);
 }
