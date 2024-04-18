@@ -32,7 +32,7 @@
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <v-btn icon color="blue" v-bind="attrs" v-on="on" @click="openSetAssistProj(item)">
-                <v-icon>mdi-link-variant</v-icon>
+                编辑
               </v-btn>
             </template>
             <span>管理助教负责的项目</span>
@@ -40,65 +40,42 @@
         </template>
       </v-data-table>
     </v-card>
+
     <v-dialog v-model="showSetAssistProj" width="700">
       <template>
         <v-container class="pa-0">
           <v-card>
-            <v-card-title class="headline font-weight text-left"> 编辑助教{{assistantDialogMessage.name}}管理的项目 </v-card-title>
+            <v-card-title class="headline font-weight text-left"> 编辑助教{{assistantDialogMessage.name}}允许管理的项目 </v-card-title>
+            <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="支持按项目名和创建人搜索"
+            single-line
+            hide-details
+            style="margin-left: 10px; "
+        ></v-text-field>
             <v-divider></v-divider>
               <v-data-table
               :headers="headers1"
               :items="projectMessages"
               :search="search">
+                <template #item.isManage="{item}">
+                  <v-chip :color="getColor(item.isManage)" dark @click="changeManageInfo(item)">
+                    {{ transform(item.isManage) }}
+                  </v-chip>
+                </template>
 
               </v-data-table>
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="red" text @click="closeSetAssistProj">取消</v-btn>
-              <v-btn color="blue" text @click="changeAssistProj">确认修改</v-btn>
+
             </v-card-actions>
           </v-card>
         </v-container>
       </template>
     </v-dialog>
 
-    <v-dialog v-model="showChangeUserStatus" width="300">
-      <template>
-        <v-container class="pa-0">
-          <v-card>
-            <v-card-title class="headline font-weight text-left"> 修改用户{{userStatusDialogMessage.name}}的状态 </v-card-title>
-            <v-divider></v-divider>
-            <v-card-text>
-              <v-radio-group v-model="selectedStatus">
-                <v-radio v-for="i in statusList" :key="i.value" :label="i.label" :value="i.value"></v-radio>
-              </v-radio-group>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="red" text @click="closeChangeUserStatusDialog">取消</v-btn>
-              <v-btn color="blue" text @click="changeStatus">确认修改</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-container>
-      </template>
-    </v-dialog>
-    <v-dialog v-model="showUserProfile" width="500">
-      <template>
-        <v-container class="pa-0">
-          <v-card>
-            <v-card-title class="headline font-weight text-left"> 用户{{userProfileDialogMessage.name}}的个人信息 </v-card-title>
-            <v-divider></v-divider>
-
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="red" text @click="closeUserProfileDialog">关闭</v-btn>
-              <v-btn color="blue" text @click="saveProfile">确认修改</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-container>
-      </template>
-    </v-dialog>
   </v-container>
 </template>
 
@@ -106,10 +83,11 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 import util from "@/views/util";
+import {windows} from "codemirror/src/util/browser";
+
 export default {
   inject: {
     user: { default: null },
-    getProj: {default: null}
     //setFrom: { default: null}
   },
   data () {
@@ -143,39 +121,15 @@ export default {
           text: '创建人',
           value: 'leader'
         },
+
         {
-          text: '状态',
-          value: 'access'
-
+          text: '权限',
+          value: 'isManage'
         }
+      ],
 
-      ],
-      projectMessages: [
-
-      ],
-      userMessages: [
-        // {
-        //   name: 'user1',
-        //   id: '1',
-        //   email: '123@qq.com',
-        //   registerTime: '2023.1.1',
-        //   status: 'A',
-        // },
-        // {
-        //   name: 'faskfl',
-        //   id: '2',
-        //   email: 'gers@qq.com',
-        //   registerTime: '2023.2.1',
-        //   status: 'B',
-        // },
-        // {
-        //   name: 'saga',
-        //   id: '3',
-        //   email: '53@qq.com',
-        //   registerTime: '2023.3.1',
-        //   status: 'A',
-        // },
-      ],
+      userMessages: [],
+      projectMessages: [],
       // 重置用户密码dialog相关信息
       showResetPassword: false,
       userResetPasswordDialogMessage: '',
@@ -191,18 +145,19 @@ export default {
       // 修改助教管理项目相关
       showSetAssistProj: false,
       assistantDialogMessage: '',
+      currentProject: ''
     }
   },
   created() {
-    this.showUserMessages()
+    this.showAssistantMessages()
   },
-  // TODO：传给后端管理员id，如果报错，不显示信息而显示弹窗
+
   methods: {
     pro(registerTime) {
       return util.processTime(registerTime);
     },
-    // 显示用户信息
-    showUserMessages() {
+    // 显示管理员信息
+    showAssistantMessages() {
       console.log(this.user.id)
       axios.post("/api/management/showAssistants", {managerId: this.user.id})
           .then((response) => {
@@ -239,7 +194,8 @@ export default {
       this.assistantDialogMessage = item
       console.log("open set proj dialog")
       console.log(this.assistantDialogMessage)
-      this.showSetAssistProj = true;
+      this.showSetAssistProj = true
+      this.showProjectMessages(item)
     },
     closeSetAssistProj() {
       this.showSetAssistProj = false
@@ -273,10 +229,6 @@ export default {
     // 设置助教管理项目
     changeAssistProj() {
       let assistantId = this.assistantDialogMessage.id
-
-          .catch((err) => {
-            console.error(err);
-          })
       this.showSetAssistProj = false
       this.assistantDialogMessage = ''
     },
@@ -294,6 +246,28 @@ export default {
       console.log("close change user status dialog")
       this.userStatusDialogMessage = ''
       this.selectedStatus = ''
+    },
+
+    showProjectMessages(item) {
+      console.log(this.user.id)
+      axios.post("/api/management/showAssistantProjects", {teacherId: this.user.id, assistantId: item.id})
+          .then((response) => {
+            console.log("errcode is:" + response.data.errcode)
+            if (response.data.errcode === 1) {
+              window.alert("您没有权限")
+            } else if (response.data.errcode === 2) {
+              window.alert("该项非助教")
+            } else if (response.data.errcode === 3) {
+              window.alert("该项是教师")
+            } else {
+              this.projectMessages = response.data.projects
+              console.log(this.projectMessages)
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+            this.projectMessages = null
+          })
     },
     // 修改用户状态
     changeStatus() {
@@ -355,7 +329,7 @@ export default {
       this.showUserProfile = true
     },
     // 关闭用户个人信息窗口
-    closeUserProfileDialog(item) {
+    closeUserProfileDialog() {
       this.showUserProfile = false
       this.userProfileDialogMessage = ''
     },
@@ -364,37 +338,86 @@ export default {
       this.showUserProfile = false
     },
     // 跳转到用户端页面
-    gotoUserPage(item) {
-      console.log("232534")
-      Cookies.set('manager', Cookies.get('user'))
-      console.log(Cookies.get('manager'))
-      axios.post("/api/getUserInfo", {
-        managerId: this.user.id,
-        userId: item.id,
-      })
-          .then((response) => {
-            console.log(response.data)
-            if (response.data.errcode === 1) {
-              this.$message({
-                type: 'error',
-                message: "用户不存在"
-              });
-            } else {
-              Cookies.set('user', JSON.stringify(response.data.data))
-              this.$message({
-                type: 'success',
-                message: "跳转成功"
-              });
-              Cookies.set("from", 0)
-              window.location.href = '/allProject'
-            }
-          })
-          .catch((err) => {
-            console.error(err);
-          })
+
+    changeManageInfo(item) {
+      console.log("114514")
+      console.log(item)
+      if (item.isManage === 1) {
+        console.log(this.assistantDialogMessage.id)
+        console.log(this.user.id)
+        axios.post("api/management/removeAssistantProject", {
+          managerId: this.user.id,
+          userId: this.assistantDialogMessage.id,
+          projectId: item.projectId
+        }).then((response) => {
+          console.log(response.data)
+          if (response.data.errcode === 1) {
+            this.$message({
+              type: 'error',
+              message: "您没有权限"
+            });
+          } else if (response.data.errcode === 2) {
+            this.$message({
+              type: 'error',
+              message: "无需删除"
+            });
+          } else {
+            this.$message({
+              type: 'error',
+              message: "成功将助教 " + this.assistantDialogMessage.name + " 对项目 " + item.name + " 的权限撤销 "
+            })
+            console.log("已删除")
+          }
+        }).catch((err) => {
+          console.error(err);
+        })
+      } else {
+        console.log(this.assistantDialogMessage.id)
+        console.log(this.user.id)
+        axios.post("api/management/addAssistantProject", {
+          managerId: this.user.id,
+          userId: this.assistantDialogMessage.id,
+          projectId: item.projectId
+        }).then((response) => {
+          console.log(response.data.errcode)
+          if (response.data.errcode === 1) {
+            this.$message({
+              type: 'error',
+              message: "您没有权限"
+            });
+          } else if (response.data.errcode === 2) {
+            this.$message({
+              type: 'error',
+              message: "无需添加"
+            });
+          } else {
+            this.$message({
+              type: 'success',
+              message: "成功将 " + item.name + " 分配给助教 " + this.assistantDialogMessage.name + " 管理 "
+            })
+            console.log("已添加")
+          }
+        }).catch((err) => {
+          console.error(err);
+        })
+      }
+      this.showSetAssistProj = false;
+
     },
-
-
+    getColor(isManage) {
+      if (isManage === 0) {
+        return "red";
+      } else if (isManage === 1) {
+        return "green";
+      }
+    },
+    transform(isManage) {
+      if (isManage === 0) {
+        return "OFF"
+      } else if (isManage === 1) {
+        return "ON"
+      }
+    },
   },
 }
 </script>
