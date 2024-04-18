@@ -785,7 +785,7 @@ export default {
       }
     },
     showLabel() {
-      if (this.user === null || this.user === undefined || this.auth !== 1) {
+      if (this.user === null || this.user === undefined || this.user.auth !== 1) {
         return false;
       }
       console.log("showLabel");
