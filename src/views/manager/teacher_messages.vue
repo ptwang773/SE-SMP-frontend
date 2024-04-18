@@ -1,4 +1,5 @@
 <template>
+
   <v-container>
     <v-card>
       <v-card-title>
@@ -9,7 +10,9 @@
             single-line
             hide-details
         ></v-text-field>
+
       </v-card-title>
+
       <v-data-table
           :headers="headers"
           :items="userMessages"
@@ -25,6 +28,7 @@
         <template #item.registerTime="{item}">
           {{ pro(item.registerTime) }}
         </template>
+
 <!--        <template #item.changeStatus="{item}">-->
 <!--          <v-btn class="ml-1" small outlined @click="openChangeUserStatusDialog(item)">修改用户状态</v-btn>-->
 <!--        </template>-->
@@ -36,26 +40,6 @@
 
       </v-data-table>
     </v-card>
-    <v-dialog v-model="showChangeUserAuthority" width="300">
-      <template>
-        <v-container class="pa-0">
-          <v-card>
-            <v-card-title class="headline font-weight text-left"> 修改用户{{userAuthorityDialogMessage.name}}的权限 </v-card-title>
-            <v-divider></v-divider>
-            <v-card-text>
-              <v-radio-group v-model="selectedAuthority">
-                <v-radio v-for="i in authorityList" :key="i.value" :label="i.label" :value="i.value"></v-radio>
-              </v-radio-group>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="red" text @click="closeChangeUserAuthorityDialog">取消</v-btn>
-              <v-btn color="blue" text @click="changeAuthority">确认修改</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-container>
-      </template>
-    </v-dialog>
     <v-dialog v-model="showUserProfile" width="500">
       <template>
         <v-container class="pa-0">
@@ -90,14 +74,13 @@ export default {
       search: '',
       headers: [
         {
-          text: '用户名',
+          text: '教师名',
           align: 'start',
           // sortable: false,
           value: 'name',
         },
         { text: '邮箱', value: 'email' },
         { text: '注册时间', value: 'registerTime' },
-        { text: '权限等级', value: 'auth' },
       ],
       userMessages: [
       ],
@@ -137,7 +120,7 @@ export default {
     // 显示用户信息
     showUserMessages() {
       console.log(this.user.id)
-      axios.post("/api/management/showUsers", {managerId: this.user.id})
+      axios.post("/api/management/showTeachers", {managerId: this.user.id})
           .then((response) => {
             console.log(response)
             if (response.data.errcode === 1) {

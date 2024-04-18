@@ -114,6 +114,16 @@ const router = new VueRouter({
       component: () => import('../views/manager/assistant_authority.vue')
     },
     {
+      path: '/manager/assistantMessages',
+      name: 'assistMessages',
+      component: () => import('../views/manager/assistant_messages.vue')
+    },
+      {
+      path: '/manager/teacherMessages',
+      name: 'teacherMessages',
+      component: () => import('../views/manager/teacher_messages.vue')
+    },
+    {
       path: '/hidden/corner',
       name: 'hidden corner',
       component: () => import('../views/dev/hidden_corner.vue')
