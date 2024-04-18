@@ -318,6 +318,18 @@
           >
           <v-list-item-title>用户权限管理</v-list-item-title>
         </v-list-item>
+        <v-list-item link to="/manager/assistantAuthority" v-if="user.auth === 3">
+          <v-list-item-icon><v-icon>mdi-mouse</v-icon></v-list-item-icon>
+          <v-list-item-title>助教权限管理</v-list-item-title>
+        </v-list-item>
+        <v-list-item link to="/manager/assistantMessages" v-else>
+          <v-list-item-icon><v-icon>mdi-mouse</v-icon></v-list-item-icon>
+          <v-list-item-title>查看助教</v-list-item-title>
+        </v-list-item>
+        <v-list-item link to="/manager/teacherMessages">
+          <v-list-item-icon><v-icon>mdi-group</v-icon></v-list-item-icon>
+          <v-list-item-title>查看教师</v-list-item-title>
+        </v-list-item>
       </v-list>
 <!--        <v-list>-->
 <!--        <v-list-item-group v-if="user.status === 'C'">-->
@@ -345,6 +357,7 @@
 <!--          </v-list-item>-->
 <!--        </v-list-item-group>-->
 <!--      </v-list>-->
+
     </v-navigation-drawer>
     <el-dialog title="创建项目"
                :visible.sync="setupDialog"

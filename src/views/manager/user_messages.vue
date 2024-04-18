@@ -44,7 +44,7 @@
                 <v-icon>mdi-link-variant</v-icon>
               </v-btn>
             </template>
-            <span>以该用户视角进入用户端</span>
+            <span>用该账号进入系统</span>
           </v-tooltip>
         </template>
       </v-data-table>
@@ -137,7 +137,7 @@ export default {
         // },
 
         {
-          text: '用户端',
+          text: '管理',
           sortable: false,
           value: 'userProject'
         },

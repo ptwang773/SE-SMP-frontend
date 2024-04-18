@@ -329,7 +329,7 @@ export default {
       })
         .then(() => {
           this.$message({
-            type: "success",
+            type: "warning",
             message: "项目已恢复进行!",
           });
           modifyProjectStatus({
