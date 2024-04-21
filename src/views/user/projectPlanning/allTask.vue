@@ -668,7 +668,7 @@
         </v-select>
         <p style="top:5%">标签</p>
         <v-select
-            v-model="newSonForm.subTaskLabel"
+            v-model="editSonForm.subTaskLabel"
             :items="labelList"
         >
           <template v-slot:item="{ item }">
@@ -1295,6 +1295,7 @@ export default {
       this.editSonForm.managerName = this.personNameList[this.personIdList.indexOf(item.managerId)];
       this.editSonForm.fatherTaskId = task.taskId;
       this.editSonForm.subTaskId = item.subTaskId;
+      this.editSonForm.subTaskLabel = item.subTaskLabel;
       this.editTask = true;
     },
     handleComplete() {
@@ -1374,6 +1375,7 @@ export default {
         deadline: this.editSonForm.endTime,
         contribute: this.editSonForm.contribute,
         taskName: this.editSonForm.name,
+        label: this.editSonForm.subTaskLabel,
         managerId: this.personIdList[this.personNameList.indexOf(this.editSonForm.managerName)]
       }).then(
           res => {
