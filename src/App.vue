@@ -216,9 +216,16 @@
         <v-list-item-avatar>
           <v-icon :color="getDarkColor(user.topic)">mdi-align-vertical-bottom</v-icon>
         </v-list-item-avatar>
-
         <v-list-item-content>
           <v-list-item-title>图表展示</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+         <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/userAuth'" v-if="this.user.id === this.proj.managerId">
+        <v-list-item-avatar>
+          <v-icon :color="getDarkColor(user.topic)">mdi-account-lock-open</v-icon>
+        </v-list-item-avatar>
+        <v-list-item-content>
+          <v-list-item-title>权限管理</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
@@ -260,7 +267,7 @@
             <v-list-item-title>团队数据库</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-      <v-subheader inset style="color: white; font-size: large; margin-left: 0px; padding-top: 0; background-color: black">沟通</v-subheader>
+      <v-subheader inset style="color: white; font-size: large; margin-left: 0; padding-top: 0; background-color: black">沟通</v-subheader>
           <v-dialog
           width="1300"
           v-model="dialog"
@@ -435,7 +442,7 @@ import AllFile from "@/views/user/document/allFile.vue"
 import getIdenticon from "@/utils/identicon";
 import topicSetting from "@/utils/topic-setting";
 // import allTask from "@/views/user/projectPlanning/allTask"
-
+console.log("11111111adadadsdas");
 let user = Cookies.get("user");
 let proj;
 console.log(user);

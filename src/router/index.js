@@ -32,6 +32,10 @@ const router = new VueRouter({
       component: () => import('../views/user/projectPlanning/picture.vue')
     },
     {
+      path: '/userAuth',
+      component: () => import('../views/user/projectPlanning/userAuth.vue')
+    },
+    {
       path:'/plan',
       component: () => import('../views/user/projectPlanning/allProject.vue')
     },

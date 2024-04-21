@@ -263,7 +263,6 @@ export default {
         res => {
           console.log(res);
           this.personData = res['data']['data'];
-          this.updateP
         }
       );
     },
@@ -368,20 +367,20 @@ export default {
       );
     },
     getColor(role) {
-      if (role == 'A') {
+      if (role === 'A') {
         return 'orange';
-      } else if (role == 'B') {
+      } else if (role === 'B') {
         return 'green';
       } else {
         return 'blue';
       }
     },
     classify(role) {
-      if (role == 'A') {
+      if (role === 'A') {
         return '开发人员'
-      } else if (role == 'B') {
+      } else if (role === 'B') {
         return '管理员'
-      } else if (role == 'C') {
+      } else if (role === 'C') {
         return '负责人'
       }
     },
