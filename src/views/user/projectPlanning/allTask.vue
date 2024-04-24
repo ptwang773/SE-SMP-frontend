@@ -81,19 +81,39 @@
                 <div>
                   <v-card-title :style="getLinearGradient(user.topic)">
                     <v-icon>mdi-apps</v-icon>
-                    <h4>{{ task.taskName }}</h4>
-                    <v-icon size="" @click="changeTaskName(task)"
-                    >mdi-pencil
-                    </v-icon>
-                    <v-icon @click="addNewReview(task)"
-                    >mdi-comment-outline
-                    </v-icon>
-                    <v-icon size="" @click="upTask(task)"
-                    >mdi-arrow-up-thin
-                    </v-icon>
-                    <v-icon size="" @click="downTask(task)"
-                    >mdi-arrow-down-thin
-                    </v-icon>
+                    <h4 style="margin-right: 5px">{{ task.taskName }}</h4>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn icon small v-on="on" @click="changeTaskName(task)">
+                          <v-icon>mdi-pencil</v-icon>
+                        </v-btn>
+                      </template>
+                      <span>修改任务名称</span>
+                    </v-tooltip>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn icon small v-on="on" @click="addNewReview(task)">
+                          <v-icon>mdi-comment-outline</v-icon>
+                        </v-btn>
+                      </template>
+                      <span>评论</span>
+                    </v-tooltip>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn icon small v-on="on" @click="upTask(task)">
+                          <v-icon>mdi-arrow-up-thin</v-icon>
+                        </v-btn>
+                      </template>
+                      <span>上移</span>
+                    </v-tooltip>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn icon small v-on="on" @click="downTask(task)">
+                          <v-icon>mdi-arrow-down-thin</v-icon>
+                        </v-btn>
+                      </template>
+                      <span>下移</span>
+                    </v-tooltip>
                   </v-card-title>
                 </div>
                 <!-- <v-switch
@@ -214,28 +234,36 @@
                       type="number"
                       label="Less than"
                     ></v-text-field> -->
-                    <v-icon
-                        large
-                        class="mr-2"
-                        @click="setupNewSon(task)"
-                        style="position:absolute;left:1%;bottom:4%;"
-                    >
-                      mdi-plus-box
-                    </v-icon>
-                    <v-icon
-                        large
-                        style="position: absolute;left: 4%;bottom: 4%;"
-                        @click="deleteTask(task)"
-                    >
-                      mdi-delete
-                    </v-icon>
-                    <v-icon
-                        large
-                        style="position: absolute;left: 7%;bottom: 4%;"
-                        @click="toggleReviews(task)"
-                    >
-                      mdi-information
-                    </v-icon>
+                    <div style="position: absolute; left: 1%; bottom: 4%">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn icon v-on="on" @click="setupNewSon(task)">
+                            <v-icon large>mdi-plus-box</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>添加子任务</span>
+                      </v-tooltip>
+                    </div>
+                    <div style="position: absolute; left: 4%; bottom: 4%">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn icon v-on="on" @click="deleteTask(task)">
+                            <v-icon large>mdi-delete</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>删除任务</span>
+                      </v-tooltip>
+                    </div>
+                    <div style="position: absolute; left: 7%; bottom: 4%">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn icon v-on="on" @click="toggleReviews(task)">
+                            <v-icon large>mdi-information</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>显示评论</span>
+                      </v-tooltip>
+                    </div>
                   </template>
                 </v-data-table>
               </v-card>
