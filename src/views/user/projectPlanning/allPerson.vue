@@ -116,7 +116,7 @@
   </template>
   <template v-slot:[`item.change`] ="{item}">
      <v-btn v-if="item.peopleJob != 'C'" depressed @click="handleChange(item)">
-      更改角色 
+      更改角色
     </v-btn>
   </template>
 </v-data-table>
@@ -136,13 +136,13 @@
   <el-button @click="cancelSetupPerson">取 消</el-button>
   <el-button type="primary" @click="setupPerson">确 定</el-button>
 </span>
-</el-dialog> 
+</el-dialog>
 
 <el-dialog
       :visible.sync="changeDialog"
        width="40%"
        height="30"
-
+      :before-close="cancelChangeRole"
       style="position:relative">
       <template v-slot:title>
         <div>请选择你要为该成员分配的<strong>角色</strong></div>
@@ -158,12 +158,17 @@
           <div><strong class="orange--text">开发人员</strong></div>
         </template>
       </v-radio>
+      <v-radio value="审核人员">
+        <template v-slot:label>
+          <div><strong class="purple--text">审核人员</strong></div>
+        </template>
+      </v-radio>
     </v-radio-group>
     <span slot="footer" class="dialog-footer">
-    <el-button @click="changeDialog = false">取 消</el-button>
+    <el-button @click="cancelChangeRole">取 消</el-button>
     <el-button type="primary" @click="changeRole">确 定</el-button>
   </span>
-</el-dialog>    
+</el-dialog>
 </div>
 </template>
 
@@ -185,7 +190,7 @@ export default {
     } else {
     this.getPersonList();
     }
-  },   
+  },
   inject: {'user': {defualt: null},
                'selectedProj': {defualt: null},
          },
@@ -214,7 +219,7 @@ export default {
     //     "role": '开发人员'
     //   },
     // {
-    //   "icon": '', 
+    //   "icon": '',
     //   "name": '罗本',
     //   'role': '负责人'
     // }],
@@ -239,7 +244,7 @@ export default {
           let errcode = res['data']['errcode'];
           if (errcode === 1) {
             this.$message({
-              type: 'error', 
+              type: 'error',
               message: "您没有权限查看！"
             })
           } else {
@@ -300,7 +305,7 @@ export default {
         this.$message({
           type: 'info',
           message: '已取消移除'
-        });          
+        });
       });
     },
     setupPerson() {
@@ -344,11 +349,13 @@ export default {
         });
         return;
       }
-      if (this.changeRoleForm.role == '开发人员') {
+      if (this.changeRoleForm.role === '开发人员') {
         this.changeRoleForm.role = 'A';
-      } else if (this.changeRoleForm.role == '管理员') {
+      } else if (this.changeRoleForm.role === '管理员') {
         this.changeRoleForm.role = 'B';
-      } 
+      } else if (this.changeRoleForm.role === '审核人员') {
+        this.changeRoleForm.role = 'D';
+      }
       console.log(this.changeRoleForm);
       modifyRole({projectId: this.selectedProj.projectId, userId: this.user.id, role: this.changeRoleForm.role, personId: this.changeRoleForm.id}).then(
         res => {
@@ -366,13 +373,18 @@ export default {
         }
       );
     },
+    cancelChangeRole() {
+      this.changeDialog = false
+    },
     getColor(role) {
       if (role === 'A') {
         return 'orange';
       } else if (role === 'B') {
         return 'green';
-      } else {
+      } else if (role === 'C') {
         return 'blue';
+      } else if (role === 'D') {
+        return 'purple';
       }
     },
     classify(role) {
@@ -382,6 +394,8 @@ export default {
         return '管理员'
       } else if (role === 'C') {
         return '负责人'
+      } else if (role === 'D') {
+        return '审核人员'
       }
     },
     getTopicColor: topicSetting.getColor
@@ -393,16 +407,16 @@ export default {
 <style scoped>
   .one {
       height: 10%;
-      position: relative;    
+      position: relative;
   }
   .two {
-      height: 10%;    
+      height: 10%;
   }
   .three {
       position: absolute;
       left:5%;
       right: 5%;
-      height: 80%;    
+      height: 80%;
   }
   .xiangmu {
       position: absolute;
