@@ -304,8 +304,10 @@ export default {
         return 'orange';
       } else if (role === 'B') {
         return 'green';
-      } else {
+      } else if (role === 'C') {
         return 'blue';
+      } else if (role === 'D') {
+        return 'purple';
       }
     },
     transform(role) {
@@ -315,6 +317,8 @@ export default {
         return '管理员'
       } else if (role === 'C') {
         return '负责人'
+      } else if (role === 'D') {
+        return '审核人员'
       }
     },
     authColor(auth) {

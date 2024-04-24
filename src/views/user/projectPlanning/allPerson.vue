@@ -143,7 +143,7 @@
        width="40%"
        height="30"
       :before-close="cancelChangeRole"
-      style="position:relative">
+      >
       <template v-slot:title>
         <div>请选择你要为该成员分配的<strong>角色</strong></div>
       </template>
