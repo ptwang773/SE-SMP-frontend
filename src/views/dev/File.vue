@@ -236,7 +236,7 @@ export default {
           var files = [];
           for(var i = 0; i < this.commitForm.editList.length; i++) {
             if(this.commitForm.editList[i].isCommit) {
-              var file = {path:this.commitForm.editList[i].path, content:this.commitForm.editList[i].content};
+              var file = {path:this.commitForm.editList[i].path.slice(1), content:this.commitForm.editList[i].content};
               files.push(file);
             }
           }
