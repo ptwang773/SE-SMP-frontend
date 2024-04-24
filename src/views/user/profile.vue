@@ -16,23 +16,20 @@
                     color="indigo"
                     size="100"
                 >
-                  <!--                <span class="white&#45;&#45;text text-h5"> {{ showedUserName }} </span>-->
                   <v-img :src="getIdenticon(this.user.name, 100, 'user')"></v-img>
                 </v-avatar>
-                <!--
-                <v-avatar size="100">
-                  <img :src="userInfo.avatar" alt="avatar">
-                </v-avatar>
-                -->
                 <strong class="d-block"> {{ userInfo.username }} </strong>
               </v-col>
               <v-col cols="8">
-                <v-text-field label="用户名" v-model="userInfo.username" :rules="editRules.username" outlined dense></v-text-field>
-                <v-text-field label="邮箱" v-model="userInfo.email" :rules="editRules.email" outlined dense></v-text-field>
+                <v-text-field label="用户名" v-model="userInfo.username" :rules="editRules.username" outlined
+                              dense></v-text-field>
+                <v-text-field label="邮箱" v-model="userInfo.email" :rules="editRules.email" outlined
+                              dense></v-text-field>
               </v-col>
             </v-row>
             <v-card-actions>
               <v-spacer></v-spacer>
+              <v-btn color="red" text @click="openModifyTokenDialog">修改token</v-btn>
               <v-btn color="red" text @click="openChangePasswordDialog">修改密码</v-btn>
               <v-btn color="primary" text :disabled="!editValid()" @click="save">保存</v-btn>
               <v-btn color="primary" text @click="back">返回</v-btn>
@@ -49,16 +46,37 @@
             <v-divider></v-divider>
             <v-card-text>
               <v-row>
-                <v-col cols="4"><div class="input-label">原密码：</div></v-col>
-                <v-col cols="8"><div class="input-field"><v-text-field v-model="oldPassword" :rules="registerRules.user_oldPassword" outlined dense type="password"></v-text-field></div></v-col>
+                <v-col cols="4">
+                  <div class="input-label">原密码：</div>
+                </v-col>
+                <v-col cols="8">
+                  <div class="input-field">
+                    <v-text-field v-model="oldPassword" :rules="registerRules.user_oldPassword" outlined dense
+                                  type="password"></v-text-field>
+                  </div>
+                </v-col>
               </v-row>
               <v-row>
-                <v-col cols="4"><div class="input-label">新密码：</div></v-col>
-                <v-col cols="8"><div class="input-field"><v-text-field v-model="newPassword" :rules="registerRules.user_newPassword" outlined dense type="password"></v-text-field></div></v-col>
+                <v-col cols="4">
+                  <div class="input-label">新密码：</div>
+                </v-col>
+                <v-col cols="8">
+                  <div class="input-field">
+                    <v-text-field v-model="newPassword" :rules="registerRules.user_newPassword" outlined dense
+                                  type="password"></v-text-field>
+                  </div>
+                </v-col>
               </v-row>
               <v-row>
-                <v-col cols="4"><div class="input-label">确认新密码：</div></v-col>
-                <v-col cols="8"><div class="input-field"><v-text-field v-model="confirmNewPassword" :rules="registerRules.user_confirmNewPassword" outlined dense type="password"></v-text-field></div></v-col>
+                <v-col cols="4">
+                  <div class="input-label">确认新密码：</div>
+                </v-col>
+                <v-col cols="8">
+                  <div class="input-field">
+                    <v-text-field v-model="confirmNewPassword" :rules="registerRules.user_confirmNewPassword" outlined
+                                  dense type="password"></v-text-field>
+                  </div>
+                </v-col>
               </v-row>
             </v-card-text>
             <v-card-actions>
@@ -70,6 +88,21 @@
         </v-container>
       </template>
     </v-dialog>
+    <el-dialog
+        title="修改token"
+        :visible.sync="showModifyToken"
+        width="50%"
+        :before-close="cancelModifyToken">
+      <el-form label-position="lab" label-iwdth="80px" ref="newReviewForm">
+        <el-form-item label="token">
+          <el-input type="textarea" :rows="3" v-model="token"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="cancelModifyToken">取 消</el-button>
+        <el-button type="primary" @click="modifyToken">确 定</el-button>
+      </span>
+    </el-dialog>
   </v-container>
 </template>
 
@@ -84,7 +117,7 @@ import topicSetting from '@/utils/topic-setting.js'
 export default {
   name: "profile",
   inject: {
-    user: { default: null },
+    user: {default: null},
     reload: {default: null},
     updateUser: {default: null},
   },
@@ -111,6 +144,8 @@ export default {
       },
       // 修改密码对话框的显示
       showChangePassword: false,
+      //
+      showModifyToken: false,
       // 修改密码相关变量
       oldPassword: '',
       newPassword: '',
@@ -132,6 +167,7 @@ export default {
           },
         ],
       },
+      token: '',
     };
   },
   created() {
@@ -277,11 +313,43 @@ export default {
             console.log(error)
           })
     },
+    async modifyToken() {
+      if (!util.trim(this.token)) {
+        this.$message.error('token不能为空！')
+        return;
+      }
+      axios.post('/api/modifyToken', {
+        userId: this.user.id,
+        token: this.token
+      }).then((response) => {
+        if (response.data.errcode === 0) {
+          this.$message.success(response.data.message)
+        }
+      })
+      this.showModifyToken = false
+      this.token = ''
+    },
+    cancelModifyToken() {
+      this.showModifyToken = false
+      this.token = ''
+    },
     openChangePasswordDialog() {
       this.oldPassword = ''
       this.newPassword = ''
       this.confirmNewPassword = ''
       this.showChangePassword = true;
+    },
+    openModifyTokenDialog() {
+      this.showModifyToken = true;
+      axios.post('/api/checkToken', {
+        userId: this.user.id
+      }).then((response) => {
+        if (response.data.data.flag === 0) {
+          this.$message.info('you have not set token yet')
+        } else {
+          this.$message.info('you have already set token')
+        }
+      })
     },
     closeChangePasswordDialog() {
       this.showChangePassword = false;
@@ -290,7 +358,7 @@ export default {
       this.confirmNewPassword = ''
     },
     back() {
-      
+
       this.$router.go(-1);
     },
     getRadialGradient: topicSetting.getRadialGradient,
@@ -306,9 +374,11 @@ export default {
 .v-card-actions {
   margin-top: 8px;
 }
+
 .v-card-text {
   margin-top: 24px !important;
 }
+
 .input-label {
   display: flex;
   align-items: center;
@@ -316,11 +386,13 @@ export default {
   height: 48px;
   font-size: 16px;
 }
+
 .input-field {
   display: flex;
   align-items: center;
   height: 48px;
 }
+
 /*
 .input-row {
   display: flex;
