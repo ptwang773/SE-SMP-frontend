@@ -99,7 +99,7 @@
 <!--                  <v-card min-height="1000px">-->
 <!--                    <v-card-title>文件列表</v-card-title>-->
 <!--                    <v-card-text>-->
-                      <FileView></FileView>
+                      <FileView/>
 <!--                    </v-card-text>-->
 <!--                  </v-card>-->
 <!--                </v-col>-->
@@ -120,13 +120,15 @@ import axios from "axios";
 import * as echarts from 'echarts';
 
 import FileView from './File.vue'
+import test from './test.vue'
 import {computed} from "vue";
 import topicSetting from "@/utils/topic-setting";
 
 export default {
     name: "Branch",
     components: {
-        FileView
+        FileView,
+        test
     },
     data() {
         return {
