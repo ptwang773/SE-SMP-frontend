@@ -2,6 +2,9 @@
 import axios from "axios";
 import Cookies from 'js-cookie'
 import * as CodeMirror from 'codemirror/lib/codemirror.js'
+import 'codemirror/theme/idea.css'
+import 'codemirror/theme/eclipse.css'
+import 'codemirror/theme/material.css'
 import "@/utils/cm-settings.js"
 import topicSetting from "@/utils/topic-setting";
 import {downloadStrAsFile} from "@/utils/file-system";
@@ -25,12 +28,13 @@ export default {
             items: [],
             cmEditor: null,
             sheet: false,
-            fileContent: '选择一个文件以查看其内容\n\n选择文件后，可以点击右上角”代码助手“，使用JiHub进行AI代码诊断、生成单元测试、下载文件',
+            fileContent: '选择一个文件以查看其内容',
             selectedText: '',
             fileTreeReady: false,
             fileContentReady: false,
 
             
+            curType:'',
             curFilePath:'',
             curFileName:'',
             nextFilePath:'',
@@ -43,6 +47,7 @@ export default {
             newBranch: '',
             isNewBranch:false,
             editList:[],
+            subDisable: false
             }
 
         }
@@ -69,11 +74,11 @@ export default {
             }
         },
         file2style() {
-          if (this.tree.length === 0) {
+          if (this.curType === '') {
             return 'null'
           }
 
-          let file = this.tree[0]['file']
+          let file = this.curType;
           if (file === 'html') {
             return 'htmlmixed'
           } else if (file === 'js') {
@@ -163,6 +168,10 @@ export default {
         },
 
         tabClick() {
+          if(this.treeDisable) {
+            this.nextFilePath = this.curFilePath;
+            return;
+          }
           if(this.nextFilePath == this.curFilePath) {
             return;
           }
@@ -180,12 +189,17 @@ export default {
               if(this.filePathList[i].path == this.nextFilePath){
                 this.curFilePath = this.filePathList[i].path;
                 this.fileContent = this.filePathList[i].changed ? this.filePathList[i].newContent : this.filePathList[i].content;
+                this.curType = this.filePathList[now].file;
                 this.cmEditor.setValue(this.fileContent);
                 this.cmEditor.setOption('mode', this.file2style());
               }
             }
         },
         tabRemove() {
+          if(this.treeDisable) {
+            this.nextFilePath = this.curFilePath;
+            return;
+          }
           for(var i = 0; i < this.filePathList.length; i++) {
               if(this.filePathList[i].path == this.nextFilePath){
                 if(this.filePathList[i].content != this.cmEditor.getValue()) {
@@ -198,13 +212,16 @@ export default {
             }
           if(this.filePathList.length == 0){
             this.curFilePath = '';
-            this.fileContent = '选择一个文件以查看其内容\n\n选择文件后，可以点击右上角”代码助手“，使用JiHub进行AI代码诊断、生成单元测试、下载文件';
+            this.fileContent =  '选择一个文件以查看其内容';
+            this.cmEditor.setValue(this.fileContent);
             this.cmEditor.setOption('mode', '');
+
           }else {
             var now = this.filePathList.length - 1;
             this.fileContent = this.filePathList[now].changed ? this.filePathList[now].newContent : this.filePathList[now].content;
             this.curFilePath = this.filePathList[now].path;
             this.nextFilePath = this.curFilePath;
+            this.curType = this.filePathList[now].file;
             this.cmEditor.setValue(this.fileContent);
             this.cmEditor.setOption('mode', this.file2style());
           }
@@ -222,10 +239,22 @@ export default {
               this.commitForm.editList.push(editFile);
             }
           }
+          if(this.commitForm.editList.length == 0) {
+            this.$message({
+              message: '当前修改任何文件',
+              type: 'warning'
+          });
+          return;
+          }
           this.commitVisible = true;
         },
         cancelEdit() {
           for(var i = 0; i < this.filePathList.length; i++) {
+            if(this.filePathList[i].path == this.curFilePath) {
+              this.fileContent = this.filePathList[i].content;
+              this.cmEditor.setValue(this.fileContent);
+              this.cmEditor.setOption('mode', this.file2style());
+            }
             if(this.filePathList[i].changed == true) {
               this.filePathList[i].changed = false;
               this.tabClick();
@@ -233,6 +262,7 @@ export default {
           }
         },
         submitForm() {
+          this.subDisable = true;
           var files = [];
           for(var i = 0; i < this.commitForm.editList.length; i++) {
             if(this.commitForm.editList[i].isCommit) {
@@ -241,6 +271,7 @@ export default {
             }
           }
           if(files.length === 0) {
+            this.subDisable = true;
             this.$message({
               message: '请重新选择commit文件，当前未选中任何文件',
               type: 'warning'
@@ -273,6 +304,7 @@ export default {
             console.log(err);
         }).finally(() => {
             this.commitVisible = false;
+            this.submitForm = true;
             this.commitForm.editList = [];
         })
 
@@ -309,10 +341,10 @@ export default {
     },
     watch: {
         tree() {
-            this.treeDisable = true;
             console.log('selected file change!')
             console.log(this.tree);
             if (this.tree[0]['file'] !== undefined) {
+              this.treeDisable = true;
               if(this.curFilePath === this.tree[0]['path']) {
                 this.treeDisable = false;
                 return;
@@ -332,6 +364,7 @@ export default {
                     this.curFilePath = this.tree[0]['path'];
                     this.nextFilePath = this.tree[0]['path'];
                     this.curFileName = this.tree[0]['name'];
+                    this.curType = this.tree[0]['file'];
                     this.fileContent = this.fileContent = this.filePathList[i].changed ? this.filePathList[i].newContent : this.filePathList[i].content;
                     this.cmEditor.setValue(this.fileContent)
                     this.cmEditor.setOption('mode', this.file2style())
@@ -340,7 +373,7 @@ export default {
                   }
                 }
                 this.fileContentReady = false;
-                this.cmEditor.setValue('正在努力拉取文件！\n\n选择文件后，可以点击右上角”代码助手“，使用JiHub进行AI代码诊断、生成单元测试、下载文件')
+                this.cmEditor.setValue('正在努力拉取文件！\n\n  ')
                 this.cmEditor.setOption('mode', '')
                 axios.post('/api/develop/getContent', {
                     userId: this.user.id,
@@ -357,6 +390,7 @@ export default {
                         this.nextFilePath = this.curFilePath;
                         this.curFileName = newFile.name;
                         this.fileContent = newFile.content;
+                        this.curType = newFile.file;
                         this.cmEditor.setValue(this.fileContent)
                         this.cmEditor.setOption('mode', this.file2style())
                     } else {
@@ -374,7 +408,7 @@ export default {
     },
     mounted() {
       this.cmEditor = CodeMirror.fromTextArea(this.$refs.cm1, {
-        theme: 'idea',
+        theme: 'material',
         lineNumbers: true,
         line: true,
         readOnly: false,
@@ -474,7 +508,7 @@ export default {
               </v-scroll-y-transition>
             </h2> -->
             <div class="tabs-menu" v-show="filePathList.length">
-                <el-tabs v-model="nextFilePath" type="card" @tab-click="tabClick" @tab-remove="tabRemove">
+                <el-tabs v-model="nextFilePath" type="card" @tab-click="tabClick" @tab-remove="tabRemove" >
                 <el-tab-pane v-for="item in filePathList" :key="item.path" :label="item.name" :name="item.path" :closable="true">
                 <template #label>
                     <v-icon :color="getTopicColor(user.topic)">
