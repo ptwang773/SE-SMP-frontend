@@ -361,10 +361,16 @@ export default {
         res => {
           console.log(res);
           var errorCode = res['data']['errcode'];
-          if (errorCode == 3) {
+          if (errorCode === 3) {
             this.$message({
-              type: 'info',
-              message: '您没有权限更改角色'});
+              type: 'error',
+              message: '您没有权限更改角色'
+            })
+          } else {
+            this.$message({
+              type: 'success',
+              message: '更改角色成功！'
+            })
           }
           this.getPersonList();
           this.changeDialog = false;

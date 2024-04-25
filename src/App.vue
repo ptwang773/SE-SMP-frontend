@@ -7,7 +7,6 @@
       <v-spacer></v-spacer>
 
 
-      <v-icon v-if="false" style="right: 1%">mdi-bell</v-icon>
       <v-icon v-if="existUser()" @click="checkClock">mdi-clock-outline</v-icon>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
@@ -229,7 +228,7 @@
         </v-list-item-content>
       </v-list-item>
 
-      <v-subheader inset style="color: white; font-size: large; margin-left: 0px; padding-top: 0; background-color: black">开发</v-subheader>
+      <v-subheader inset style="color: white; font-size: large; margin-left: 0; padding-top: 0; background-color: black">开发</v-subheader>
       <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/dev'">
         <v-list-item-avatar>
           <v-icon :color="getDarkColor(user.topic)">mdi-align-vertical-center</v-icon>
@@ -237,6 +236,15 @@
 
         <v-list-item-content>
           <v-list-item-title>代码</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+        <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/codeReview'" >
+        <v-list-item-avatar>
+          <v-icon :color="getDarkColor(user.topic)">mdi-account-edit</v-icon>
+        </v-list-item-avatar>
+
+        <v-list-item-content>
+          <v-list-item-title>代码评审</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
       <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/user/ai/diagnosis'">
@@ -248,6 +256,7 @@
           <v-list-item-title>代码诊断</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
+
         <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/user/ai/testdata'">
           <v-list-item-avatar>
             <v-icon :color="getDarkColor(user.topic)">mdi-palette-outline</v-icon>
