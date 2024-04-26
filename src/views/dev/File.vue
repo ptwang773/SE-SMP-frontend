@@ -189,7 +189,7 @@ export default {
               if(this.filePathList[i].path == this.nextFilePath){
                 this.curFilePath = this.filePathList[i].path;
                 this.fileContent = this.filePathList[i].changed ? this.filePathList[i].newContent : this.filePathList[i].content;
-                this.curType = this.filePathList[now].file;
+                this.curType = this.filePathList[i].file;
                 this.cmEditor.setValue(this.fileContent);
                 this.cmEditor.setOption('mode', this.file2style());
               }
@@ -271,14 +271,14 @@ export default {
             }
           }
           if(files.length === 0) {
-            this.subDisable = true;
+            this.subDisable = false;
             this.$message({
               message: '请重新选择commit文件，当前未选中任何文件',
               type: 'warning'
           });
           return;
           }
-          var api = this.submitForm.isNewBranch ? '/api/develop/gitBranch/' : '/api/develop/gitCommit'
+          var api = this.commitForm.isNewBranch ? '/api/develop/gitBranch/' : '/api/develop/gitCommit'
           axios.post(api, {
             userId: this.user.id,
             projectId: this.proj.projectId,
@@ -304,7 +304,7 @@ export default {
             console.log(err);
         }).finally(() => {
             this.commitVisible = false;
-            this.submitForm = true;
+            this.subDisable = false;
             this.commitForm.editList = [];
         })
 
