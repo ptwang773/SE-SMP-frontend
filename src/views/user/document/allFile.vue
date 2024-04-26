@@ -48,7 +48,6 @@
       </template>
       <template v-slot:expanded-item="{ headers, item }">
         {{ item.outline}}
-      </td>
     </template>
       <template v-slot:no-data>
         <div></div>
@@ -508,7 +507,6 @@ import Cookies from "js-cookie"
       dialog3: false,
       value: '',
       tab: '',
-      search: '',
       searchNot: '',
       isCollectArr: [],
       item: [],

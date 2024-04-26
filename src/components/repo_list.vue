@@ -65,7 +65,7 @@ export default {
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
                         <div class="description" v-if="repo.intro !== ''">{{ repo.intro }}</div>
-                        <div class="description" v-else>存储库的简介空空如也呢</div>
+                        <div class="description" v-else>存储库的简介空空如也</div>
                   <br>
                   <v-row>
                     <v-col cols="6"  class="text-center"><v-btn :color="getTopicColor(user.topic)" link :href="'https://github.com/' + repo.user + '/' + repo.repo" target="_blank"><v-icon>mdi-github</v-icon>GitHub</v-btn></v-col>
