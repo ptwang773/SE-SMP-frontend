@@ -47,41 +47,8 @@ export default {
               this.$router.go(-1)
             } else {
               this.commitDetails = response.data.commit
-              this.getCommitDetailBusy = false
               this.comments = response.data.commit.comments
               this.fileChanges = response.data.commit.files
-              console.log(this.commitDetails)
-              console.log(this.fileChanges)
-              for (let i = 0; i < this.fileChanges.length; i++) {
-                const diff = this.fileChanges.at(i).patch
-                const file = parseDiff(diff)
-                let filename = this.fileChanges[i].filename
-                this.files.push({filename: filename, details: file[0].chunks[0]})
-                console.log(this.files)
-              }
-              for (let i = 0; i < this.files.length; i++) {
-                const length = this.files[i].details.changes.length
-                let lineCounter = 1
-                for (let j = 0; j < length; j++) {
-                  while (lineCounter < this.files[i].details.changes[j].ln1) {
-                    this.oldFile += '\n'
-                    this.newFile += '\n'
-                    lineCounter++
-                  }
-                  lineCounter += 2
-                  if (this.files[i].details.changes[j].type === 'normal') {
-                    this.oldFile += this.files[i].details.changes[j].content + '\n'
-                    this.newFile += this.files[i].details.changes[j].content + '\n'
-                  } else if (this.files[i].details.changes[j].type === 'del') {
-                    this.oldFile += this.files[i].details.changes[j].content.slice(1) + '\n'
-                  } else if (this.files[i].details.changes[j].type === 'add' && this.files[i].details.changes[j].content.slice(1) !==  " No newline at end of file") {
-                    this.newFile += this.files[i].details.changes[j].content.slice(1) + '\n'
-                  }
-                }
-                this.fileDiff.push({filename: this.files[i].filename, diff: {old: this.oldFile, new: this.newFile}})
-                this.oldFile = ''
-                this.newFile = ''
-              }
             }
           })
 
@@ -99,7 +66,7 @@ export default {
               this.isProjectReviewer = response.data.flag === 1
             }
           })
-
+      this.getCommitDetailBusy = false
     },
     data() {
       return {
@@ -233,15 +200,13 @@ export default {
         }
       },
       getIdenticon,
-      highlighter(code) {
-        return highlight(code, languages.js);
-      }
   }
 }
 </script>
 
 <template>
-  <div style="margin: 15px">
+  <div v-if="getCommitDetailBusy" v-loading="getCommitDetailBusy"></div>
+  <div style="margin: 15px" v-else>
     <el-page-header @back="goBack" content="评审" style="margin-top: 40px"></el-page-header>
     <h1 style="margin-top: 20px; margin-left: 20px">Commit</h1>
     <div style="margin-bottom: 10px; margin-left: 20px; display: inline-block">
@@ -285,10 +250,10 @@ export default {
 <!--        :readonly="readonlyType"-->
 <!--    ></prism-editor>-->
     <template>
-      <div v-for="item in fileDiff" :key="item.filename" style="white-space: pre;">
+      <div v-for="item in fileChanges" :key="item.filename" style="white-space: pre;">
       <code-diff
-      :old-string="item.diff.old"
-      :new-string="item.diff.new"
+      :old-string="item.prev_file"
+      :new-string="item.now_file"
       :context="3"
       :filename="item.filename"
       output-format="line-by-line"/></div>
