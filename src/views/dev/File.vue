@@ -241,7 +241,7 @@ export default {
           }
           if(this.commitForm.editList.length == 0) {
             this.$message({
-              message: '当前修改任何文件',
+              message: '当前未修改任何文件',
               type: 'warning'
           });
           return;
