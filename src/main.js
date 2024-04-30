@@ -14,7 +14,6 @@ import '@babel/polyfill'
 import AllTask from "@/views/user/projectPlanning/allTask.vue"
 import AllFile from "@/views/user/document/allFile.vue"
 
-import VueBreadcrumbs from 'vue-breadcrumbs'
 import mavonEditor from "mavon-editor"
 import VueMarkdownEditor from '@kangc/v-md-editor'
 import createKatexPlugin from '@kangc/v-md-editor/lib/plugins/katex/cdn.js';
