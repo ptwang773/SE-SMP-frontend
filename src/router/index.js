@@ -79,15 +79,19 @@ const router = new VueRouter({
       component: () => import('../views/dev/Branch.vue')
     },
     {
-      path: '/codeReview',
-      name: '代码审查',
-      component: () => import('../views/user/develop/codeReview.vue'),
-      meta: {keepAlive: true}
+      path: '/commitReview',
+      name: 'commit审查',
+      component: () => import('../views/user/develop/commitReview.vue'),
     },
     {
-      path: '/codeReview/:projid/:repoid/:branchname/:commitid+',
+      path: '/commitReview/:projid/:repoid/:branchname/:commitid+',
       name: 'commit详情',
       component: () => import('../views/user/develop/Commit.vue')
+    },
+    {
+      path: '/prReview',
+      name: 'pr审查',
+      component: () => import('../views/user/develop/commitReview.vue'),
     },
     {
       path: '/profile',

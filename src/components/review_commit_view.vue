@@ -68,7 +68,7 @@ export default {
       reviewSelectedCommit(commit) {
         console.log(commit)
         this.$router.push({
-          path: '/codeReview/' + this.proj.id + '/' + this.selectedRepo.id + '/' + this.selectedBranch.name + '/' + commit.id,
+          path: '/commitReview/' + this.proj.id + '/' + this.selectedRepo.id + '/' + this.selectedBranch.name + '/' + commit.id,
           query: {
             commit: commit,
             branchName: this.selectedBranch.name,

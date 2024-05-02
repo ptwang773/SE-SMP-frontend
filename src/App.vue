@@ -238,20 +238,45 @@
           <v-list-item-title>代码</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-        <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/codeReview'" >
-        <v-list-item-avatar>
-          <v-icon :color="getDarkColor(user.topic)">mdi-account-edit</v-icon>
-        </v-list-item-avatar>
 
-        <v-list-item-content>
-          <v-list-item-title>代码评审</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
+        <v-list-item-group>
+          <v-list-item :style="'color: ' + getDarkColor(user.topic)" @click="codeReviewExpanded = !codeReviewExpanded" class="parent-item">
+            <v-list-item-avatar>
+              <v-icon :color="getDarkColor(user.topic)">mdi-account-edit</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>代码评审</v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-icon>{{ codeReviewExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+            </v-list-item-action>
+          </v-list-item>
+          <v-expand-transition>
+            <div v-if="codeReviewExpanded" class="child-items">
+              <v-list-item link :to="'/commitReview'" style="padding-left: 40px">
+                <v-list-item-avatar>
+                  <v-icon :color="getDarkColor(user.topic)">mdi-check-circle-outline</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>Commit评审</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item link :to="'/prReview'" style="padding-left: 40px">
+                <v-list-item-avatar>
+                  <v-icon :color="getDarkColor(user.topic)">mdi-source-pull</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>PR评审</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </div>
+          </v-expand-transition>
+        </v-list-item-group>
+
       <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/user/ai/diagnosis'">
         <v-list-item-avatar>
           <v-icon :color="getDarkColor(user.topic)">mdi-atom-variant</v-icon>
         </v-list-item-avatar>
-
         <v-list-item-content>
           <v-list-item-title>代码诊断</v-list-item-title>
         </v-list-item-content>
@@ -261,21 +286,19 @@
           <v-list-item-avatar>
             <v-icon :color="getDarkColor(user.topic)">mdi-palette-outline</v-icon>
           </v-list-item-avatar>
-
           <v-list-item-content>
             <v-list-item-title>生成测试数据</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-
         <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/user/database'">
           <v-list-item-avatar>
             <v-icon :color="getDarkColor(user.topic)">mdi-database</v-icon>
           </v-list-item-avatar>
-
           <v-list-item-content>
             <v-list-item-title>团队数据库</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+
       <v-subheader inset style="color: white; font-size: large; margin-left: 0; padding-top: 0; background-color: black">沟通</v-subheader>
           <v-dialog
           width="1300"
@@ -574,7 +597,7 @@ export default {
       selectedItem: null,
       dialog: false,
       clockDialog: false,
-      editClockDialog: false, 
+      editClockDialog: false,
       form: {
         name: "",
         intro: "",
@@ -587,6 +610,7 @@ export default {
       noticeList: [],
       arr: [],
       whatisclicked: null,
+      codeReviewExpanded: false
     };
   },
   beforeUpdate() {
@@ -967,6 +991,23 @@ export default {
 #username {
   font-size: 1.2em;
   line-height: 1.2em;
+}
+
+.parent-item {
+  /* 添加一些样式，比如背景色或边框 */
+
+}
+
+/* 子级列表项的样式 */
+.child-items {
+  /* 可以根据需要指定子项的样式，比如缩进、边距等 */
+
+}
+
+/* 指定子级列表项中的标题样式 */
+.child-items v-list-item-title {
+  /* 添加子项标题的样式 */
+  font-weight: bold;
 }
 
 </style>

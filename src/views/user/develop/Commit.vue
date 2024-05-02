@@ -20,7 +20,6 @@ export default {
   inject: {
     user: {default: null},
     getCommitDetailBusy: {default: true},
-    comments: {default: null},
   },
   created() {
       this.user = Cookies.get('user')
@@ -77,6 +76,7 @@ export default {
         projId: '',
         repoId: '',
         commitDetails: '',
+        comments: [],
         textarea: '',
         isProjectReviewer: false,
         managerId: '',
@@ -87,8 +87,7 @@ export default {
         files: [],
         oldFile: '',
         newFile: '',
-        fileDiff: []
-
+        fileDiff: [],
       }
     },
   methods: {
@@ -156,10 +155,11 @@ export default {
         })
             .then(() => {
               this.comments.push({
+                commenterName: this.user.name,
                 comment: this.textarea,
-                reviewerName: this.user.name
+                commenterId: this.user.id,
+                commenterRole: this.user.role
               })
-              console.log(this.textarea)
               this.$message({
                 type: 'success',
                 message: '评论成功'
@@ -229,7 +229,7 @@ export default {
       <div style="font-size:0.4cm; margin-top:10px; padding-bottom: 10px">branch: <b>{{this.branchName}}</b></div>
       <div></div>
       <v-divider style="margin-bottom: 15px"></v-divider>
-      <b style="margin-top: 20px">{{this.commitMessage.committer}}</b> committed at {{this.commitMessage.time.slice(4,-5)}}
+      <b style="margin-top: 20px">{{this.commitMessage.committer}}</b> committed at {{this.commitMessage.time.slice(0,10) + " " + this.commitMessage.time.slice(11,-1)}}
       <div></div>
       <div style="display: inline-block; margin-top: 20px"
            v-if="this.isProjectReviewer === true && this.commitDetails.status === null && this.getCommitDetailBusy === false">

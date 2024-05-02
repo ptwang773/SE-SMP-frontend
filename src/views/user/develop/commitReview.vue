@@ -94,19 +94,7 @@ export default {
 <template>
   <keep-alive>
     <v-app>
-        <v-container v-if="selectedProj !== null">
-<!--            <v-row>-->
-<!--                <p>injected info:</p>-->
-<!--            </v-row>-->
-<!--            <v-row>-->
-<!--                <p>user = {{user}}</p>-->
-<!--            </v-row>-->
-<!--            <v-row>-->
-<!--                <p>selectedProj = {{selectedProj}}</p>-->
-<!--            </v-row>-->
-<!--            <v-row>-->
-<!--                <p>bindRepos = {{bindRepos}}</p>-->
-<!--            </v-row>-->
+        <v-container v-if="selectedProj !== null" style="margin-top: 30px">
             <v-row>
                 <h1>代码评审 - {{ selectedProj.projectName }}</h1>
             </v-row>
