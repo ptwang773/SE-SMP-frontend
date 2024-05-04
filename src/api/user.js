@@ -69,6 +69,10 @@ export const addMember = (data) => {
   return request.post("/api/plan/addMember", data);
 }
 
+export const showActivity = (data) => {
+  return request.post("/api/plan/showActivity", data);
+}
+
 export const showContribute = (data) => {
   return request.post("/api/plan/showContribute", data);
 }

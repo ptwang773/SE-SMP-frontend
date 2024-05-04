@@ -12,6 +12,10 @@ const router = new VueRouter({
   base: import.meta.env.BASE_URL,
   routes:[
     {
+      path: '/activityDetail',
+      component: () => import('../views/user/projectPlanning/activityDetail.vue')
+    },
+    {
       path: '/workDetail', 
       component: () => import('../views/user/projectPlanning/workDetail.vue')
     },
