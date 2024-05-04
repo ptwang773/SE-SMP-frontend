@@ -219,7 +219,7 @@
                         </v-list-item>
                         <v-list-item
                         >
-                          <v-btn text @click="switchAction('删除任务', item, task)">删除任务</v-btn>
+                          <v-btn text @click="switchAction('删除子任务', item, task)">删除子任务</v-btn>
                         </v-list-item>
                         <v-list-item
                         >
@@ -986,7 +986,13 @@ export default {
       this.newFatherForm.name = '';
     },
     submit() {
-      completeTask({taskId: this.item.subTaskId, userId: this.user.id, intro: this.completeForm.url}).then(
+      const data = {
+        userId: this.user.id,
+        projectId: this.selectedProj.projectId,
+        taskId: this.item.subTaskId,
+        intro: this.completeForm.url
+      }
+      completeTask(data).then(
           res => {
             this.$message({
               type: 'success',
@@ -1306,7 +1312,7 @@ export default {
       //
     },
     switchAction(action, item, task) {
-      if (action === "删除任务") {
+      if (action === "删除子任务") {
         this.handleDelete(item);
       } else if (action === "编辑任务") {
         this.handleEdit(item, task);

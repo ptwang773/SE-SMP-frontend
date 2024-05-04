@@ -1,4 +1,3 @@
-
 <template>
    <div v-if="this.selectedProj == null" style="width: 100%; height: 100%;"></div>
   <div v-else style="width: 100%; height: 100%;">
@@ -41,42 +40,30 @@
         class="mx-4"
         style="width:30%;display: inline-block"
       ></v-text-field>
-    <v-btn
-      style="top:20%;right:14%;height:60%;width:13%;position: absolute"
-    depressed
-    :color="getTopicColor(user.topic)"
-    @click="gotoWork"
-    >管理成员权限
-    <v-icon
-          dark
-          right
-        >
-          mdi-account-details
-        </v-icon></v-btn>
       <v-btn
-      style="top:20%;right:14%;height:60%;width:13%;position: absolute"
-    depressed
-    :color="getTopicColor(user.topic)"
-    @click="gotoWork"
-    >查看工作量分配
-    <v-icon
-          dark
-          right
-        >
-          mdi-account-details
-        </v-icon></v-btn>
+        style="top:20%;right:30%;height:60%;width:14%;position: absolute"
+        depressed
+        :color="getTopicColor(user.topic)"
+        @click="gotoActivity">
+        查看成员活跃度
+        <v-icon dark right>mdi-account-details</v-icon>
+      </v-btn>
       <v-btn
-      style="top:20%;right:2%;height:60%;width:10%;position: absolute"
-    depressed
-    :color="getTopicColor(user.topic)"
-    @click="setupDialog = true"
-    >添加成员
-    <v-icon
-          dark
-          right
-        >
-          mdi-account-plus
-        </v-icon></v-btn>
+        style="top:20%;right:14%;height:60%;width:14%;position: absolute"
+        depressed
+        :color="getTopicColor(user.topic)"
+        @click="gotoWork">
+        查看工作量分配
+        <v-icon dark right>mdi-account-details</v-icon>
+      </v-btn>
+      <v-btn
+        style="top:20%;right:2%;height:60%;width:10%;position: absolute"
+        depressed
+        :color="getTopicColor(user.topic)"
+        @click="setupDialog = true">
+        添加成员
+        <v-icon dark right>mdi-account-plus</v-icon>
+      </v-btn>
   </div>
 </template>
     <template v-slot:[`item.icon`] ="{item}">
@@ -173,7 +160,7 @@
 </template>
 
 <script>
-import { showPersonList, removeMember, showContribute, modifyRole, addMember } from '@/api/user'
+import {showPersonList, removeMember, showContribute, modifyRole, addMember, showActivity} from '@/api/user'
 import project_messagesVue from '@/views/manager/project_messages.vue'
 import getIdenticon from "@/utils/identicon";
 import topicSetting from "@/utils/topic-setting";
@@ -238,6 +225,34 @@ export default {
   },
   methods: {
     getIdenticon,
+    gotoActivity() {
+      showActivity({projectId: this.selectedProj.projectId}).then(
+          res => {
+            let errcode = res.data.errcode
+            if (errcode === 1) {
+              this.$message.error("您没有权限查看！")
+            } else {
+              let activity = res.data.data
+              let userList = []
+              let taskList = []
+              let codeList = []
+              for (let entry of activity) {
+                userList.push(entry.userName)
+                taskList.push(entry.task)
+                codeList.push(entry.code)
+              }
+              this.$router.push({
+                path: '/activityDetail',
+                query: {
+                  userList: userList,
+                  taskActList: taskList,
+                  codeActList: codeList
+                }
+              })
+            }
+          }
+      )
+    },
     gotoWork() {
       showContribute({projectId: this.selectedProj.projectId, userId: this.user.id}).then(
         res => {
