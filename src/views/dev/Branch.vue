@@ -198,10 +198,10 @@ export default {
                         // window.location.pathname = '/dev'
                     }
                 } else {
-                    alert('/api/develop/getBindRepos error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
+                    alert('/api/reviews/getBindRepos error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
                 }
             }).catch((err) => {
-                alert('/api/develop/getBindRepos error' + err)
+                alert('/api/reviews/getBindRepos error' + err)
             })
 
         axios.post('/api/develop/getRepoBranches', {userId: this.user.id, repoId: this.repoId, projectId: this.projId})
@@ -214,10 +214,10 @@ export default {
                         // window.location.pathname = '/dev'
                     }
                 } else {
-                    alert('/api/develop/getBranches error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
+                    alert('/api/reviews/getBranches error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
                 }
             }).catch((err) => {
-                alert('/api/develop/getBranches error' + err)
+                alert('/api/reviews/getBranches error' + err)
             })
 
         axios.post('/api/develop/getCommitHistory', {
@@ -239,10 +239,10 @@ export default {
                 this.draw_pie_chart()
                 this.graphReady = true
             } else {
-                alert('/api/develop/getCommitHistory error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
+                alert('/api/reviews/getCommitHistory error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
             }
         }).catch((err) => {
-            alert('/api/develop/getCommitHistory error' + err)
+            alert('/api/reviews/getCommitHistory error' + err)
         })
     },
     inject: {

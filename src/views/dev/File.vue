@@ -301,7 +301,7 @@ export default {
           });
           return;
           }
-          var api = this.commitForm.isNewBranch ? '/api/develop/gitBranch/' : '/api/develop/gitCommit'
+          var api = this.commitForm.isNewBranch ? '/api/reviews/gitBranch/' : '/api/reviews/gitCommit'
           axios.post(api, {
             userId: this.user.id,
             projectId: this.proj.projectId,
@@ -311,7 +311,7 @@ export default {
             message:this.commitForm.commitMessage
         }).then((res) => {
             if (res.data.errcode !== 0) {
-              alert('/api/develop/commit errcode not 0: ' + res.data.message)
+              alert('/api/reviews/commit errcode not 0: ' + res.data.message)
             } else {
               for(var i = 0; i < this.commitForm.editList.length; i++) {
               for(var j = 0; j < this.filePathList.length; j++) {
@@ -323,7 +323,7 @@ export default {
             }
             }
         }).catch((err) => {
-            alert('/api/develop/commit error' + err)
+            alert('/api/reviews/commit error' + err)
             console.log(err);
         }).finally(() => {
             this.commitVisible = false;
@@ -353,10 +353,10 @@ export default {
                 console.log("tree:\n");
                 console.log(this.items);
             } else {
-                alert('/api/develop/getFileTree errcode not 0: ' + res.data.message)
+                alert('/api/reviews/getFileTree errcode not 0: ' + res.data.message)
             }
         }).catch((err) => {
-            alert('/api/develop/getFileTree error' + err)
+            alert('/api/reviews/getFileTree error' + err)
             console.log(err);
         }).finally(() => {
             this.fileTreeReady = true;
@@ -417,10 +417,10 @@ export default {
                         this.cmEditor.setValue(this.fileContent)
                         this.cmEditor.setOption('mode', this.file2style())
                     } else {
-                        alert('/api/develop/getFileContent errcode not 0: ' + res.data.message)
+                        alert('/api/reviews/getFileContent errcode not 0: ' + res.data.message)
                     }
                 }).catch((err) => {
-                    alert('/api/develop/getFileContent error' + err)
+                    alert('/api/reviews/getFileContent error' + err)
                     console.log(err);
                 }).finally(() => {
                     this.fileContentReady = true;

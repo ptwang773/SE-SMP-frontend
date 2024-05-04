@@ -4,10 +4,11 @@ import Cookies from "js-cookie";
 import getIdenticon from "@/utils/identicon";
 import { PrismEditor } from "vue-prism-editor";
 import "vue-prism-editor/dist/prismeditor.min.css"; // import the styles somewhere
-import { highlight, languages } from "prismjs/components/prism-core";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-tomorrow.css"; // import syntax highlighting styles
+import parseDiff from 'parse-diff'
+import {CodeDiff} from 'v-code-diff'
 // import parseDiff from 'parse-diff'
 import {defineComponent} from 'vue'
 // import {CodeDiff} from 'v-code-diff'
@@ -30,22 +31,25 @@ export default {
       console.log("branch:" + this.$route.query.branchName)
       console.log("proj:" + this.$route.query.projId)
       console.log("repo:" + this.$route.query.repoId)
+      console.log("commitMessage:" + this.$route.query.commit.hash)
       axios.post("api/develop/getCommitDetails", {
         userId: this.user.id,
         projectId: this.projId,
         repoId: this.repoId,
-        sha: this.commitMessage.hash
+        sha: this.commitMessage.hash,
+        branch: this.branchName
       })
           .then((response) => {
-            console.log(response)
-            if (response.data.errcode === 6) {
+            console.log(response.data)
+            if (response.data.errcode !== 0) {
               console.log("error in getting commit details")
               alert("请检查账号的Token是否已绑定及绑定的Token是否正确")
               this.$router.go(-1)
             } else {
               this.commitDetails = response.data.commit
-              this.comments = response.data.commit.comments
-              this.fileChanges = response.data.commit.files
+              console.log(this.commitDetails)
+              this.comments = this.commitDetails.comments
+              this.fileChanges = this.commitDetails.files
             }
           })
 
@@ -74,7 +78,7 @@ export default {
         projId: '',
         repoId: '',
         commitDetails: '',
-        comments: [],
+        comments: [{}],
         textarea: '',
         isProjectReviewer: false,
         managerId: '',
@@ -205,7 +209,7 @@ export default {
 <template>
   <div v-if="getCommitDetailBusy" v-loading="getCommitDetailBusy"></div>
   <div style="margin: 15px" v-else>
-    <el-page-header @back="goBack" content="评审" style="margin-top: 40px"></el-page-header>
+    <el-page-header @back="goBack" content="commit评审" style="margin-top: 40px"></el-page-header>
     <h1 style="margin-top: 20px; margin-left: 20px">Commit</h1>
     <div style="margin-bottom: 10px; margin-left: 20px; display: inline-block">
       <v-chip :color="getColor(this.commitDetails.status)" dark v-if="this.getCommitDetailBusy === false">

@@ -4,6 +4,7 @@ import bindGithubRepo from "@/components/bind_repo.vue"
 import bindedGithubRepos from "@/components/repo_list.vue"
 import repoView from "@/components/repo_view.vue"
 import reviewView from "@/components/review_view.vue"
+import reviewView1 from "@/components/review_view1.vue"
 import axios from 'axios'
 import topicSetting from "@/utils/topic-setting";
 import Cookies from "js-cookie";
@@ -11,10 +12,11 @@ import Cookies from "js-cookie";
 export default {
     name: "Dev",
     components: {
-        bindGithubRepo,
-        bindedGithubRepos,
-        repoView,
-        reviewView
+      bindGithubRepo,
+      bindedGithubRepos,
+      repoView,
+      reviewView,
+      reviewView1
     },
     data() {
         return {
@@ -73,10 +75,10 @@ export default {
                     this.bindReposBusy = false;
                 } else {
                     this.bindReposBusy = false;
-                    alert('/api/develop/getBindRepos error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
+                    alert('/api/reviews/getBindRepos error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
                 }
             }).catch((err) => {
-                alert('/api/develop/getBindRepos error' + err)
+                alert('/api/reviews/getBindRepos error' + err)
                 this.bindReposBusy = false;
             })
         },
@@ -92,6 +94,7 @@ export default {
 </script>
 
 <template>
+
   <keep-alive>
     <v-app>
         <v-container v-if="selectedProj !== null" style="margin-top: 30px">
@@ -100,7 +103,7 @@ export default {
             </v-row>
             <v-row>
               <keep-alive>
-                <reviewView />
+                <reviewView1 />
               </keep-alive>
             </v-row>
         </v-container>

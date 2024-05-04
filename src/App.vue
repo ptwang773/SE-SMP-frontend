@@ -27,9 +27,7 @@
 
       <v-menu offset-y :close-on-content-click="false">
         <template v-slot:activator="{ on, attrs }">
-          <v-chip v-if="user" outlined v-bind="attrs" v-on="on">{{
-            user.name
-          }}</v-chip>
+          <v-chip v-if="user" outlined v-bind="attrs" v-on="on">{{ user.name }}</v-chip>
           <v-icon v-if="user" v-bind="attrs" v-on="on">mdi-account</v-icon>
           <v-icon v-else v-bind="attrs" v-on="on">mdi-account-remove</v-icon>
         </template>
