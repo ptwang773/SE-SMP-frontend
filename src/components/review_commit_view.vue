@@ -2,7 +2,7 @@
 import axios from "axios";
 import topicSetting from "@/utils/topic-setting";
 import Cookies from "js-cookie";
-import commit from "../views/user/develop/Commit.vue";
+import commit from "../views/user/reviews/Commit.vue";
 
 export default {
   name: "review_commit_view",
@@ -55,11 +55,11 @@ export default {
                   }
               } else {
                   console.log(res)
-                  alert('/api/develop/getCommitHistory error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
+                  alert('/api/reviews/getCommitHistory error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
                   this.commitHistoryBusy = false
               }
           }).catch((err) => {
-              alert('/api/develop/getBindRepos error' + err)
+              alert('/api/reviews/getBindRepos error' + err)
               this.commitHistoryBusy = false
           })
       },

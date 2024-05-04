@@ -34,11 +34,11 @@ export default {
                 this.branchBusy = false
             } else {
                 console.log(res);
-                alert('/api/develop/getRepoBranches error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
+                alert('/api/reviews/getRepoBranches error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
                 this.branchBusy = false
             }
         }).catch((err) => {
-            alert('/api/develop/getBindRepos error' + err)
+            alert('/api/reviews/getBindRepos error' + err)
             this.branchBusy = false
         })
     },

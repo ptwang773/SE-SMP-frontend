@@ -1,12 +1,14 @@
 <script>
 import {computed} from "vue";
 import review_commit_view from "@/components/review_commit_view.vue";
+import review_pr_view from "@/components/review_pr_view.vue"
 import axios from "axios";
 
 export default {
   name: "reviewBranchView",
   components: {
-    review_commit_view
+    review_commit_view,
+    review_pr_view
   },
   methods: {
     updateBranches() {
@@ -34,11 +36,11 @@ export default {
                 this.branchBusy = false
             } else {
                 console.log(res);
-                alert('/api/develop/getRepoBranches error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
+                alert('/api/reviews/getRepoBranches error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
                 this.branchBusy = false
             }
         }).catch((err) => {
-            alert('/api/develop/getBindRepos error' + err)
+            alert('/api/reviews/getBindRepos error' + err)
             this.branchBusy = false
         })
     },

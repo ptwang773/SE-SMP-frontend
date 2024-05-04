@@ -62,11 +62,11 @@ export default {
                 this.issuesBusy = false
             } else {
                 console.log(res);
-                alert('/api/develop/getIssueList error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
+                alert('/api/reviews/getIssueList error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
                 this.issuesBusy = false
             }
         }).catch((err) => {
-            alert('/api/develop/getIssueList error' + err)
+            alert('/api/reviews/getIssueList error' + err)
             this.issuesBusy = false
         })
     },
