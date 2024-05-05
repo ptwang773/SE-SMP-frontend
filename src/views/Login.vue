@@ -194,7 +194,7 @@ export default {
             } else if (response.data.errcode === 3) {
               this.$message({
                 type: 'error',
-                message: "您的账户目前已被禁用"
+                message: "您的账户目前已被禁用，请联系管理员"
               });
             } else {
               Cookies.set('user', JSON.stringify(response.data.data))

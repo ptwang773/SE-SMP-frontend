@@ -1,16 +1,19 @@
 <script>
   import axios from "axios";
   import topicSetting from "@/utils/topic-setting";
-
+  import {marked} from "marked";
   export default {
+    components: {
+      marked
+    },
     created() {
-      console.log(this.taskDialogOpen)
       this.pr = this.$route.query.pr
       this.projId = this.$route.query.projId
       this.repoId = this.$route.query.repoId
       console.log(this.pr)
       this.getPrDetail();
       this.getTaskList();
+      this.getAssociatedTaskList();
       this.getUserRole();
     },
     inject: {
@@ -43,13 +46,18 @@
           }
         ],
         isProjectReviewer: true,
-        reviewStatus: 'open'
+        reviewStatus: '',
+        associatedTasks: [],
+        body: ''
       }
     },
     methods: {
+      marked() {
+        return marked
+      },
       getDarkColor: topicSetting.getDarkColor,
       getUserRole() {
-        axios("api/develop/isProjectReviewer", {
+        axios.post("api/develop/isProjectReviewer", {
           userId: this.user.id,
           projectId: this.projId
         })
@@ -69,19 +77,45 @@
           userId: this.user.id,
           projectId: this.projId,
           repoId: this.repoId,
-          prId: this.prDetail.prId,
+          prId: this.pr.prId,
           taskId: task.taskId
         })
             .then((res) => {
               if (res.data.errcode !== 0) {
+                console.log(res.data)
                 this.$message({
                   type: 'error',
                   message: '绑定任务失败，发生未知错误'
                 })
               } else {
+                this.associatedTasks.push({taskId: task.taskId, taskName: task.taskName})
                 this.$message({
                   type: 'success',
                   message: '绑定任务项成功！'
+                })
+              }
+            })
+      },
+      removeTask(task) {
+        axios.post("api/develop/deletePrTask", {
+          userId: this.user.id,
+          projectId: this.projId,
+          repoId: this.repoId,
+          prId: this.pr.prId,
+          taskId: task.taskId
+        })
+            .then((res) => {
+              if (res.data.errcode !== 0) {
+                console.log(res.data)
+                this.$message({
+                  type: 'error',
+                  message: '解除关联失败'
+                })
+              } else {
+                this.associatedTasks.splice(task.task, 1)
+                this.$message({
+                  type: 'success',
+                  message: '解除关联成功'
                 })
               }
             })
@@ -105,6 +139,8 @@
                 this.prDetail = res.data.data
                 this.commits = res.data.data.commits
                 console.log(this.prDetail)
+                this.reviewStatus = this.prDetail.state
+                this.body = res.data.data.body
                 this.getPrDetailBusy = false
               }
             })
@@ -119,21 +155,38 @@
               }
             })
       },
+      getAssociatedTaskList() {
+        axios.post("api/develop/getPrAssociatedTasks", {
+          prId: this.pr.prId
+        })
+            .then((res) => {
+              if (res.data.errcode !== 0) {
+                console.log(res.data)
+                this.$message({
+                  type: 'error',
+                  message: '获取已绑定任务失败'
+                })
+              } else {
+                this.associatedTasks = res.data.data
+              }
+            })
+      },
       checkCommit(commit) {
+        console.log(commit)
         this.$router.push({
-          path: '/commitReview/' + this.proj.id + '/' + this.selectedRepo.id + '/' + this.prDetail.branch + '/' + commit.id,
+          path: '/commitReview/' + this.projId + '/' + this.repoId + '/' + this.prDetail.branch + '/' + commit.sha,
           query: {
             commit: commit,
-            branchName: this.selectedBranch.name,
-            projId: this.proj.id,
-            repoId: this.selectedRepo.id
+            branchName: this.prDetail.branch,
+            projId: this.projId,
+            repoId: this.repoId
           }
         })
       },
       reviewPr(result) {
         axios.post("api/develop/resolvePr", {
           userId: this.user.id,
-          prId: this.prDetail.prId,
+          prId: this.pr.prId,
           projectId: this.projId,
           repoId: this.repoId,
           action: result
@@ -159,6 +212,9 @@
       },
       goBack() {
         this.prDetail = []
+        this.tasks = []
+        this.reviewStatus = ''
+        this.associatedTasks = ''
         this.$router.go(-1)
       },
       getColor(status) {
@@ -192,11 +248,14 @@
   <el-page-header @back="goBack" content="PR评审" style="margin-top: 40px"></el-page-header>
   <h1 style="margin-top: 20px; margin-left: 20px"><v-chip label >!{{pr.prId}}</v-chip>  {{this.pr.prTitle}}</h1>
   <div style="margin: 10px 0 0 20px">
-    <v-chip :color="getColor(reviewStatus)" dark small label >
+    <v-chip :color="getColor(reviewStatus)" dark small label v-if="!getPrDetailBusy">
       <v-icon small>mdi-source-pull</v-icon>{{ transform(reviewStatus) }}
     </v-chip>
-    {{this.pr.prIssuer}}
-    <span style="color: grey">创建于：{{this.pr.prTime.slice(0,10)}} {{this.pr.prTime.slice(11,-1)}}
+    <v-chip v-else dark small label>
+        <v-icon small>mdi-source-pull</v-icon>加载中
+    </v-chip>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{{this.pr.prIssuer}}</b>
+    <span style="color: grey">&nbsp;&nbsp;创建于：{{this.pr.prTime.slice(0,10)}} {{this.pr.prTime.slice(11,-1)}}
       <v-chip label small style="margin-left: 10px"> {{pr.fromBranchName}}</v-chip> → <v-chip label small>{{pr.toBranchName}}</v-chip>
       <el-button style="margin-left: 85%; margin-top: -40000px; color: white" type="success" @click="this.openTaskDialog"  v-if="this.isProjectReviewer === true">
         +关联任务项
@@ -214,7 +273,7 @@
       <v-card style="margin-top: 30px">
         <div v-if="reviewStatus === 'open'">
           <h4 style="color: red; padding: 30px">
-            当前尚有未通过的审查/测试
+            <v-icon style="color:red">mdi-close-circle-outline</v-icon>当前尚有未通过的审查/测试
           </h4>
           <div style="padding: 0 0 30px 70px ">
             至少需要1名审查人员后才能合并， 已通过审查人数 0 人
@@ -222,16 +281,18 @@
         </div>
         <div v-else-if="reviewStatus === 'merged'">
           <h4 style="color: green; padding: 30px">
-            当前的pr请求已经通过
+            <v-icon style="color:green">mdi-check-circle-outline</v-icon>当前的pr请求已经通过
           </h4>
         </div>
       </v-card>
+      <div v-html="this.body"></div>
+
       <div style="margin-top: 20px">
         <h3>提交记录 ({{this.commits.length}})</h3>
       </div>
       <v-row>
         <v-col cols="8">
-          <v-simple-table dense style="margin-top: 20px">
+          <v-simple-table dense style="margin-top: 20px" v-if="this.commits.length > 0 && !getPrDetailBusy">
             <thead>
             <tr>
               <th class="title">commiter</th>
@@ -240,23 +301,43 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="commit in commits" :key="commit.sha" @click="checkCommit(commit)">
+            <tr v-for="commit in commits" :key="commit.sha">
               <td class="need-mono">{{commit.author}}</td>
               <td class="need-mono">
-                <span> <v-chip label small>{{commit.sha.slice(0, 6)}}</v-chip></span>
+                <v-tooltip bottom>
+                      <template v-slot:activator="{on, attrs}">
+                        <span v-bind="attrs" v-on="on"><v-chip small label>{{commit.sha.slice(0,6)}}</v-chip></span>
+                      </template>
+                      <span>{{commit.sha}}</span>
+                  </v-tooltip>
               </td>
               <td>{{commit.time.slice(0, 10)}} {{commit.time.slice(11, -1)}}</td>
             </tr>
             </tbody>
           </v-simple-table>
+          <el-empty :image-size="200" description="当前仓库中没有pr记录" v-else-if="!getPrDetailBusy"></el-empty>
+          <v-skeleton-loader v-else type="table" class="mx-auto" />
         </v-col>
 
         <v-divider vertical></v-divider>
 
         <v-col cols="4">
-          <v-card><h3 style="padding: 10px">关联工作项</h3>
+          <v-card><h3 style="padding: 10px">已关联工作项({{this.associatedTasks.length}})</h3>
             <div style="margin-left: 30px;margin-top: 10px">
-               here will be associated tasks
+               <v-data-table
+              :headers="headers"
+              :items="associatedTasks">
+                <template v-slot:item="{item}">
+                  <tr>
+                    <td style="max-width: 50px; overflow: hidden; text-overflow: ellipsis;"><v-chip small label>{{item.taskId}}</v-chip></td>
+                    <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;">{{item.taskName}}</td>
+                    <td><v-chip :color="'red'" dark @click="removeTask(item)">
+                    -
+                  </v-chip></td>
+                  </tr>
+                </template>
+
+              </v-data-table>
             </div>
           </v-card>
         </v-col>

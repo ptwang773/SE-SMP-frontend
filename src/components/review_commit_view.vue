@@ -1,7 +1,6 @@
 <script>
 import axios from "axios";
 import topicSetting from "@/utils/topic-setting";
-import Cookies from "js-cookie";
 import commit from "../views/user/reviews/Commit.vue";
 
 export default {
@@ -68,7 +67,7 @@ export default {
       reviewSelectedCommit(commit) {
         console.log(commit)
         this.$router.push({
-          path: '/commitReview/' + this.proj.id + '/' + this.selectedRepo.id + '/' + this.selectedBranch.name + '/' + commit.id,
+          path: '/commitReview/' + this.proj.id + '/' + this.selectedRepo.id + '/' + this.selectedBranch.name + '/' + commit.hash,
           query: {
             commit: commit,
             branchName: this.selectedBranch.name,

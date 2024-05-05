@@ -267,6 +267,14 @@
                   <v-list-item-title>PR评审</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
+              <v-list-item link :to="'/newPR'" style="padding-left: 40px">
+                <v-list-item-avatar>
+                  <v-icon :color="getDarkColor(user.topic)">mdi-check-circle-outline</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>新建PR</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
             </div>
           </v-expand-transition>
         </v-list-item-group>
@@ -565,7 +573,7 @@ export default {
       console.log('setting interval...')
       setInterval(() => {
         this.updateNoticeList();
-      }, 5000)
+      }, 50000)
   },
   components:{
     AllTask,

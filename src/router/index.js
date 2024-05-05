@@ -88,7 +88,7 @@ const router = new VueRouter({
       component: () => import('../views/user/reviews/commitReview.vue'),
     },
     {
-      path: '/commitReview/:projid/:repoid/:branchname/:commitid+',
+      path: '/commitReview/:projid/:repoid/:branchname/:commitsha+',
       name: 'commit详情',
       component: () => import('../views/user/reviews/Commit.vue')
     },
@@ -101,6 +101,11 @@ const router = new VueRouter({
       path: '/prReview/:projid/:repoid/:prid+',
       name: 'pr详情',
       component: () => import('../views/user/reviews/PR.vue')
+    },
+    {
+      path: '/newPR',
+      name: '新建PR',
+      component: () => import('../views/user/develop/PullRequest.vue'),
     },
     {
       path: '/profile',
