@@ -94,6 +94,11 @@ const router = new VueRouter({
       component: () => import('../views/user/develop/commitReview.vue'),
     },
     {
+      path: '/newPR',
+      name: '新建PR',
+      component: () => import('../views/user/develop/PullRequest.vue'),
+    },
+    {
       path: '/profile',
       name: 'profile',
       component: () => import('../views/user/profile.vue')

@@ -24,7 +24,6 @@ import Prism from 'prismjs';
 VueMarkdownEditor.use(vuepressTheme);
 VueMarkdownEditor.use(createKatexPlugin());
 Vue.use(VueMarkdownEditor);
-Vue.use(VueBreadcrumbs);
 VueMarkdownEditor.use(vuepressTheme, {
   Prism,
   extend(md) {

@@ -246,6 +246,29 @@ export default {
           });
           return;
           }
+          var files = [];
+          for(var i = 0; i < this.commitForm.editList.length; i++) {
+            if(this.commitForm.editList[i].isCommit) {
+              var file = {path:this.commitForm.editList[i].path.slice(1), content:this.commitForm.editList[i].content};
+              files.push(file);
+            }
+          }
+          axios.post('api/ai/generateCommitMessage', {
+            userId: this.user.id,
+            projectId: this.proj.projectId,
+            repoId: this.$route.params.repoid,
+            branch: this.branchName,
+            files:files,
+        }).then((res) => {
+            if (res.data.errcode !== 0) {
+              alert('/api/develop/generateCommitMessage errcode not 0: ' + res.data.message)
+            } else {
+              this.commitForm.commitMessage = res.data.data;
+            }
+        }).catch((err) => {
+            alert('/api/develop/commit error' + err)
+            console.log(err);
+        })
           this.commitVisible = true;
         },
         cancelEdit() {
