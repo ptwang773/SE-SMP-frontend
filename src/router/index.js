@@ -88,7 +88,7 @@ const router = new VueRouter({
       component: () => import('../views/user/reviews/commitReview.vue'),
     },
     {
-      path: '/commitReview/:projid/:repoid/:branchname/:commitid+',
+      path: '/commitReview/:projid/:repoid/:branchname/:commitsha+',
       name: 'commit详情',
       component: () => import('../views/user/reviews/Commit.vue')
     },

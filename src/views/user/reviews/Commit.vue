@@ -287,10 +287,10 @@ export default {
         v-else
         disabled>
         </el-input>
-       <el-button style="margin-top: 14px; margin-left: auto; justify-content: flex-end; display: flex" type="success" @click="submitComment()" dark v-if="this.commitDetails.status === null && this.isProjectReviewer === true">
+       <el-button style="margin-top: 14px; margin-left: auto; justify-content: flex-end; display: flex; color: white" type="success" @click="submitComment()" dark v-if="this.commitDetails.status === null && this.isProjectReviewer === true">
          提交评论
        </el-button>
-      <el-button style="margin-top: 14px; margin-left: auto; justify-content: flex-end; display: flex" type="success" @click="submitComment()" dark v-else disabled>
+      <el-button style="margin-top: 14px; margin-left: auto; justify-content: flex-end; display: flex; color: white" type="success" @click="submitComment()" dark v-else disabled>
          提交评论
        </el-button>
       <div class="comment" v-for="item in comments" style="margin: 0 30px 0 30px">
