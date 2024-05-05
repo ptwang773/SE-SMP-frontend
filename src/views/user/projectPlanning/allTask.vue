@@ -215,15 +215,15 @@
                       <v-list>
                         <v-list-item
                         >
-                          <v-btn text @click="switchAction('编辑任务', item, task)">编辑任务</v-btn>
+                          <v-btn text @click="switchAction('编辑子任务', item, task)">编辑子任务</v-btn>
                         </v-list-item>
                         <v-list-item
                         >
                           <v-btn text @click="switchAction('删除子任务', item, task)">删除子任务</v-btn>
                         </v-list-item>
-                        <v-list-item
+                        <v-list-item v-show="item.status !== 'A' && item.status !== 'D'"
                         >
-                          <v-btn text @click="switchAction('完成任务', item, task)">完成任务</v-btn>
+                          <v-btn text @click="switchAction('完成子任务', item, task)">完成子任务</v-btn>
                         </v-list-item>
                       </v-list>
                     </v-menu>
@@ -716,7 +716,7 @@
     </el-dialog>
 
     <el-dialog
-        title="完成任务"
+        title="完成子任务"
         width="50%"
         :before-close="handleClose"
         :visible.sync="dialog4">
@@ -975,6 +975,12 @@ export default {
         managerId: 1
       }).then(
           res => {
+            const errcode = res.data.errcode
+            if (errcode === 0) {
+              this.$message.success(res.data.message)
+            } else {
+              this.$message.error(res.data.message)
+            }
             console.log(res);
           }
       );
@@ -994,10 +1000,12 @@ export default {
       }
       completeTask(data).then(
           res => {
-            this.$message({
-              type: 'success',
-              message: '提交成功!'
-            });
+            const errcode = res.data.errcode
+            if (errcode === 0) {
+              this.$message.success(res.data.message)
+            } else { // -1 & 3
+              this.$message.error(res.data.message)
+            }
             this.getTaskList();
             console.log(res);
             this.dialog4 = false;
@@ -1025,6 +1033,12 @@ export default {
       this.setupFather = false;
       addTask({userId: this.user.id, taskName: this.newFatherForm.name, projectId: this.selectedProj.projectId}).then(
           res => {
+            const errcode = res.data.errcode
+            if (errcode === 0) {
+              this.$message.success(res.data.message)
+            } else {
+              this.$message.error(res.data.message)
+            }
             console.log(res);
             this.newFatherForm.name = '';
             this.getTaskList();
@@ -1075,12 +1089,14 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        });
         removeTask({taskId: task.taskId, userId: this.user.id}).then(
             res => {
+              const errcode = res.data.errcode
+              if (errcode === 0) {
+                this.$message.success(res.data.message)
+              } else {
+                this.$message.error(res.data.message)
+              }
               console.log(res);
               this.getTaskList();
             }
@@ -1221,8 +1237,13 @@ export default {
         subTaskLabel: this.newSonForm.subTaskLabel
       }).then(
           res => {
+            const errcode = res.data.errcode
+            if (errcode === 0) {
+              this.$message.success(res.data.message)
+            } else {
+              this.$message.error(res.data.message)
+            }
             console.log(res);
-            this.$message.success('创建成功！')
             this.getTaskList();
           }
       );
@@ -1314,9 +1335,9 @@ export default {
     switchAction(action, item, task) {
       if (action === "删除子任务") {
         this.handleDelete(item);
-      } else if (action === "编辑任务") {
+      } else if (action === "编辑子任务") {
         this.handleEdit(item, task);
-      } else if (action === "完成任务") {
+      } else if (action === "完成子任务") {
         this.item = item;
         this.handleComplete();
       }
@@ -1341,13 +1362,15 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        });
         console.log(item);
         removeTask({taskId: item.subTaskId, userId: this.user.id}).then(
             res => {
+              const errcode = res.data.errcode
+              if (errcode === 0) {
+                this.$message.success(res.data.message)
+              } else {
+                this.$message.error(res.data.message)
+              }
               console.log(res);
               this.getTaskList();
             }
@@ -1413,6 +1436,12 @@ export default {
         managerId: this.personIdList[this.personNameList.indexOf(this.editSonForm.managerName)]
       }).then(
           res => {
+            const errcode = res.data.errcode
+            if (errcode === 0) {
+              this.$message.success(res.data.message)
+            } else {
+              this.$message.error(res.data.message)
+            }
             console.log(res);
             this.getTaskList();
           }
