@@ -11,6 +11,30 @@ export default {
     }
   },
   methods: {
+    checkFresh() {
+      axios.post("api/develop/checkRefreshRepo", {
+        userId: this.user.id,
+        projectId: this.projId,
+        repoId: this.repoId
+      })
+          .then((res) => {
+            console.log(res.data)
+            if (res.data.needRefresh === 1) {
+              this.$message({
+                type: 'warning',
+                message: '请等待当前页面数据更新'
+              })
+              this.fresh()
+            }
+          })
+    },
+    fresh() {
+      axios.post("api/develop/refreshRepo", {
+        userId: this.user.id,
+        projectId: this.projId,
+        repoId: this.repoId
+      })
+    },
       updateCommitHistory() {
           this.commitHistoryBusy = true
           axios.post('/api/develop/getCommitHistory', {
@@ -113,6 +137,7 @@ export default {
         this.updateCommitHistory()
     }
   }, created() {
+        this.checkFresh()
         this.updateCommitHistory()
 
   }, inject: {

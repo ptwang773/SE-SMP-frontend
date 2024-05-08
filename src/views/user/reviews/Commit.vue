@@ -15,12 +15,14 @@ import {defineComponent} from 'vue'
 export default {
   components: {
     PrismEditor,
+    CodeDiff
   },
   inject: {
     user: {default: null},
     getCommitDetailBusy: {default: true},
   },
   created() {
+
       this.user = Cookies.get('user')
       console.log(this.user)
       console.log(this.user.id)
@@ -47,6 +49,8 @@ export default {
               this.$router.go(-1)
             } else {
               this.commitDetails = response.data.commit
+              this.reviewer = this.commitDetails.reviewerName
+              console.log(this.reviewer)
               console.log(this.commitDetails)
               this.comments = this.commitDetails.comments
               this.fileChanges = this.commitDetails.files
@@ -90,6 +94,7 @@ export default {
         oldFile: '',
         newFile: '',
         fileDiff: [],
+        reviewer: ''
       }
     },
   methods: {
@@ -114,6 +119,7 @@ export default {
        this.times = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
     },
     reviewCommit(result) {
+      this.reviewer = this.user.name
       axios.post("api/develop/modifyCommitStatus", {
         userId: this.user.id,
         projectId: this.projId,
@@ -220,7 +226,7 @@ export default {
       </v-chip>
       <span style="margin-left: 20px; font-size: small; color: rgb(128,128,128)"
             v-if="this.commitDetails.status !== null">
-        由 {{this.commitDetails.reviewerName}} 完成审核
+        由 {{this.reviewer}} 完成审核
       </span>
     </div>
     <div>

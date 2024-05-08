@@ -45,7 +45,7 @@
             value: 'isManage'
           }
         ],
-        isProjectReviewer: true,
+        isProjectReviewer: false,
         reviewStatus: '',
         associatedTasks: [],
         body: ''
@@ -63,12 +63,9 @@
         })
             .then((res) => {
               if (res.data.errcode !== 0) {
-                this.$message({
-                  type: 'error',
-                  message: '获取用户权限错误'
-                })
+                console.log(res.data)
               } else {
-                this.isProjectReviewer = res.data.flag === 1
+                this.isProjectReviewer = true
               }
             })
       },
@@ -81,13 +78,24 @@
           taskId: task.taskId
         })
             .then((res) => {
-              if (res.data.errcode !== 0) {
+              if (res.data.errcode === 9) {
                 console.log(res.data)
                 this.$message({
                   type: 'error',
-                  message: '绑定任务失败，发生未知错误'
+                  message: '当前任务已经被绑定，不可重复操作'
                 })
-              } else {
+              } else if (res.data.errcode === 8) {
+                this.$message({
+                  type: 'error',
+                  message: '当前任务已被完成，不可关联'
+                })
+              } else if (res.data.errcode === 7) {
+                this.$message({
+                  type: 'error',
+                  message: '此任务不存在此项目中'
+                })
+              }
+              else {
                 this.associatedTasks.push({taskId: task.taskId, taskName: task.taskName})
                 this.$message({
                   type: 'success',
@@ -112,7 +120,12 @@
                   message: '解除关联失败'
                 })
               } else {
-                this.associatedTasks.splice(task.task, 1)
+                for (let i = 0; i < this.associatedTasks.length; i++) {
+                  if (task.taskId === this.associatedTasks.at(i).taskId) {
+                    this.associatedTasks.splice(i, 1)
+                    break;
+                  }
+                }
                 this.$message({
                   type: 'success',
                   message: '解除关联成功'
@@ -257,11 +270,11 @@
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{{this.pr.prIssuer}}</b>
     <span style="color: grey">&nbsp;&nbsp;创建于：{{this.pr.prTime.slice(0,10)}} {{this.pr.prTime.slice(11,-1)}}
       <v-chip label small style="margin-left: 10px"> {{pr.fromBranchName}}</v-chip> → <v-chip label small>{{pr.toBranchName}}</v-chip>
-      <el-button style="margin-left: 85%; margin-top: -40000px; color: white" type="success" @click="this.openTaskDialog"  v-if="this.isProjectReviewer === true">
+      <el-button style="margin-left: 85%; margin-top: -40000px; color: white" type="success" @click="this.openTaskDialog"  v-if="this.isProjectReviewer === true && this.prDetail.state === 'open'">
         +关联任务项
       </el-button>
     </span>
-    <div style="display: inline-block; margin-top: -20px; padding: -20px; margin-bottom: -20px"  v-if="this.isProjectReviewer === true && this.reviewStatus === 'open'">
+    <div style="display: inline-block; margin-top: -20px; padding: -20px; margin-bottom: -20px"  v-if="this.isProjectReviewer === true && this.prDetail.state === 'open'">
       <v-chip :color="'green'" dark style="margin-right: 30px" @click="reviewPr(1)">
         同意
       </v-chip>
@@ -285,7 +298,15 @@
           </h4>
         </div>
       </v-card>
-      <div v-html="this.body"></div>
+      <v-card style="margin-top: 20px">
+        <h4 style="padding: 20px">
+            PR描述
+          </h4>
+          <div style="padding: 0 0 20px 60px ">
+            <div v-html="this.body"></div>
+          </div>
+      </v-card>
+
 
       <div style="margin-top: 20px">
         <h3>提交记录 ({{this.commits.length}})</h3>
@@ -322,7 +343,7 @@
         <v-divider vertical></v-divider>
 
         <v-col cols="4">
-          <v-card><h3 style="padding: 10px">已关联工作项({{this.associatedTasks.length}})</h3>
+          <v-card><h3 style="padding: 10px">已关联任务项({{this.associatedTasks.length}})</h3>
             <div style="margin-left: 30px;margin-top: 10px">
                <v-data-table
               :headers="headers"
