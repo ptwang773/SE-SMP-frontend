@@ -8,6 +8,7 @@ import 'codemirror/theme/material.css'
 import "@/utils/cm-settings.js"
 import topicSetting from "@/utils/topic-setting";
 import {downloadStrAsFile} from "@/utils/file-system";
+import * as echarts from 'echarts'
 
 export default {
     name: "FileView",
@@ -48,8 +49,9 @@ export default {
             isNewBranch:false,
             editList:[],
             subDisable: false
-            }
-
+            },
+            showDialog: false,
+            fileChart: null
         }
     },
     inject: {
@@ -301,7 +303,7 @@ export default {
           });
           return;
           }
-          var api = this.commitForm.isNewBranch ? '/api/reviews/gitBranch/' : '/api/reviews/gitCommit'
+          let api = this.commitForm.isNewBranch ? '/api/develop/gitBranch/' : '/api/develop/gitCommit'
           axios.post(api, {
             userId: this.user.id,
             projectId: this.proj.projectId,
@@ -332,9 +334,98 @@ export default {
         })
 
         },
+        getBtnColor: topicSetting.getColor,
         getTopicColor: topicSetting.getDarkColor,
         getRadialGradient: topicSetting.getRadialGradient,
         getLinearGradient: topicSetting.getLinearGradient,
+
+        showContribution() {
+          if (!this.curFilePath) {
+            this.$message.error('还未选择文件！')
+          } else {
+            this.showDialog = true
+          }
+        },
+        hideContribution() {
+          this.showDialog = false
+          setTimeout(() =>{
+            if (this.fileChart) {
+              this.fileChart.dispose()
+            }
+          }, 1000)
+        },
+        drawFileP() {
+          if (this.fileChart) {
+            this.fileChart.dispose()
+          }
+          this.fileChart = echarts.init(this.$refs.fileChart);
+          window.addEventListener("resize", function () {
+            this.fileChart.resize();
+          });
+
+          let userName = []
+          let userCommitCnt = []
+          axios.post('/api/develop/getFileCommits', {
+            repoId: this.$route.params.repoid,
+            file: this.curFilePath.substring(1),
+            branch: this.branchName,
+            userId: this.user.id,
+            projectId: this.proj.projectId
+          }).then((res) => {
+            const data = res.data.data
+            console.log(data)
+            for (let entry of data) {
+              userName.push(entry.userName)
+              userCommitCnt.push(entry.count)
+            }
+            console.log(userName)
+            console.log(userCommitCnt)
+
+            let option = {
+              title: {
+                text: "文件贡献度统计图",
+              },
+              tooltip: {
+                trigger: "axis",
+                formatter: function (params) {
+                  console.log(params);
+                  return params[0]['axisValue'] + "的文件贡献度为：" + params[0]['value'];
+                },
+              },
+              grid: {
+                left: "3%",
+                right: "4%",
+                bottom: "30%",
+                containLabel: true,
+              },
+              yAxis: {
+                type: "category",
+                splitLine: {
+                  show: false,
+                },
+                data: userName,
+              },
+              xAxis: {
+                type: "value",
+                axisLabel: {
+                  color: "#333", // 坐标轴文字颜色
+                  formatter: function (param) {
+                    return param;
+                  },
+                },
+              },
+              series: [
+                {
+                  name: "文件贡献度",
+                  type: "bar",
+                  stack: "Total",
+                  data: userCommitCnt,
+                },
+              ],
+            };
+            this.fileChart.setOption(option);
+          })
+        },
     },
     created() {
         this.fileTreeReady = false;
@@ -446,7 +537,13 @@ export default {
 
 <template>
   <v-container>
-      <v-row>
+      <v-btn depressed :color="getBtnColor(user.topic)" @click="showContribution"
+        style="position:absolute; right: 2%; height:7%; width:13%;"
+        >
+        查看文件贡献度
+        <v-icon dark right>mdi-account-details</v-icon>
+      </v-btn>
+      <v-row style="margin-top: 20px">
           <!-- <v-col :cols="fileContentReady ? 2 : 3"> -->
             <v-col :cols=3>
               <div class="tabs-menu"><h2>文件树</h2></div>
@@ -594,6 +691,23 @@ export default {
             </v-card>
           </v-col> -->
       </v-row>
+      <el-dialog
+          :visible.sync="showDialog"
+          width="70%"
+          :before-close="hideContribution"
+           @opened="drawFileP"
+        >
+        <div style="position: relative;width: 100%;height: 300px">
+          <div
+              ref="fileChart"
+              style="position: absolute; width: 80%; height: 60%; left: 10%; top: 10%"
+          >
+          </div>
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="hideContribution">确 定</el-button>
+        </span>
+      </el-dialog>
   </v-container>
 
 </template>
