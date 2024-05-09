@@ -310,6 +310,7 @@ export default {
             projectId: this.proj.projectId,
             repoId: this.$route.params.repoid,
             branch: this.branchName,
+            dstBranch: this.commitForm.newBranch,
             files:files,
             message:this.commitForm.commitMessage
         }).then((res) => {
@@ -427,6 +428,30 @@ export default {
             this.fileChart.setOption(option);
           })
         },
+        checkFresh() {
+      axios.post("api/develop/checkRefreshRepo", {
+        userId: this.user.id,
+        projectId: this.proj.projectId,
+        repoId: this.$route.params.repoid
+      })
+          .then((res) => {
+            console.log(res.data)
+            if (res.data.needRefresh === 1) {
+              this.$message({
+                type: 'warning',
+                message: '请等待当前页面数据更新'
+              })
+              this.fresh()
+            }
+          })
+    },
+    fresh() {
+      axios.post("api/develop/refreshRepo", {
+        userId: this.user.id,
+        projectId: this.proj.projectId,
+        repoId: this.$route.params.repoid
+      })
+    },
     },
     created() {
         this.fileTreeReady = false;
@@ -530,7 +555,8 @@ export default {
         lineWrapping: true
       });
 
-      this.cmEditor.on('cursorActivity', this.onCursorActivity)
+      this.cmEditor.on('cursorActivity', this.onCursorActivity);
+      this.checkFresh();
     }
 }
 
