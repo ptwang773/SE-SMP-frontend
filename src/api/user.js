@@ -205,3 +205,7 @@ export const userReleaseDocLock = (data) => {
 export const isDocLocked = (data) => {
   return request.post("/api/doc/isDocLocked", data);
 }
+
+export const generateLabel = (data) => {
+  return request.post("/api/ai/generateLabel", data);
+}

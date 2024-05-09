@@ -329,6 +329,9 @@
         <el-form-item label="子任务名称">
           <el-input v-model="newSonForm.name"></el-input>
         </el-form-item>
+        <el-form-item label="子任务描述">
+          <el-input type="textarea" :rows="3" v-model="newSonForm.outline"></el-input>
+        </el-form-item>
         <el-form-item>
           <p>开始时间</p>
           <v-menu
@@ -444,7 +447,16 @@
             </div>
           </template>
         </v-select>
-        <p style="top:5%">标签</p>
+        <p style="top:5%">
+          标签
+          <v-btn
+              small
+              text
+              :color="getTopicColor(user.topic)"
+              @click="AIAdvice(newSonForm.outline)">
+            AI建议
+          </v-btn>
+        </p>
         <v-select
             v-model="newSonForm.subTaskLabel"
             :items="labelList"
@@ -593,6 +605,9 @@
         <el-form-item label="子任务名称">
           <el-input v-model="editSonForm.name"></el-input>
         </el-form-item>
+        <el-form-item label="子任务描述">
+          <el-input type="textarea" :rows="3" v-model="editSonForm.outline"></el-input>
+        </el-form-item>
         <el-form-item>
           <p>开始时间</p>
           <v-menu
@@ -694,7 +709,16 @@
             </div>
           </template>
         </v-select>
-        <p style="top:5%">标签</p>
+        <p style="top:5%">
+          标签
+          <v-btn
+              small
+              text
+              :color="getTopicColor(user.topic)"
+              @click="AIAdvice(editSonForm.outline)">
+            AI建议
+          </v-btn>
+        </p>
         <v-select
             v-model="editSonForm.subTaskLabel"
             :items="labelList"
@@ -745,7 +769,9 @@ import {
   completeTask,
   removeTask,
   showPersonList,
-  addReview, getTaskReviews
+  addReview,
+  getTaskReviews,
+  generateLabel
 } from '@/api/user.js'
 import getIdenticon from "@/utils/identicon";
 import topicSetting from "@/utils/topic-setting";
@@ -826,6 +852,7 @@ export default {
       managerName: '',
       fatherTaskId: '',
       subTaskLabel: '',
+      outline: '',
     },
     newSonForm: {
       name: '',
@@ -835,6 +862,7 @@ export default {
       managerName: '',
       fatherTaskId: '',
       subTaskLabel: '',
+      outline: ''
     },
     newReviewForm: {
       input: '',
@@ -870,6 +898,7 @@ export default {
     taskReviews: {}, // taskId -> reviews[]
   }),
   methods: {
+    generateLabel,
     getLabelColor,
     getIdenticon,
     upTask(item) {
@@ -944,6 +973,7 @@ export default {
               this.$set(task, 'displayReviews', false);
             })
             console.log(this.tasks);
+            console.log(this.tasks[0].subTaskList)
           }
       );
     },
@@ -1149,6 +1179,7 @@ export default {
       this.newSonForm.managerName = '';
       this.newSonForm.name = '';
       this.newSonForm.subTaskLabel = '';
+      this.newSonForm.outline = '';
     },
     filterOnlyCapsText(value, search, item) {
       console.log(value);
@@ -1171,6 +1202,10 @@ export default {
           type: "error",
           message: '任务名不能为空'
         })
+        return;
+      }
+      if (this.newSonForm.outline.trim() === "") {
+        this.$message.error('任务描述不能为空')
         return;
       }
       if (this.newSonForm.startTime.trim() === "") {
@@ -1234,7 +1269,8 @@ export default {
         fatherTaskId: this.newSonForm.fatherTaskId,
         projectId: this.selectedProj.projectId,
         subTaskName: this.newSonForm.name,
-        subTaskLabel: this.newSonForm.subTaskLabel
+        subTaskLabel: this.newSonForm.subTaskLabel,
+        outline: this.newSonForm.outline
       }).then(
           res => {
             const errcode = res.data.errcode
@@ -1255,6 +1291,7 @@ export default {
       this.newSonForm.managerName = '';
       this.newSonForm.name = '';
       this.newSonForm.subTaskLabel = '';
+      this.newSonForm.outline = '';
     },
     newReview() {
       if (this.newReviewForm.input.trim() === "") {
@@ -1351,6 +1388,7 @@ export default {
       this.editSonForm.fatherTaskId = task.taskId;
       this.editSonForm.subTaskId = item.subTaskId;
       this.editSonForm.subTaskLabel = item.subTaskLabel;
+      this.editSonForm.outline = item.subTaskOutline;
       this.editTask = true;
     },
     handleComplete() {
@@ -1382,6 +1420,20 @@ export default {
         });
       });
     },
+    AIAdvice(data) {
+      if (!data) {
+        this.$message.error('未输入任务描述')
+      } else {
+        generateLabel({outline: data}).then(
+          res => {
+            const errcode = res.data.errcode
+            if (errcode === 0) {
+              this.$message.success(res.data.data)
+            }
+          }
+        )
+      }
+    },
     editSubTask() {
       if (this.editSonForm.name.trim() === "") {
         this.$message(
@@ -1390,6 +1442,10 @@ export default {
               message: '任务名不能为空！'
             }
         )
+        return;
+      }
+      if (this.editSonForm.outline.trim() === "") {
+        this.$message.error('任务描述不能为空！')
         return;
       }
       for (let i = 0; i < this.tasks.length; i++) {
@@ -1433,7 +1489,8 @@ export default {
         contribute: this.editSonForm.contribute,
         taskName: this.editSonForm.name,
         label: this.editSonForm.subTaskLabel,
-        managerId: this.personIdList[this.personNameList.indexOf(this.editSonForm.managerName)]
+        managerId: this.personIdList[this.personNameList.indexOf(this.editSonForm.managerName)],
+        outline: this.editSonForm.outline
       }).then(
           res => {
             const errcode = res.data.errcode
