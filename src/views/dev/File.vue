@@ -304,7 +304,7 @@ export default {
           });
           return;
           }
-          let api = this.commitForm.isNewBranch ? '/api/develop/gitBranchCommit/' : '/api/develop/gitCommit'
+          let api = this.commitForm.isNewBranch ? '/api/develop/gitBranchCommit' : '/api/develop/gitCommit'
           axios.post(api, {
             userId: this.user.id,
             projectId: this.proj.projectId,
