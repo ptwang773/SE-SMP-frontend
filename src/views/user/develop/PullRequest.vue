@@ -14,7 +14,7 @@
                 </el-select>
             </v-row>
             <v-row>
-                <v-col>
+                <v-col cols="5">
                     <v-row>
                         <h3>源分支：</h3>
                     </v-row>
@@ -25,7 +25,7 @@
                         </el-select>
                     </v-row>
                 </v-col>
-                <v-col>
+                <v-col cols="5">
                     <v-row>
                         <h3>目标分支：</h3>
                     </v-row>
@@ -38,7 +38,7 @@
                 </v-col>
             </v-row>
             <v-row>
-                <v-col cols="9"><el-input v-model="title" placeholder="请输入标题"></el-input></v-col>
+                <v-col cols="7"><el-input v-model="title" placeholder="请输入标题"></el-input></v-col>
 
             </v-row>
             <v-row>

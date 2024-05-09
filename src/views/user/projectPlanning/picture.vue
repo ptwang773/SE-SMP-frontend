@@ -1,17 +1,15 @@
 <template>
   <div style="position: relative; width: 100%; height: 100%">
-    <div
-      id="burnup-chart"
-      style="position: absolute; width: 80%; height: 40%; left: 10%; top: 6%"
-    >
+    <div id="burnup-chart" style="position: absolute; width: 80%; height: 40%; left: 10%; top: 6%">
       燃尽图
     </div>
-    <div
-      ref="chart"
-      style="position: absolute; width: 80%; height: 40%; left: 10%; top: 52%"
-    >
+    <div ref="chart" style="position: absolute; width: 80%; height: 40%; left: 10%; top: 52%">
       进度显示图
     </div>
+      <div ref="collChart" style="position: absolute; width: 80%; height: 40%; left: 10%; top: 98%">
+      协作关系图
+      </div>
+    
     <v-btn class="ma-2" :color="getTopicColor(user.topic)" @click="back">
       <v-icon dark left> mdi-arrow-left </v-icon>
       返回
@@ -39,9 +37,10 @@ export default {
     //   this.drawB();
     this.drawP();
     this.drawB();
+    this.drawCollaboration();
   },
   inject: {
-    user: {default: null}
+    user: { default: null }
   },
   methods: {
     transform(state) {
@@ -78,10 +77,10 @@ export default {
       let projectItemEnd = this.$route.query.projectItemEnd; //每个任务的结束时间
       let projectState = this.$route.query.projectState;
 
-    //   let projectItem = ["1", "2"]; //每个任务的名称
-    //   let projectItemStart = ["2022-5-24", "2022-5-27"]; //每个任务的启动时间
-    //   let projectItemEnd = ["2022-5-27", "2022-5-29"]; //每个任务的结束时间
-    //   let projectState = ["A", "B"];
+      //   let projectItem = ["1", "2"]; //每个任务的名称
+      //   let projectItemStart = ["2022-5-24", "2022-5-27"]; //每个任务的启动时间
+      //   let projectItemEnd = ["2022-5-27", "2022-5-29"]; //每个任务的结束时间
+      //   let projectState = ["A", "B"];
 
       let projectItemStartValue = projectItemStart.map((item) => {
         return new Date(item).valueOf();
@@ -92,7 +91,7 @@ export default {
       });
       console.log(projectItemDuringValue);
       let dateMin = projectItemStartValue[0];
-      for (let i=0;i < projectItemStartValue.length;i++) {
+      for (let i = 0; i < projectItemStartValue.length; i++) {
         if (projectItemStartValue[i] < dateMin) {
           dateMin = projectItemStartValue[i];
         }
@@ -118,15 +117,15 @@ export default {
               s = '未开始';
             } else if (state === 'D') {
               s = '延期已完成';
-            }  else if (state === 'E') {
+            } else if (state === 'E') {
               s = '延期未完成';
-            } 
+            }
             return (
               tar.name +
               "<br/>" +
               tar.seriesName +
-              " : " + new Date(startTime).getFullYear() + "-"+ (new Date(startTime).getMonth() + 1) + "-" + new Date(startTime).getDate()
-              + "-->" + new Date(endTime).getFullYear() + "-"+ (new Date(startTime).getMonth() + 1) + "-" + new Date(endTime).getDate() + 
+              " : " + new Date(startTime).getFullYear() + "-" + (new Date(startTime).getMonth() + 1) + "-" + new Date(startTime).getDate()
+              + "-->" + new Date(endTime).getFullYear() + "-" + (new Date(startTime).getMonth() + 1) + "-" + new Date(endTime).getDate() +
               "<br/>" + "状态：" + s
             );
           },
@@ -186,20 +185,20 @@ export default {
               normal: {
                 color: function (params) {
                   let state = projectState[params.dataIndex];
-                  if (state=== 'A') {
+                  if (state === 'A') {
                     return 'green';
                   } else if (state === 'B') {
                     return 'orange';
-                  } else if (state=== 'C') {
+                  } else if (state === 'C') {
                     return 'blue';
-                  } else if (state=== 'D') {
+                  } else if (state === 'D') {
                     return 'red';
                   } else if (state === 'E') {
                     return 'yellow';
                   }
-              },
-            }
-        },
+                },
+              }
+            },
             data: projectItemDuringValue,
           },
         ],
@@ -364,6 +363,54 @@ export default {
           },
         ],
       });
+    },
+    drawCollaboration() {
+      const nodes = [
+        { id: 1, name: 'Node 1', category: 0 }, // 节点1
+        { id: 2, name: 'Node 2', category: 1 }, // 节点2
+        { id: 3, name: 'Node 3', category: 0 }, // 节点3
+        // 添加更多节点...
+      ];
+
+      // 假设的边数组数据
+      const links = [
+        { source: 1, target: 2, value: 5 }, // 连接节点1和节点2，权值为5
+        { source: 2, target: 3, value: 8 }, // 连接节点2和节点3，权值为8
+        // 添加更多边...
+      ];
+
+      // 将数据放入 data 对象
+      const data = {
+        nodes: nodes,
+        links: links
+      };
+
+      // 创建 ECharts 实例
+      const myChart = echarts.init(this.$refs.collChart);
+
+      // 配置图形
+      const option = {
+        series: [{
+          type: 'graph',
+          layout: 'none',
+          data: data.nodes,
+          links: data.links,
+          lineStyle: {
+            normal: {
+              width: function (value) {
+                // 根据权值动态调整线条粗细
+                return value * 0.1; // 这里可以根据具体情况调整
+              }
+            }
+          },
+          emphasis: {
+            focus: 'adjacency'
+          }
+        }]
+      };
+
+      // 使用配置项显示图形
+      myChart.setOption(option);
     },
     back() {
       this.$router.go(-1);

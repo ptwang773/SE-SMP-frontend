@@ -229,6 +229,7 @@ export default {
           }
         },
         openForm() {
+          this.commitForm.editList = [];
           for(var i = 0; i < this.filePathList.length; i++) {
             if(this.filePathList[i].path == this.curFilePath) {
               if(this.cmEditor.getValue() != this.filePathList[i].content){
@@ -303,7 +304,7 @@ export default {
           });
           return;
           }
-          let api = this.commitForm.isNewBranch ? '/api/develop/gitBranch/' : '/api/develop/gitCommit'
+          let api = this.commitForm.isNewBranch ? '/api/develop/gitBranchCommit/' : '/api/develop/gitCommit'
           axios.post(api, {
             userId: this.user.id,
             projectId: this.proj.projectId,
