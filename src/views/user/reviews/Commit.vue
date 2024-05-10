@@ -34,7 +34,7 @@ export default {
       console.log("proj:" + this.$route.query.projId)
       console.log("repo:" + this.$route.query.repoId)
       console.log("commitMessage:" + this.$route.query.commit.hash)
-      axios.post("api/develop/getCommitDetails", {
+      axios.post("/api/develop/getCommitDetails", {
         userId: this.user.id,
         projectId: this.projId,
         repoId: this.repoId,
@@ -57,7 +57,7 @@ export default {
             }
           })
 
-      axios.post("api/develop/isProjectReviewer", {
+      axios.post("/api/develop/isProjectReviewer", {
         userId: this.user.id,
         projectId: this.projId
       })
@@ -68,7 +68,7 @@ export default {
                 message: '用户不在该项目中'
               })
             } else if (response.data.errcode === 0) {
-              this.isProjectReviewer = response.data.flag === 1
+              this.isProjectReviewer = response.data.flag
             }
           })
       this.getCommitDetailBusy = false
@@ -84,7 +84,7 @@ export default {
         commitDetails: '',
         comments: [{}],
         textarea: '',
-        isProjectReviewer: false,
+        isProjectReviewer: 0,
         managerId: '',
         times: '',
         fileChanges: [],
@@ -94,7 +94,8 @@ export default {
         oldFile: '',
         newFile: '',
         fileDiff: [],
-        reviewer: ''
+        reviewer: '',
+        role: [],
       }
     },
   methods: {
@@ -120,7 +121,7 @@ export default {
     },
     reviewCommit(result) {
       this.reviewer = this.user.name
-      axios.post("api/develop/modifyCommitStatus", {
+      axios.post("/api/develop/modifyCommitStatus", {
         userId: this.user.id,
         projectId: this.projId,
         repoId: this.repoId,
@@ -154,7 +155,7 @@ export default {
           })
           return
         }
-        axios.post("api/develop/commentCommit", {
+        axios.post("/api/develop/commentCommit", {
           userId: this.user.id,
           projectId: this.projId,
           repoId: this.repoId,
@@ -166,7 +167,7 @@ export default {
                 commenterName: this.user.name,
                 comment: this.textarea,
                 commenterId: this.user.id,
-                commenterRole: this.user.role
+                commenterRole: this.isProjectReviewer === 1 ? 'D' : 'C'
               })
               this.$message({
                 type: 'success',
@@ -240,7 +241,7 @@ export default {
       <b style="margin-top: 20px">{{this.commitMessage.committer}}</b> committed at {{this.commitMessage.time.slice(0,10) + " " + this.commitMessage.time.slice(11,-1)}}
       <div></div>
       <div style="display: inline-block; margin-top: 20px"
-           v-if="this.isProjectReviewer === true && this.commitDetails.status === null && this.getCommitDetailBusy === false">
+           v-if="this.isProjectReviewer !== 0 && this.commitDetails.status === null && this.getCommitDetailBusy === false">
         <v-chip :color="'green'" dark style="margin-right: 30px" @click="reviewCommit(1)">
         同意
       </v-chip>
@@ -261,7 +262,7 @@ export default {
       <div v-for="item in fileChanges" :key="item.filename" style="white-space: pre;">
       <code-diff
       :old-string="item.prev_file"
-      :new-string="item.now_file"
+      :new-string="item.now_file + '\n'"
       :context="3"
       :filename="item.filename"
       output-format="line-by-line"/></div>
@@ -275,14 +276,14 @@ export default {
         :rows="4"
         placeholder="请输入评论内容"
         v-model="textarea"
-      v-if="this.commitDetails.status === null && this.isProjectReviewer === true">
+      v-if="this.commitDetails.status === null && this.isProjectReviewer !== 0">
         </el-input>
       <el-input
         type="textarea"
         :rows="4"
         placeholder="审核已完成，不可评论"
         v-model="textarea"
-        v-else-if="this.isProjectReviewer === true"
+        v-else-if="this.isProjectReviewer !== 0"
         disabled>
         </el-input>
       <el-input
@@ -293,7 +294,7 @@ export default {
         v-else
         disabled>
         </el-input>
-       <el-button style="margin-top: 14px; margin-left: auto; justify-content: flex-end; display: flex; color: white" type="success" @click="submitComment()" dark v-if="this.commitDetails.status === null && this.isProjectReviewer === true">
+       <el-button style="margin-top: 14px; margin-left: auto; justify-content: flex-end; display: flex; color: white" type="success" @click="submitComment()" dark v-if="this.commitDetails.status === null && this.isProjectReviewer !== 0">
          提交评论
        </el-button>
       <el-button style="margin-top: 14px; margin-left: auto; justify-content: flex-end; display: flex; color: white" type="success" @click="submitComment()" dark v-else disabled>

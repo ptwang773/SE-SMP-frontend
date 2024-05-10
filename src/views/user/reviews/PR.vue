@@ -94,8 +94,7 @@
                   type: 'error',
                   message: '此任务不存在此项目中'
                 })
-              }
-              else {
+              } else {
                 this.associatedTasks.push({taskId: task.taskId, taskName: task.taskName})
                 this.$message({
                   type: 'success',
@@ -113,11 +112,11 @@
           taskId: task.taskId
         })
             .then((res) => {
-              if (res.data.errcode !== 0) {
+              if (res.data.errcode === 8) {
                 console.log(res.data)
                 this.$message({
                   type: 'error',
-                  message: '解除关联失败'
+                  message: 'PR已完成，无法解除关联'
                 })
               } else {
                 for (let i = 0; i < this.associatedTasks.length; i++) {
@@ -170,7 +169,8 @@
       },
       getAssociatedTaskList() {
         axios.post("api/develop/getPrAssociatedTasks", {
-          prId: this.pr.prId
+          prId: this.pr.prId,
+          repoId: this.repoId
         })
             .then((res) => {
               if (res.data.errcode !== 0) {
@@ -205,7 +205,13 @@
           action: result
         })
             .then((res) => {
-              if (res.data.errcode !== 0) {
+              console.log(res.data)
+              if (res.data.errcode === -1) {
+                this.$message({
+                  type: 'error',
+                  message: '两分支上有冲突，请在本地解决冲突后再通过PR'
+                })
+              } else if (res.data.errcode !== 0) {
                 this.$message({
                   type: 'error',
                   message: '发生错误，审核失败'
@@ -316,7 +322,7 @@
           <v-simple-table dense style="margin-top: 20px" v-if="this.commits.length > 0 && !getPrDetailBusy">
             <thead>
             <tr>
-              <th class="title">commiter</th>
+              <th class="title">committer</th>
               <th class="title">sha</th>
               <th class="title">time</th>
             </tr>

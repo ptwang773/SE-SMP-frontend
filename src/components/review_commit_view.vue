@@ -14,8 +14,8 @@ export default {
     checkFresh() {
       axios.post("api/develop/checkRefreshRepo", {
         userId: this.user.id,
-        projectId: this.projId,
-        repoId: this.repoId
+        projectId: this.proj.id,
+        repoId: this.selectedRepo.id
       })
           .then((res) => {
             console.log(res.data)
@@ -29,10 +29,10 @@ export default {
           })
     },
     fresh() {
-      axios.post("api/develop/refreshRepo", {
+      axios.post("/api/develop/refreshRepo", {
         userId: this.user.id,
-        projectId: this.projId,
-        repoId: this.repoId
+        projectId: this.proj.id,
+        repoId: this.selectedRepo.id
       })
     },
       updateCommitHistory() {
