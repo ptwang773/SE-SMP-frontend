@@ -43,7 +43,7 @@
             </v-row>
             <v-row>
                 <div class="editor">
-                    <mavon-editor v-model="html " ref="md"  style="min-height: 600px" />
+                    <mavon-editor v-model="html" ref="md" style="min-height: 600px" />
                 </div>
             </v-row>
             <v-row>
@@ -174,19 +174,16 @@ export default {
                         message: '请选择目标分支'
                     });
                 }
-                this.$axios({
-                    method: 'post',
-                    url: '/api/develop/gitPr',
-                    data: {
-                        userId: this.userId,
-                        projectId: this.projectId,
-                        repoId: this.curRepoId,
-                        branch: this.srcBranch,
-                        title: this.title,
-                        body: this.html,
-                        base: this.dstBranch
-                    }
-                }).then(async (res) => {
+                axios.post('/api/develop/gitPr', {
+
+                    userId: this.userId,
+                    projectId: this.projectId,
+                    repoId: this.curRepoId,
+                    branch: this.srcBranch,
+                    title: this.title,
+                    body: this.html,
+                    base: this.dstBranch
+                }).then( (res) => {
                     if (res.data.errcode === 0) {
                         this.$message.success({
                             labels: 'success',
