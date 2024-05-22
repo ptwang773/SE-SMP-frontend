@@ -7,7 +7,16 @@
       <v-spacer></v-spacer>
 
 
-      <v-icon v-if="existUser()" @click="checkClock">mdi-clock-outline</v-icon>
+      <template>
+        <v-badge
+          :content="this.noticeList.length"
+          :value="this.noticeList.length > 0"
+          color="red"
+          overlap
+        >
+          <v-icon v-if="existUser()" @click="checkClock">mdi-clock-outline</v-icon>
+        </v-badge>
+      </template>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
           <v-btn link href="/allProject/" v-if="existUser()" icon color="white" v-bind="attrs" v-on="on">
@@ -27,7 +36,7 @@
 
       <v-menu offset-y :close-on-content-click="false">
         <template v-slot:activator="{ on, attrs }">
-          <v-chip v-if="user" outlined v-bind="attrs" v-on="on">{{ user.name }}</v-chip>
+          <v-chip ref="userPage" v-if="user" outlined v-bind="attrs" v-on="on">{{ user.name }}</v-chip>
           <v-icon v-if="user" v-bind="attrs" v-on="on">mdi-account</v-icon>
           <v-icon v-else v-bind="attrs" v-on="on">mdi-account-remove</v-icon>
         </template>
@@ -430,25 +439,37 @@
       <v-simple-table>
         <thead>
           <tr>
-            <th class="text-left">
-                任务
+            <th class="text-left" style="width: 60px">
+              已读
+            </th>
+            <th class="text-left" style="width: 50px">
+              Id
             </th>
             <th class="text-left">
-                时间
+              内容
+            </th>
+            <th class="text-left">
+              时间
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="notice in noticeList" :key="notice.noticeId" @mouseenter="arr[notice.taskId] = true" @mouseleave="arr[notice.taskId] = false">
-            <td>{{ getTaskName(notice.taskId) }}</td>
-            <td>{{ new Date(notice.deadline).toLocaleString() }}</td>
+          <tr v-for="notice in noticeList" :key="notice.noticeId"
+              :style="{ backgroundColor: notice.read === 'N' ? '#ffffff' : '#f0f0f0' }"
+              @mouseenter="arr[notice.taskId] = true" @mouseleave="arr[notice.taskId] = false">
+            <td>
+              <v-icon v-if="notice.read === 'N'" @click="handleReadNotice(notice.noticeId)">mdi-checkbox-marked</v-icon>
+            </td>
+            <td>{{ notice.noticeId }}</td>
+            <td>{{ notice.content}}</td>
+            <td>{{ new Date(notice.create_time).toLocaleString() }}</td>
             <td>
               <v-icon @click="handleDeleteNotice(notice.noticeId)">mdi-delete</v-icon>
             </td>
           </tr>
         </tbody>
       </v-simple-table>
-      </el-dialog> 
+    </el-dialog>
 
     <v-main>
       <router-view v-if="showRouterView"/>
@@ -472,8 +493,10 @@
 <script>
 import Cookies from "js-cookie"
 import { computed } from "vue"
-import { newProject, showTaskList, watchAllProject, getEmail, showNoticeList, removeNotice,
-  userReleaseDocLock} from "@/api/user"
+import {
+  newProject, showTaskList, watchAllProject, getEmail, showNoticeList, removeNotice,
+  userReleaseDocLock, readNotice
+} from "@/api/user"
 import axios from "axios"
 import AllTask from "@/views/user/projectPlanning/allTask.vue"
 import AllFile from "@/views/user/document/allFile.vue"
@@ -571,9 +594,10 @@ export default {
       this.getTaskList()
 
       console.log('setting interval...')
+      this.updateNoticeList()
       setInterval(() => {
         this.updateNoticeList();
-      }, 50000)
+      }, 5000)
   },
   components:{
     AllTask,
@@ -671,7 +695,7 @@ export default {
     },
     updateNoticeList() {
       console.log("updating NoticeList...")
-      showNoticeList({projectId: this.proj.projectId}).then(
+      showNoticeList({userId: this.user.id}).then(
           res => {
             this.noticeList = res['data']['data']
             this.noticeList.forEach(item => {
@@ -701,7 +725,7 @@ export default {
     },
     checkClock() {
       this.clockDialog = true;  
-      showNoticeList({projectId: this.proj.projectId}).then(
+      showNoticeList({userId: this.user.id}).then(
         res => {
           this.noticeList = res['data']['data'];
           console.log(this.noticeList);
@@ -927,12 +951,26 @@ export default {
         intro: ''
       }
     },
+    handleReadNotice(noticeId) {
+      this.$confirm("确认已读？")
+          .then(() => {
+            readNotice({noticeId: noticeId, userId: this.user.id}).then(
+                res => {
+                  showNoticeList({userId: this.user.id}).then(
+                      res => {
+                        this.noticeList = res.data.data
+                      }
+                  )
+                }
+            )
+          })
+    },
     handleDeleteNotice(noticeId) {
       this.$confirm("确认删除提醒？")
         .then(() => {
           removeNotice({noticeId: noticeId}).then(
             res => {
-              showNoticeList({projectId: this.proj.projectId}).then(
+              showNoticeList({userId: this.user.id}).then(
               res => {
                 this.noticeList = res['data']['data'];
                 console.log(this.noticeList);

@@ -157,6 +157,10 @@ export const removeNotice = (data) => {
   return request.post("/api/plan/removeNotice", data);
 }
 
+export const readNotice = (data) => {
+  return request.post('api/plan/readNotice', data);
+}
+
 export const userDocList = (data) => {
   return request.post("/api/doc/userDocList", data);
 }

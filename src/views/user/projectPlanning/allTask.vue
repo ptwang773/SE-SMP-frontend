@@ -896,6 +896,8 @@ export default {
     ],
     tasks: [],
     taskReviews: {}, // taskId -> reviews[]
+    allowedHours: null,
+    allowedMinutes: null
   }),
   methods: {
     generateLabel,
