@@ -573,7 +573,7 @@ export default {
       console.log('setting interval...')
       setInterval(() => {
         this.updateNoticeList();
-      }, 50000)
+      }, 5000)
   },
   components:{
     AllTask,

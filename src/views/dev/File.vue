@@ -9,9 +9,13 @@ import "@/utils/cm-settings.js"
 import topicSetting from "@/utils/topic-setting";
 import { downloadStrAsFile } from "@/utils/file-system";
 import * as echarts from 'echarts'
+import moreButton from '../../components/moreButton.vue';
 
 export default {
   name: "FileView",
+  components: {
+    moreButton
+  },
   data() {
     return {
       tree: [],
@@ -34,7 +38,12 @@ export default {
       fileTreeReady: false,
       fileContentReady: false,
 
-
+      newFileData: {
+        name: '',
+        file: '',
+        visible: false
+      },
+      dropdownVisible: false,
       curType: '',
       curFilePath: '',
       curFileName: '',
@@ -338,15 +347,15 @@ export default {
         this.commitForm.isNewBranch = false;
         this.commitForm.editList = [];
         this.commitForm.subDisable = false;
-        })
+      })
 
     },
     getBtnColor: topicSetting.getColor,
     getTopicColor: topicSetting.getDarkColor,
     getRadialGradient: topicSetting.getRadialGradient,
     getLinearGradient: topicSetting.getLinearGradient,
-
     showContribution() {
+      console.log('11111')
       if (!this.curFilePath) {
         this.$message.error('还未选择文件！')
       } else {
@@ -366,7 +375,7 @@ export default {
         this.fileChart.dispose()
       }
       this.fileChart = echarts.init(this.$refs.fileChart);
-      window.addEventListener("resize", function () {
+      window.addEventListener("resize", () => {
         this.fileChart.resize();
       });
 
@@ -457,6 +466,66 @@ export default {
         repoId: this.$route.params.repoid
       })
     },
+    handleCommand(command) {
+      if (command == "a") {
+        this.showContribution();
+      } else if (command == "b") {
+        console.log("bbb");
+        var name = this.curFilePath.split("/").pop();
+        downloadStrAsFile(this.fileContent, name);
+      } else if (command == "c") {
+        this.newFile();
+      }
+    },
+
+    newFile() {
+      this.newFileData.visible = true;
+    },
+    createNewFile() {
+      if (this.newFileData.name == "") {
+        this.$message({
+          type: 'warning',
+          message: '请填写文件名'
+        })
+      }
+      var name;
+      if (!this.newFileData.name.includes(".")) {
+        this.newFileData.name = this.newFileData.name + ".txt";
+      }
+      name = this.newFileData.name;
+      for(var i = 0; i < this.items.length; i++) {
+        if(this.items[i].file != undefined){
+          if(this.items[i].name == name) {
+            this.$message({
+              type:'warning',
+              message:'文件已存在，请重新填写文件名'
+            })
+            return;
+          }
+        }
+      }
+
+      var file = name.split(".").pop()
+
+      var item = {file:file, name:name, path: "/" + name};
+      this.items.push(item);
+
+      var newFile = { file: file, path: "/" + name, name: name, content: 'newFile', newContent: '', changed: true, removed: false };
+            this.filePathList.push(newFile);
+            this.curFilePath = newFile.path;
+            this.nextFilePath = this.curFilePath;
+            this.curFileName = newFile.name;
+            this.fileContent = newFile.newContent;
+            this.curType = newFile.file;
+            this.cmEditor.setValue(this.fileContent)
+            this.cmEditor.setOption('mode', this.file2style())
+            this.$message({
+              type:'success',
+              message:'成功新建文件'
+            })
+            this.newFileData.visible = false;
+            this.newFileData.name = '';
+    }
   },
   created() {
     this.fileTreeReady = false;
@@ -569,11 +638,32 @@ export default {
 
 <template>
   <v-container>
-    <v-btn depressed :color="getBtnColor(user.topic)" @click="showContribution"
-      style="position:absolute; right: 2%; height:7%; width:13%;">
-      查看文件贡献度
-      <v-icon dark right>mdi-account-details</v-icon>
-    </v-btn>
+    <!-- <v-row>
+      <v-col>
+        <el-dropdown size="small" split-button type="primary">
+          小型尺寸
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>黄金糕</el-dropdown-item>
+            <el-dropdown-item>狮子头</el-dropdown-item>
+            <el-dropdown-item>螺蛳粉</el-dropdown-item>
+            <el-dropdown-item>双皮奶</el-dropdown-item>
+            <el-dropdown-item>蚵仔煎</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+        <el-dropdown>
+          <el-button type="primary">
+            更多菜单<i class="el-icon-arrow-down el-icon--right"></i>
+          </el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>黄金糕</el-dropdown-item>
+            <el-dropdown-item>狮子头</el-dropdown-item>
+            <el-dropdown-item>螺蛳粉</el-dropdown-item>
+            <el-dropdown-item>双皮奶</el-dropdown-item>
+            <el-dropdown-item>蚵仔煎</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </v-col>
+    </v-row> -->
     <v-row style="margin-top: 20px">
       <!-- <v-col :cols="fileContentReady ? 2 : 3"> -->
       <v-col :cols=3>
@@ -662,8 +752,41 @@ export default {
               </template>
             </el-tab-pane>
           </el-tabs>
+          <el-dropdown class="moreButton" @command="handleCommand">
+            <el-button type="primary">
+              更多功能<i class="el-icon-arrow-down el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="a">查看文件贡献图</el-dropdown-item>
+              <el-dropdown-item command="b">下载当前文件</el-dropdown-item>
+              <el-dropdown-item command="c">新建文件</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+          <el-dialog title="新建文件" :visible.sync="newFileData.visible" width="40%">
+                <el-form :model="newFileData" ref="form" label-width="140px">
+                  <el-form-item label="文件名">
+                    <el-input v-model="newFileData.name"></el-input>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary" @click="createNewFile">新建</el-button>
+                  </el-form-item>
+                </el-form>
+              </el-dialog>
         </div>
-        <div v-show="filePathList.length === 0" style="height: 10%"></div>
+        <div v-show="filePathList.length === 0" style="height: 10%">
+          <el-dropdown class="moreButton">
+            <el-button type="primary">
+              更多功能<i class="el-icon-arrow-down el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>黄金糕</el-dropdown-item>
+              <el-dropdown-item>狮子头</el-dropdown-item>
+              <el-dropdown-item>螺蛳粉</el-dropdown-item>
+              <el-dropdown-item>双皮奶</el-dropdown-item>
+              <el-dropdown-item>蚵仔煎</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
         <v-card max-height="calc(100vh - 300px)" min-height="calc(100vh - 300px)">
           <textarea ref="cm1" v-model='fileContent' style="height: calc(100vh - 300px); width: 100%"></textarea>
         </v-card>
@@ -736,9 +859,15 @@ export default {
 }
 
 .tabs-menu {
+  display: flex;
   position: relative;
   width: 100%;
   height: 10%;
+}
+
+.moreButton {
+  position: absolute;
+  right: 0;
 }
 
 .commit-div {
