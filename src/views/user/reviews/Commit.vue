@@ -197,15 +197,19 @@ export default {
       getColor1(role) {
         if (role === 'D') {
           return 'purple'
-        } else {
+        } else if (role === 'C') {
           return 'blue'
+        } else {
+          return 'brown'
         }
       },
       transform1(role) {
         if (role === 'D') {
           return '审核人员'
-        } else {
+        } else if (role === 'C') {
           return '负责人'
+        } else {
+          return '其他项目人员'
         }
       },
       getIdenticon,

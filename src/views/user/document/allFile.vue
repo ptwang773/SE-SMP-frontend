@@ -34,9 +34,7 @@
         :headers="headers"
         :items="documentData"
         class="elevation-1"
-        item-key="id"
-        :search="search"
-        :custom-filter="filterOnlyCapsText"
+        :search="searchFile"
         style="position:absolute;left:3%;width:94%;height: 70%;top:14%"
       >
       <template v-slot:[`item.name`] = "{item}" >
@@ -63,7 +61,7 @@
         <template v-slot:top>
           <div style="width: 100%; height: 10%; position: relative">
             <v-text-field
-              v-model="search"
+              v-model="searchFile"
               label="请输入文档名称进行查询"
               class="mx-4"
               style="width: 30%; display: inline-block"
@@ -492,7 +490,7 @@ import Cookies from "js-cookie"
          },
     data() {
       return {
-      isCollect: false,  
+      isCollect: false,
       doc: '',
       textList: {},
       expanded: [],
@@ -500,6 +498,7 @@ import Cookies from "js-cookie"
       deleteGroup: [1],
       deleteFlag: false,
       search: '',
+        searchFile: '',
       dialog1: false,
       dialog2: false,
       editDialog1: false,
