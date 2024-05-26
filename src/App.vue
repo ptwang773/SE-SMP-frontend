@@ -314,25 +314,25 @@
           </v-list-item-content>
         </v-list-item>
 
-      <v-subheader inset style="color: white; font-size: large; margin-left: 0; padding-top: 0; background-color: black">沟通</v-subheader>
-          <v-dialog
-          width="1300"
-          v-model="dialog"
-          fullscreen
-          transition="dialog-bottom-transition"
-          hide-overlay
->
+        <v-subheader inset style="color: white; font-size: large; margin-left: 0; padding-top: 0; background-color: black">沟通</v-subheader>
+        <v-dialog
+            width="1300"
+            v-model="dialog"
+            fullscreen
+            transition="dialog-bottom-transition"
+            hide-overlay
+        >
           <template v-slot:activator="{on, attrs}">
-          <v-list-item :style="'color: ' + getDarkColor(user.topic)" >
-            <v-list-item-avatar>
-          <v-icon :color="getDarkColor(user.topic)">mdi-file-document-outline</v-icon>
-        </v-list-item-avatar>
-        <v-list-item-content>
-          <v-list-item-title v-bind="attrs" v-on="on">共享文档</v-list-item-title>
-        </v-list-item-content>
-        </v-list-item>
-        </template>
-        <AllFile @close="closeDocument" @open="openDocument"></AllFile>
+            <v-list-item :style="'color: ' + getDarkColor(user.topic)">
+              <v-list-item-avatar>
+                  <v-icon :color="getDarkColor(user.topic)">mdi-file-document-outline</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title v-bind="attrs" v-on="on">共享文档</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </template>
+            <AllFile @close="closeDocument" @open="openDocument"></AllFile>
           </v-dialog>
       <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/user/chat'">
         <v-list-item-avatar>

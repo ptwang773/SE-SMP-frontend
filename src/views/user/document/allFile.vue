@@ -1,5 +1,5 @@
 <template>
-    <v-card style="position: relative;">
+    <v-card style="padding-bottom: 0; margin-bottom: 0">
         <v-toolbar
           dark
           :src="getUrl(user.topic)"
@@ -35,20 +35,22 @@
         :items="documentData"
         class="elevation-1"
         :search="searchFile"
-        style="position:absolute;left:3%;width:94%;height: 70%;top:14%"
+        style="position:absolute;left:2.8%;width:94%;top:16%; padding: 0;"
       >
       <template v-slot:[`item.name`] = "{item}" >
         <v-icon>mdi-text-box-outline</v-icon>
          <a @click="openMd(item)" style="position:relative;left:2%;top:3%;">{{ item.name }}</a>
       </template>
       <template v-slot:[`item.updateTime`] = "{item}" >
-        {{ item.updateTime.slice(0, 10) + "-" + item.updateTime.slice(11, 19) }}
+        {{ item.updateTime.slice(0, 10) + " "+ item.updateTime.slice(11, 19) }}
       </template>
       <template v-slot:expanded-item="{ headers, item }">
         {{ item.outline}}
     </template>
       <template v-slot:no-data>
-        <div></div>
+        <div>
+             <el-empty :image-size="200" description="暂无文档"></el-empty>
+        </div>
      </template>
       <template v-slot:no-results>
         <div style="text-align: center;">
@@ -77,7 +79,7 @@
               depressed
               :color="getTopicColor(user.topic)"
               @click="newDocumentForm.name = '';newDocumentForm.intro = '';dialog1 = true;"
-              ><strong>创建文档</strong></v-btn
+              ><strong style="color: white">创建文档</strong></v-btn
             >
           </div>
         </template>
@@ -441,7 +443,7 @@
         </v-list-item-group>
         </v-list>
        </v-card-text>
-       <v-card-actions class="justify-end" style="position: absolute;bottom: 0%;right: 0%;">
+       <v-card-actions class="justify-end" style="position: absolute;bottom: 0;right: 0;">
               <v-btn
                 text
                 color="primary"
