@@ -2,6 +2,7 @@
 import axios from "axios";
 import topicSetting from "@/utils/topic-setting";
 import commit from "../views/user/reviews/Commit.vue";
+import getIdenticon from "@/utils/identicon";
 
 export default {
   name: "review_pr_view",
@@ -92,15 +93,15 @@ export default {
         projectId: this.proj.id,
         prId: this.selectForm.prId,
         repoId: this.selectedRepo.id,
-        reviewerId:this.selectForm.reviewerId
+        reviewerId: this.selectForm.reviewerId
       }).then((res) => {
         if (res.data.errcode === 0) {
           this.$message({
-          type: 'success',
-          message: '成功分配审核人员'
-        })
-        this.selectForm.visible = false;
-        this.selectForm.reviewerId = undefined;
+            type: 'success',
+            message: '成功分配审核人员'
+          })
+          this.selectForm.visible = false;
+          this.selectForm.reviewerId = undefined;
         } else {
           console.log(res)
           alert('/api/plan/showProjectReviewers error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
@@ -108,7 +109,8 @@ export default {
       }).catch((err) => {
         alert('/api/plan/showProjectReviewers error' + err)
       })
-    }
+    },
+    getIdenticon,
   },
   data() {
     return {
@@ -127,10 +129,12 @@ export default {
       ],
       selectForm: {
         prId: '',
+        projectId:'',
         reviewerId: '',
+        sha:'',
         visible: false,
       },
-      reviewers:[],
+      reviewers: [],
       statsPerDay: {}
     }
   }, watch: {
@@ -203,12 +207,19 @@ export default {
       <el-form :model="selectForm" ref="form" label-width="140px">
         <el-form-item>
           <el-radio-group v-model="selectForm.reviewerId">
-            <el-radio v-for="item in reviewers" :label="item.userId">{{ item.userName }}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item>
-              <el-button type="primary" @click="submitForm">提交</el-button>
-        </el-form-item>
+            <div style="display: flex; align-items: center;">
+            <el-radio v-for="item in reviewers" :label="item.userId" :key="item.userId">
+              <div style="display: flex; align-items: center;">
+                  <img :src="getIdenticon(item.userName, 50, 'user')" alt="User Avatar"
+                    style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                  <span>{{ item.userName }}</span>
+                </div>
+            </el-radio>
+            </div>
+          </el-radio-group> </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="submitForm">提交</el-button>
+          </el-form-item>
       </el-form>
     </el-dialog>
   </div>

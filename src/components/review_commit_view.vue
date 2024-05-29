@@ -2,6 +2,7 @@
 import axios from "axios";
 import topicSetting from "@/utils/topic-setting";
 import commit from "../views/user/reviews/Commit.vue";
+import getIdenticon from "@/utils/identicon";
 
 export default {
   name: "review_commit_view",
@@ -11,6 +12,21 @@ export default {
     }
   },
   methods: {
+    updateReviewers() {
+      axios.post('/api/plan/showProjectReviewers', {
+        userId: this.user.id,
+        projectId: this.proj.id,
+      }).then((res) => {
+        if (res.data.errcode === 0) {
+          this.reviewers = res.data.data
+        } else {
+          console.log(res)
+          alert('/api/plan/showProjectReviewers error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
+        }
+      }).catch((err) => {
+        alert('/api/plan/showProjectReviewers error' + err)
+      })
+    },
     checkFresh() {
       axios.post("api/develop/checkRefreshRepo", {
         userId: this.user.id,
@@ -118,6 +134,34 @@ export default {
           return "审核未通过"
         }
       },
+      selectReviewer(commit) {
+      this.selectForm.sha = commit.hash;
+      this.selectForm.visible = true;
+    },
+    submitForm() {
+      axios.post('/api/develop/assignPrReviewer', {
+        userId: this.user.id,
+        projectId: this.proj.id,
+        repoId: this.selectedRepo.id,
+        reviewerId: this.selectForm.reviewerId
+        sha:this.selectForm.sha
+      }).then((res) => {
+        if (res.data.errcode === 0) {
+          this.$message({
+            type: 'success',
+            message: '成功分配审核人员'
+          })
+          this.selectForm.visible = false;
+          this.selectForm.reviewerId = undefined;
+        } else {
+          console.log(res)
+          alert('/api/plan/showProjectReviewers error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
+        }
+      }).catch((err) => {
+        alert('/api/plan/showProjectReviewers error' + err)
+      })
+    },
+    getIdenticon,
   },
   data() {
     return {
@@ -130,7 +174,15 @@ export default {
       commitStatus:[
 
       ],
-      statsPerDay: {}
+      statsPerDay: {},
+      selectForm: {
+        prId: '',
+        projectId:'',
+        reviewerId: '',
+        sha:'',
+        visible: false,
+      },
+      reviewers: [],
     }
   }, watch: {
     selectedBranch() {
@@ -139,6 +191,7 @@ export default {
   }, created() {
         this.checkFresh()
         this.updateCommitHistory()
+        this.updateReviewers();
 
   }, inject: {
     user: {default: null},
@@ -164,6 +217,7 @@ export default {
               <th class="status">status</th>
               <th class="hash">hash</th>
               <th class="time">time</th>
+              <th class="reviewer">审核人员</th>
           </tr>
           </thead>
           <tbody>
@@ -184,6 +238,10 @@ export default {
                   </v-tooltip>
               </td>
               <td>{{new Date(commit.time).toLocaleString()}}</td>
+              <td @click.stop>
+              <span v-if="commit.reviewerName">{{ commit.reviewerName }}</span>
+              <el-button v-else @click="selectReviewer(commit)"> 分配审核人员</el-button>
+              </td>
           </tr>
           </tbody>
       </v-simple-table>
@@ -192,6 +250,25 @@ export default {
 
   </div>
   <v-skeleton-loader v-else type="table" class="mx-auto" />
+  <el-dialog title="分配审核人员" :visible.sync="selectForm.visible" width="40%">
+      <el-form :model="selectForm" ref="form" label-width="140px">
+        <el-form-item>
+          <el-radio-group v-model="selectForm.reviewerId">
+            <div style="display: flex; align-items: center;">
+            <el-radio v-for="item in reviewers" :label="item.userId" :key="item.userId">
+              <div style="display: flex; align-items: center;">
+                  <img :src="getIdenticon(item.userName, 50, 'user')" alt="User Avatar"
+                    style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                  <span>{{ item.userName }}</span>
+                </div>
+            </el-radio>
+            </div>
+          </el-radio-group> </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="submitForm">提交</el-button>
+          </el-form-item>
+      </el-form>
+    </el-dialog>
 </div>
 </template>
 
