@@ -520,7 +520,8 @@ if (user === undefined) { // 用户未登录
       !window.location.pathname.startsWith("/allProject") && window.location.pathname !== "/home" &&
       !window.location.pathname.startsWith("/dev") && window.location.pathname !== "/profile" &&
       window.location.pathname !== "topic" &&
-      !window.location.pathname.startsWith("/user")) // 合法的普通用户路径
+      !window.location.pathname.startsWith("/user") && !window.location.pathname.startsWith("/commitReview" )&&
+      !window.location.pathname.startsWith("/prReview")) // 合法的普通用户路径
   let managerpath = (window.location.pathname !== "/profile" &&
       window.location.pathname !== "topic" && !window.location.pathname.startsWith("/manager")) // 合法的纯管理员路径（位于管理端）
   user = JSON.parse(user)

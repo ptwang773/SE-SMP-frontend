@@ -93,10 +93,10 @@ export default {
         this.$router.push({
           path: '/commitReview/' + this.proj.id + '/' + this.selectedRepo.id + '/' + this.selectedBranch.name + '/' + commit.hash,
           query: {
-            commit: commit,
             branchName: this.selectedBranch.name,
             projId: this.proj.id,
-            repoId: this.selectedRepo.id
+            repoId: this.selectedRepo.id,
+            commitSha: commit.hash
           }
         })
       },
