@@ -143,7 +143,7 @@ export default {
         userId: this.user.id,
         projectId: this.proj.id,
         repoId: this.selectedRepo.id,
-        reviewerId: this.selectForm.reviewerId
+        reviewerId: this.selectForm.reviewerId,
         sha:this.selectForm.sha
       }).then((res) => {
         if (res.data.errcode === 0) {
