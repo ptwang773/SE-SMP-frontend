@@ -7,10 +7,12 @@
       marked
     },
     created() {
-      this.pr = this.$route.query.pr
+      this.prId = this.$route.query.prId
       this.projId = this.$route.query.projId
       this.repoId = this.$route.query.repoId
-      console.log(this.pr)
+      console.log(this.prId)
+      console.log(this.projId)
+      console.log(this.repoId)
       this.getPrDetail();
       this.getTaskList();
       this.getAssociatedTaskList();
@@ -21,7 +23,7 @@
     },
     data() {
       return{
-        pr: '',
+        prId: '',
         projId: '',
         repoId: '',
         getPrDetailBusy: true,
@@ -74,7 +76,7 @@
           userId: this.user.id,
           projectId: this.projId,
           repoId: this.repoId,
-          prId: this.pr.prId,
+          prId: this.prId,
           taskId: task.taskId
         })
             .then((res) => {
@@ -108,7 +110,7 @@
           userId: this.user.id,
           projectId: this.projId,
           repoId: this.repoId,
-          prId: this.pr.prId,
+          prId: this.prId,
           taskId: task.taskId
         })
             .then((res) => {
@@ -137,7 +139,7 @@
           userId: this.user.id,
           projectId: this.projId,
           repoId: this.repoId,
-          prId: this.pr.prId
+          prId: this.prId
         })
             .then((res) => {
               if (res.data.errcode !== 0) {
@@ -156,6 +158,7 @@
                 this.getPrDetailBusy = false
               }
             })
+        console.log(this.prDetail)
       },
       getTaskList() {
         axios.post("api/develop/showCanAssociateTasks", {
@@ -169,7 +172,7 @@
       },
       getAssociatedTaskList() {
         axios.post("api/develop/getPrAssociatedTasks", {
-          prId: this.pr.prId,
+          prId: this.prId,
           repoId: this.repoId
         })
             .then((res) => {
@@ -199,7 +202,7 @@
       reviewPr(result) {
         axios.post("api/develop/resolvePr", {
           userId: this.user.id,
-          prId: this.pr.prId,
+          prId: this.prId,
           projectId: this.projId,
           repoId: this.repoId,
           action: result
@@ -265,7 +268,7 @@
 <template>
 <div style="margin: 15px">
   <el-page-header @back="goBack" content="PR评审" style="margin-top: 40px"></el-page-header>
-  <h1 style="margin-top: 20px; margin-left: 20px"><v-chip label >!{{pr.prId}}</v-chip>  {{this.pr.prTitle}}</h1>
+  <h1 style="margin-top: 20px; margin-left: 20px"><v-chip label >!{{this.prId}}</v-chip>  {{this.prDetail.title}}</h1>
   <div style="margin: 10px 0 0 20px">
     <v-chip :color="getColor(reviewStatus)" dark small label v-if="!getPrDetailBusy">
       <v-icon small>mdi-source-pull</v-icon>{{ transform(reviewStatus) }}
@@ -273,9 +276,9 @@
     <v-chip v-else dark small label>
         <v-icon small>mdi-source-pull</v-icon>加载中
     </v-chip>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{{this.pr.prIssuer}}</b>
-    <span style="color: grey">&nbsp;&nbsp;创建于：{{this.pr.prTime.slice(0,10)}} {{this.pr.prTime.slice(11,-1)}}
-      <v-chip label small style="margin-left: 10px"> {{pr.fromBranchName}}</v-chip> → <v-chip label small>{{pr.toBranchName}}</v-chip>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{{this.prDetail.pr_applicant}}</b>
+    <span style="color: grey">&nbsp;&nbsp;创建于：{{this.prDetail.created_time.slice(0,10)}} {{this.prDetail.created_time.slice(11,-1)}}
+      <v-chip label small style="margin-left: 10px"> {{prDetail.branch}}</v-chip> → <v-chip label small>{{prDetail.base}}</v-chip>
       <el-button style="margin-left: 85%; margin-top: -40000px; color: white" type="success" @click="this.openTaskDialog"  v-if="this.isProjectReviewer === true && this.prDetail.state === 'open'">
         +关联任务项
       </el-button>

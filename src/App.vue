@@ -7,7 +7,16 @@
       <v-spacer></v-spacer>
 
 
-      <v-icon v-if="existUser()" @click="checkClock">mdi-clock-outline</v-icon>
+      <template>
+        <v-badge
+          :content="this.noticeList.length"
+          :value="this.noticeList.length > 0"
+          color="red"
+          overlap
+        >
+          <v-icon v-if="existUser()" @click="checkClock">mdi-clock-outline</v-icon>
+        </v-badge>
+      </template>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
           <v-btn link href="/allProject/" v-if="existUser()" icon color="white" v-bind="attrs" v-on="on">
@@ -27,7 +36,7 @@
 
       <v-menu offset-y :close-on-content-click="false">
         <template v-slot:activator="{ on, attrs }">
-          <v-chip v-if="user" outlined v-bind="attrs" v-on="on">{{ user.name }}</v-chip>
+          <v-chip ref="userPage" v-if="user" outlined v-bind="attrs" v-on="on">{{ user.name }}</v-chip>
           <v-icon v-if="user" v-bind="attrs" v-on="on">mdi-account</v-icon>
           <v-icon v-else v-bind="attrs" v-on="on">mdi-account-remove</v-icon>
         </template>
@@ -332,25 +341,30 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-subheader inset
-          style="color: white; font-size: large; margin-left: 0; padding-top: 0; background-color: black">沟通</v-subheader>
-        <v-dialog width="1300" v-model="dialog" fullscreen transition="dialog-bottom-transition" hide-overlay>
-          <template v-slot:activator="{ on, attrs }">
+        <v-subheader inset style="color: white; font-size: large; margin-left: 0; padding-top: 0; background-color: black">沟通</v-subheader>
+        <v-dialog
+            width="1300"
+            v-model="dialog"
+            fullscreen
+            transition="dialog-bottom-transition"
+            hide-overlay
+        >
+          <template v-slot:activator="{on, attrs}">
             <v-list-item :style="'color: ' + getDarkColor(user.topic)">
               <v-list-item-avatar>
-                <v-icon :color="getDarkColor(user.topic)">mdi-file-document-outline</v-icon>
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title v-bind="attrs" v-on="on">共享文档</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </template>
-          <AllFile @close="closeDocument" @open="openDocument"></AllFile>
-        </v-dialog>
-        <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/user/chat'">
-          <v-list-item-avatar>
-            <v-icon :color="getDarkColor(user.topic)">mdi-account-group-outline</v-icon>
-          </v-list-item-avatar>
+                  <v-icon :color="getDarkColor(user.topic)">mdi-file-document-outline</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title v-bind="attrs" v-on="on">共享文档</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </template>
+            <AllFile @close="closeDocument" @open="openDocument"></AllFile>
+          </v-dialog>
+      <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/user/chat'">
+        <v-list-item-avatar>
+          <v-icon :color="getDarkColor(user.topic)">mdi-account-group-outline</v-icon>
+        </v-list-item-avatar>
 
           <v-list-item-content>
             <v-list-item-title>讨论室</v-list-item-title>
@@ -439,8 +453,14 @@
       <v-simple-table>
         <thead>
           <tr>
+            <th class="text-left" style="width: 60px">
+              已读
+            </th>
+            <th class="text-left" style="width: 50px">
+              Id
+            </th>
             <th class="text-left">
-              任务
+              内容
             </th>
             <th class="text-left">
               时间
@@ -448,10 +468,15 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="notice in noticeList" :key="notice.noticeId" @mouseenter="arr[notice.taskId] = true"
-            @mouseleave="arr[notice.taskId] = false">
-            <td>{{ getTaskName(notice.taskId) }}</td>
-            <td>{{ new Date(notice.deadline).toLocaleString() }}</td>
+          <tr v-for="notice in noticeList" :key="notice.noticeId"
+              :style="{ backgroundColor: notice.read === 'N' ? '#ffffff' : '#f0f0f0' }"
+              @mouseenter="arr[notice.taskId] = true" @mouseleave="arr[notice.taskId] = false">
+            <td>
+              <v-icon v-if="notice.read === 'N'" @click="handleReadNotice(notice.noticeId)">mdi-checkbox-marked</v-icon>
+            </td>
+            <td>{{ notice.noticeId }}</td>
+            <td>{{ notice.content}}</td>
+            <td>{{ new Date(notice.create_time).toLocaleString() }}</td>
             <td>
               <v-icon @click="handleDeleteNotice(notice.noticeId)">mdi-delete</v-icon>
             </td>
@@ -474,6 +499,7 @@
     </el-dialog>
 
   </v-app>
+
 </template>
 
 <script>
@@ -481,7 +507,7 @@ import Cookies from "js-cookie"
 import { computed } from "vue"
 import {
   newProject, showTaskList, watchAllProject, getEmail, showNoticeList, removeNotice,
-  userReleaseDocLock
+  userReleaseDocLock, readNotice
 } from "@/api/user"
 import axios from "axios"
 import AllTask from "@/views/user/projectPlanning/allTask.vue"
@@ -500,12 +526,13 @@ if (user === undefined) { // 用户未登录
   }
 } else { // 用户已登录
   let userpath = (window.location.pathname !== "/workDetail" && window.location.pathname !== "/allFile" &&
-    window.location.pathname !== "/allPerson" && window.location.pathname !== "/allTask" &&
-    window.location.pathname !== "/picture" && !window.location.pathname.startsWith("/plan") &&
-    !window.location.pathname.startsWith("/allProject") && window.location.pathname !== "/home" &&
-    !window.location.pathname.startsWith("/dev") && window.location.pathname !== "/profile" &&
-    window.location.pathname !== "topic" &&
-    !window.location.pathname.startsWith("/user")) // 合法的普通用户路径
+      window.location.pathname !== "/allPerson" && window.location.pathname !== "/allTask" &&
+      window.location.pathname !== "/picture" && !window.location.pathname.startsWith("/plan") &&
+      !window.location.pathname.startsWith("/allProject") && window.location.pathname !== "/home" &&
+      !window.location.pathname.startsWith("/dev") && window.location.pathname !== "/profile" &&
+      window.location.pathname !== "topic" &&
+      !window.location.pathname.startsWith("/user") && !window.location.pathname.startsWith("/commitReview" )&&
+      !window.location.pathname.startsWith("/prReview")) // 合法的普通用户路径
   let managerpath = (window.location.pathname !== "/profile" &&
     window.location.pathname !== "topic" && !window.location.pathname.startsWith("/manager")) // 合法的纯管理员路径（位于管理端）
   user = JSON.parse(user)
@@ -579,10 +606,11 @@ export default {
 
     this.getTaskList()
 
-    console.log('setting interval...')
-    setInterval(() => {
-      this.updateNoticeList();
-    }, 5000)
+      console.log('setting interval...')
+      this.updateNoticeList()
+      setInterval(() => {
+        this.updateNoticeList();
+      }, 5000)
   },
   components: {
     AllTask,
@@ -680,37 +708,37 @@ export default {
     },
     updateNoticeList() {
       console.log("updating NoticeList...")
-      showNoticeList({ projectId: this.proj.projectId }).then(
-        res => {
-          this.noticeList = res['data']['data']
-          this.noticeList.forEach(item => {
-            // 如果两个时间小于5秒，就弹出提醒
-            if (Math.abs(new Date(item.deadline) - new Date()) < 5000) {
-              console.log(Math.abs(new Date(item.deadline) - new Date()))
-              this.$message({
-                showClose: true,
-                message: "有到期的截止日期！",
-                type: "warning",
-                duration: 0,
-              });
-              if ("Notification" in window) {
-                Notification.requestPermission().then(function (permission) {
-                  if (permission === "granted") {
-                    let notification = new Notification("有到期的截止日期！", {
-                      body: "请及时处理！"
-                    });
-                  }
+      showNoticeList({userId: this.user.id}).then(
+          res => {
+            this.noticeList = res['data']['data']
+            this.noticeList.forEach(item => {
+              // 如果两个时间小于5秒，就弹出提醒
+              if (Math.abs(new Date(item.deadline) - new Date()) < 5000) {
+                console.log(Math.abs(new Date(item.deadline) - new Date()))
+                this.$message({
+                  showClose: true,
+                  message: "有到期的截止日期！",
+                  type: "warning",
+                  duration: 0,
                 });
+                if ("Notification" in window) {
+                  Notification.requestPermission().then(function (permission) {
+                    if (permission === "granted") {
+                      let notification = new Notification("有到期的截止日期！", {
+                        body: "请及时处理！"
+                      });
+                    }
+                  });
+                }
               }
-            }
-          })
-          console.log(this.noticeList);
-        }
+            })
+            console.log(this.noticeList);
+          }
       )
     },
     checkClock() {
-      this.clockDialog = true;
-      showNoticeList({ projectId: this.proj.projectId }).then(
+      this.clockDialog = true;  
+      showNoticeList({userId: this.user.id}).then(
         res => {
           this.noticeList = res['data']['data'];
           console.log(this.noticeList);
@@ -938,17 +966,31 @@ export default {
         intro: ''
       }
     },
+    handleReadNotice(noticeId) {
+      this.$confirm("确认已读？")
+          .then(() => {
+            readNotice({noticeId: noticeId, userId: this.user.id}).then(
+                res => {
+                  showNoticeList({userId: this.user.id}).then(
+                      res => {
+                        this.noticeList = res.data.data
+                      }
+                  )
+                }
+            )
+          })
+    },
     handleDeleteNotice(noticeId) {
       this.$confirm("确认删除提醒？")
         .then(() => {
           removeNotice({ noticeId: noticeId }).then(
             res => {
-              showNoticeList({ projectId: this.proj.projectId }).then(
-                res => {
-                  this.noticeList = res['data']['data'];
-                  console.log(this.noticeList);
-                }
-              )
+              showNoticeList({userId: this.user.id}).then(
+              res => {
+                this.noticeList = res['data']['data'];
+                console.log(this.noticeList);
+              }
+            )
             }
           )
         })

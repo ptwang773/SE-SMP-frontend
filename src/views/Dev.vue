@@ -5,6 +5,8 @@ import bindedGithubRepos from "../components/repo_list.vue"
 import repoView from "../components/repo_view.vue"
 import axios from 'axios'
 import topicSetting from "@/utils/topic-setting";
+import introJs from "intro.js";
+import 'intro.js/introjs.css';
 
 export default {
     name: "Dev",
@@ -66,6 +68,8 @@ export default {
                         }
                     })
                     this.bindReposBusy = false;
+                } else if (res.data.errcode === 3) {
+                    this.startTour()
                 } else {
                     this.bindReposBusy = false;
                     alert('/api/reviews/getBindRepos error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
@@ -74,6 +78,31 @@ export default {
                 alert('/api/reviews/getBindRepos error' + err)
                 this.bindReposBusy = false;
             })
+        },
+        startTour() {
+          let app = this.$root.$children[0]
+          let userPage = app.$refs.userPage.$el
+          introJs().setOptions({
+            'prevLabel' : '上一步',
+            'nextLabel' : '下一步',
+            'doneLabel' : '知道了',
+            steps: [
+              {
+                intro: "欢迎来到开发端！",
+              },
+              {
+                intro: "您还没有绑定token!",
+              },
+              {
+                element: userPage,
+                intro: "点击进入用户主页设置token!",
+                position: "left"
+              },
+            ],
+            showStepNumbers: true,
+            exitOnEsc: true,
+            exitOnOverlayClick: false
+          }).start();
         },
         // projSelected(proj) {
         //     console.log(JSON.stringify(this.selectedProj) + '<-' + JSON.stringify(proj));

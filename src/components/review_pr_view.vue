@@ -58,11 +58,11 @@ export default {
     getTopicColor: topicSetting.getColor,
     getDarkColor: topicSetting.getDarkColor,
     reviewSelectedPr(pr) {
-      console.log(pr)
+      console.log(pr.prId)
       this.$router.push({
         path: '/prReview/' + this.proj.id + '/' + this.selectedRepo.id + '/' + pr.prId,
         query: {
-          pr: pr,
+          prId: pr.prId,
           projId: this.proj.id,
           repoId: this.selectedRepo.id
         }

@@ -22,95 +22,93 @@ export default {
     getCommitDetailBusy: {default: true},
   },
   created() {
+    this.user = Cookies.get('user')
+    console.log(this.user)
+    console.log(this.user.id)
+    this.commitId = this.$route.query.commitId
+    this.branchName = this.$route.query.branchName
+    this.projId = this.$route.query.projId
+    this.repoId = this.$route.query.repoId
+    this.commitSha = this.$route.query.commitSha
+    console.log("branch:" + this.$route.query.branchName)
+    console.log("proj:" + this.$route.query.projId)
+    console.log("repo:" + this.$route.query.repoId)
+    console.log("commitSha:" + this.$route.query.commitSha)
+    axios.post("/api/develop/getCommitDetails", {
+      userId: this.user.id,
+      projectId: this.projId,
+      repoId: this.repoId,
+      sha: this.commitSha,
+      branch: this.branchName
+    })
+        .then((response) => {
+          if (response.data.errcode !== 0) {
+            console.log("error in getting commit details")
+            alert("请检查账号的Token是否已绑定及绑定的Token是否正确")
+            this.$router.go(-1)
+          } else {
+            this.commitDetails = response.data.commit
+            this.reviewer = this.commitDetails.reviewerName
+            console.log(this.commitDetails)
+            this.comments = this.commitDetails.comments
+            this.fileChanges = this.commitDetails.files
+          }
+        })
 
-      this.user = Cookies.get('user')
-      console.log(this.user)
-      console.log(this.user.id)
-      this.commitMessage = this.$route.query.commit
-      this.branchName = this.$route.query.branchName
-      this.projId = this.$route.query.projId
-      this.repoId = this.$route.query.repoId
-      console.log("branch:" + this.$route.query.branchName)
-      console.log("proj:" + this.$route.query.projId)
-      console.log("repo:" + this.$route.query.repoId)
-      console.log("commitMessage:" + this.$route.query.commit.hash)
-      axios.post("/api/develop/getCommitDetails", {
-        userId: this.user.id,
-        projectId: this.projId,
-        repoId: this.repoId,
-        sha: this.commitMessage.hash,
-        branch: this.branchName
-      })
-          .then((response) => {
-            console.log(response.data)
-            if (response.data.errcode !== 0) {
-              console.log("error in getting commit details")
-              alert("请检查账号的Token是否已绑定及绑定的Token是否正确")
-              this.$router.go(-1)
-            } else {
-              this.commitDetails = response.data.commit
-              this.reviewer = this.commitDetails.reviewerName
-              console.log(this.reviewer)
-              console.log(this.commitDetails)
-              this.comments = this.commitDetails.comments
-              this.fileChanges = this.commitDetails.files
-            }
-          })
-
-      axios.post("/api/develop/isProjectReviewer", {
-        userId: this.user.id,
-        projectId: this.projId
-      })
-          .then((response) => {
-            if (response.data.errcode === 2) {
-              this.$message({
-                type: 'error',
-                message: '用户不在该项目中'
-              })
-            } else if (response.data.errcode === 0) {
-              this.isProjectReviewer = response.data.flag
-            }
-          })
-      this.getCommitDetailBusy = false
-    },
-    data() {
-      return {
-        lineNumbers: true,
-        readonlyType:true,
-        commitMessage: '',
-        branchName: '',
-        projId: '',
-        repoId: '',
-        commitDetails: '',
-        comments: [{}],
-        textarea: '',
-        isProjectReviewer: 0,
-        managerId: '',
-        times: '',
-        fileChanges: [],
-        highlightLines: [],
-        highlight: [],
-        files: [],
-        oldFile: '',
-        newFile: '',
-        fileDiff: [],
-        reviewer: '',
-        role: [],
-      }
-    },
+    axios.post("/api/develop/isProjectReviewer", {
+      userId: this.user.id,
+      projectId: this.projId
+    })
+        .then((response) => {
+          if (response.data.errcode === 2) {
+            this.$message({
+              type: 'error',
+              message: '用户不在该项目中'
+            })
+          } else if (response.data.errcode === 0) {
+            this.isProjectReviewer = response.data.flag
+          }
+        })
+    this.getCommitDetailBusy = false
+  },
+  data() {
+    return {
+      lineNumbers: true,
+      readonlyType:true,
+      branchName: '',
+      projId: '',
+      repoId: '',
+      commitSha: '',
+      commitDetails: '',
+      comments: [{}],
+      textarea: '',
+      isProjectReviewer: 0,
+      managerId: '',
+      times: '',
+      fileChanges: [],
+      highlightLines: [],
+      highlight: [],
+      files: [],
+      oldFile: '',
+      newFile: '',
+      fileDiff: [],
+      reviewer: '',
+      role: [],
+    }
+  },
   methods: {
     getTimes() {
       let year = new Date().getFullYear(); //获取当前时间的年份
-       let month = new Date().getMonth() + 1; //获取当前时间的月份
-       let day = new Date().getDate(); //获取当前时间的天数
-       let hours = new Date().getHours(); //获取当前时间的小时
-       let minutes = new Date().getMinutes(); //获取当前时间的分数
-       let seconds = new Date().getSeconds(); //获取当前时间的秒数
-       //当小于 10 的是时候，在前面加 0
-       if (hours < 10) {
-         hours = "0" + hours;
-       }
-       if (minutes < 10) {
+      let month = new Date().getMonth() + 1; //获取当前时间的月份
+      let day = new Date().getDate(); //获取当前时间的天数
+      let hours = new Date().getHours(); //获取当前时间的小时
+      let minutes = new Date().getMinutes(); //获取当前时间的分数
+      let seconds = new Date().getSeconds(); //获取当前时间的秒数
+      //当小于 10 的是时候，在前面加 0
+      if (hours < 10) {
+        hours = "0" + hours;
+      }
+      if (minutes < 10) {
          minutes = "0" + minutes;
        }
        if (seconds < 10) {
@@ -125,7 +123,7 @@ export default {
         userId: this.user.id,
         projectId: this.projId,
         repoId: this.repoId,
-        sha: this.commitMessage.hash,
+        sha: this.commitDetails,
         reviewStatus: result
       })
           .then(() => {
@@ -139,7 +137,6 @@ export default {
     },
      goBack() {
         console.log('go back')
-        this.commitMessage = ''
         this.branchName = ''
         this.projId = ''
         this.repoId = ''
@@ -160,7 +157,7 @@ export default {
           projectId: this.projId,
           repoId: this.repoId,
           comment: this.textarea,
-          sha: this.commitMessage.hash
+          sha: this.commitSha
         })
             .then(() => {
               this.comments.push({
@@ -197,15 +194,19 @@ export default {
       getColor1(role) {
         if (role === 'D') {
           return 'purple'
-        } else {
+        } else if (role === 'C') {
           return 'blue'
+        } else {
+          return 'brown'
         }
       },
       transform1(role) {
         if (role === 'D') {
           return '审核人员'
-        } else {
+        } else if (role === 'C') {
           return '负责人'
+        } else {
+          return '其他项目人员'
         }
       },
       getIdenticon,
@@ -234,12 +235,12 @@ export default {
       <v-divider style="margin-left: 20px"></v-divider>
     </div>
     <el-card style="margin-top: 15px; margin-bottom: 15px">
-      <h3>{{commitMessage.message}}</h3>
+      <h3>{{this.commitDetails.commit_message}}</h3>
       <div style="font-size:0.4cm; margin-top:10px; padding-bottom: 10px">branch: <b>{{this.branchName}}</b></div>
       <div></div>
       <v-divider style="margin-bottom: 15px"></v-divider>
-      <b style="margin-top: 20px">{{this.commitMessage.committer}}</b> committed at {{this.commitMessage.time.slice(0,10) + " " + this.commitMessage.time.slice(11,-1)}}
-      <div></div>
+      <b style="margin-top: 20px">{{this.commitDetails.committer_name}}</b> committed at {{this.commitDetails.commit_time.slice(0,10) + " " + this.commitDetails.commit_time.slice(11,-1)}}
+      <div></div>`
       <div style="display: inline-block; margin-top: 20px"
            v-if="this.isProjectReviewer !== 0 && this.commitDetails.status === null && this.getCommitDetailBusy === false">
         <v-chip :color="'green'" dark style="margin-right: 30px" @click="reviewCommit(1)">

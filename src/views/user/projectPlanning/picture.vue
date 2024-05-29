@@ -9,7 +9,7 @@
       <div ref="collChart" style="position: absolute; width: 80%; height: 40%; left: 10%; top: 98%">
       协作关系图
       </div>
-    
+
     <v-btn class="ma-2" :color="getTopicColor(user.topic)" @click="back">
       <v-icon dark left> mdi-arrow-left </v-icon>
       返回
