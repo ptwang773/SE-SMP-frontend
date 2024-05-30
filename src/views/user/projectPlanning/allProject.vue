@@ -1,4 +1,3 @@
-
 <template>
   <div style="width: 100%; height: 100%">
     <div class="one">
@@ -6,57 +5,58 @@
     </div>
     <div class="three">
       <v-data-table
-        :headers="headers"
-        :items="projectData"
-        :single-expand="true"
-        :items-per-page="5"
-        show-expand
-        :expanded.sync="expanded"
-        class="elevation-1"
-        item-key="projectId"
-        :search="search"
-        :custom-filter="filterOnlyCapsText"
+          :headers="headers"
+          :items="projectData"
+          :single-expand="true"
+          :items-per-page="5"
+          show-expand
+          :expanded.sync="expanded"
+          class="elevation-1"
+          item-key="projectId"
+          :search="search"
+          :custom-filter="filterOnlyCapsText"
       >
-      <template v-slot:no-data>
-        <div style="text-align: center;">
-          <img src="../../../assets/search.png" height="150px" width="150px"/>
-        </div>
-        <div style="font-size:20px;font-weight: bold">
-          没有找到数据
-        </div>
-     <!-- <v-img
-      max-height="30%"
-      max-width="30%"
-      style  src="@/assets/search.png"></v-img>="position:absolute;left:35%;right:35%;top:5%" -->
-     </template>
-      <template v-slot:no-results>
-        <div style="text-align: center;">
-          <img src="../../../assets/search.png" height="150px" width="150px"/>
-        </div>
-        <div style="font-size:20px;font-weight: bold">
-          没有找到数据
-        </div>
-      </template>
+        <template v-slot:no-data>
+          <div style="text-align: center;">
+            <img src="../../../assets/search.png" height="150px" width="150px"/>
+          </div>
+          <div style="font-size:20px;font-weight: bold">
+            没有找到数据
+          </div>
+          <!-- <v-img
+           max-height="30%"
+           max-width="30%"
+           style  src="@/assets/search.png"></v-img>="position:absolute;left:35%;right:35%;top:5%" -->
+        </template>
+        <template v-slot:no-results>
+          <div style="text-align: center;">
+            <img src="../../../assets/search.png" height="150px" width="150px"/>
+          </div>
+          <div style="font-size:20px;font-weight: bold">
+            没有找到数据
+          </div>
+        </template>
         <template v-slot:top>
           <div style="width: 100%; height: 100%; position: relative">
             <v-text-field
-              v-model="search"
-              label="请输入项目名称进行查询"
-              class="mx-4"
-              style="width: 30%; display: inline-block"
+                v-model="search"
+                label="请输入项目名称进行查询"
+                class="mx-4"
+                style="width: 30%; display: inline-block"
             ></v-text-field>
             <v-btn
-              style="
+                style="
                 top: 20%;
                 right: 2%;
                 height: 60%;
                 width: 10%;
                 position: absolute;
               "
-              depressed
-              :color="getTopicColor(user.topic)"
-              @click="setupDialog = true"
-              >创建项目</v-btn
+                depressed
+                :color="getTopicColor(user.topic)"
+                @click="setupDialog = true"
+            >创建项目
+            </v-btn
             >
           </div>
         </template>
@@ -68,7 +68,7 @@
         <template v-slot:[`item.managerName`]="{ item }">
           <div style="position: relative">
             <v-avatar size="25" color="indigo">
-<!--              <span class="white&#45;&#45;text text-h6">{{ item.managerName[0] }}</span>-->
+              <!--              <span class="white&#45;&#45;text text-h6">{{ item.managerName[0] }}</span>-->
               <v-img :src="getIdenticon(item.managerName, 25, 'user')"></v-img>
             </v-avatar>
             <div style="position: absolute; left: 20%; bottom: 3%">
@@ -84,7 +84,7 @@
           <v-icon small class="mr-2" @click="handleEdit(item)">
             mdi-pencil
           </v-icon>
-          <v-icon small @click="handleDelete(item)"> mdi-delete </v-icon>
+          <v-icon small @click="handleDelete(item)"> mdi-delete</v-icon>
         </template>
         <template v-slot:[`item.state`]="{ item }">
           <v-chip :color="getColor(item.state)" dark @click="handleState(item)">
@@ -95,24 +95,24 @@
     </div>
 
     <el-dialog
-      title="创建项目"
-      :visible.sync="setupDialog"
-      width="50%"
+        title="创建项目"
+        :visible.sync="setupDialog"
+        width="50%"
     >
       <el-form
-        :label-position="labelPosition"
-        label-width="80px"
-        :model="form"
-        ref="form"
+          :label-position="labelPosition"
+          label-width="80px"
+          :model="form"
+          ref="form"
       >
         <el-form-item label="项目名称">
           <el-input v-model="form.name"></el-input>
         </el-form-item>
         <el-form-item label="活动概述">
           <el-input
-            type="textarea"
-            v-model="form.intro"
-            :autosize="{ minRows: 5, maxRows: 10 }"
+              type="textarea"
+              v-model="form.intro"
+              :autosize="{ minRows: 5, maxRows: 10 }"
           ></el-input>
         </el-form-item>
       </el-form>
@@ -123,24 +123,24 @@
     </el-dialog>
 
     <el-dialog
-      title="编辑项目"
-      :visible.sync="editDialog"
-      width="50%"
+        title="编辑项目"
+        :visible.sync="editDialog"
+        width="50%"
     >
       <el-form
-        :label-position="labelPosition"
-        label-width="80px"
-        :model="form"
-        ref="form"
+          :label-position="labelPosition"
+          label-width="80px"
+          :model="form"
+          ref="form"
       >
         <el-form-item label="项目名称">
           <el-input v-model="form.name"></el-input>
         </el-form-item>
         <el-form-item label="活动概述">
           <el-input
-            type="textarea"
-            v-model="form.intro"
-            :autosize="{ minRows: 5, maxRows: 10 }"
+              type="textarea"
+              v-model="form.intro"
+              :autosize="{ minRows: 5, maxRows: 10 }"
           ></el-input>
         </el-form-item>
       </el-form>
@@ -149,6 +149,9 @@
         <el-button type="primary" @click="editProject">确 定</el-button>
       </span>
     </el-dialog>
+    <div class="card-wrapper">
+      <project-table class="component"/>
+    </div>
   </div>
 </template>
 
@@ -163,6 +166,7 @@ import {
 import Cookies from "js-cookie";
 import getIdenticon from "@/utils/identicon";
 import topicSetting from "@/utils/topic-setting";
+import projectTable from "@/views/user/projectPlanning/mainPage/projectTable.vue"
 
 export default {
   // inject: ['user', 'selectedProj'],
@@ -171,9 +175,18 @@ export default {
     this.get_project();
   },
   inject: {
-    user: { defualt: null },
-    selectedProj: { defualt: null },
-    updateUserProj: { default: null },
+    user: {default: null},
+    selectedProj: {default: null},
+    updateUserProj: {default: null},
+  },
+  components: {
+    projectTable,
+  },
+  provide() {
+    return {
+      user: this.user,
+      projectData: this.projectData
+    };
   },
   data() {
     return {
@@ -185,11 +198,11 @@ export default {
           sortable: false,
           value: "projectName",
         },
-        { text: "状态", value: "state" },
-        { text: "创建时间", value: "deadline", sortable: true },
-        { text: "负责人", value: "managerName" },
-        { text: "", value: "actions", sortable: false },
-        { text: "", value: "data-table-expand" },
+        {text: "状态", value: "state"},
+        {text: "创建时间", value: "deadline", sortable: true},
+        {text: "负责人", value: "managerName"},
+        {text: "", value: "actions", sortable: false},
+        {text: "", value: "data-table-expand"},
       ],
       projectData: [
         // {
@@ -240,17 +253,17 @@ export default {
       console.log(value);
       var s = item["projectName"];
       return (
-        s != null &&
-        search != null &&
-        typeof s === "string" &&
-        s.toString().toLocaleUpperCase().indexOf(search.toLocaleUpperCase()) !==
+          s != null &&
+          search != null &&
+          typeof s === "string" &&
+          s.toString().toLocaleUpperCase().indexOf(search.toLocaleUpperCase()) !==
           -1
       );
     },
     get_project() {
       Cookies.remove("proj");
       console.log("get_project");
-      watchAllProject({ userId: this.user.id }).then((res) => {
+      watchAllProject({userId: this.user.id}).then((res) => {
         this.projectData = res["data"]["data"];
         console.log(this.projectData);
       });
@@ -267,25 +280,25 @@ export default {
         cancelButtonText: "取消",
         type: "warning",
       })
-        .then(() => {
-          this.$message({
-            type: "success",
-            message: "删除成功!",
+          .then(() => {
+            this.$message({
+              type: "success",
+              message: "删除成功!",
+            });
+            deleteProject({
+              projectId: row.projectId,
+              userId: this.user.id,
+            }).then((res) => {
+              this.get_project();
+              this.updateUserProj();
+            });
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "已取消删除",
+            });
           });
-          deleteProject({
-            projectId: row.projectId,
-            userId: this.user.id,
-          }).then((res) => {
-            this.get_project();
-            this.updateUserProj();
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除",
-          });
-        });
     },
     handleState(item) {
       if (item.state == "B") {
@@ -300,26 +313,26 @@ export default {
         cancelButtonText: "取消",
         type: "warning",
       })
-        .then(() => {
-          this.$message({
-            type: "success",
-            message: "项目已完成!",
+          .then(() => {
+            this.$message({
+              type: "success",
+              message: "项目已完成!",
+            });
+            modifyProjectStatus({
+              projectId: row.projectId,
+              userId: this.user.id,
+              status: "A",
+            }).then((res) => {
+              console.log(res);
+              this.get_project();
+            });
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "已取消",
+            });
           });
-          modifyProjectStatus({
-            projectId: row.projectId,
-            userId: this.user.id,
-            status: "A",
-          }).then((res) => {
-            console.log(res);
-            this.get_project();
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消",
-          });
-        });
     },
     handleNotComplete(row) {
       this.$confirm("确定重新进行项目?", "提示", {
@@ -327,26 +340,26 @@ export default {
         cancelButtonText: "取消",
         type: "warning",
       })
-        .then(() => {
-          this.$message({
-            type: "warning",
-            message: "项目已恢复进行!",
+          .then(() => {
+            this.$message({
+              type: "warning",
+              message: "项目已恢复进行!",
+            });
+            modifyProjectStatus({
+              projectId: row.projectId,
+              userId: this.user.id,
+              status: "B",
+            }).then((res) => {
+              console.log(res);
+              this.get_project();
+            });
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "已取消",
+            });
           });
-          modifyProjectStatus({
-            projectId: row.projectId,
-            userId: this.user.id,
-            status: "B",
-          }).then((res) => {
-            console.log(res);
-            this.get_project();
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消",
-          });
-        });
     },
     cancelSetupProject() {
       this.setupDialog = false;
@@ -400,8 +413,8 @@ export default {
       }
       for (let i = 0; i < this.projectData.length; i++) {
         if (
-          this.form.name === this.projectData[i].projectName &&
-          this.form.id != this.projectData[i].projectId
+            this.form.name === this.projectData[i].projectName &&
+            this.form.id != this.projectData[i].projectId
         ) {
           this.$message({
             type: "error",
@@ -452,17 +465,31 @@ export default {
   height: 10%;
   position: relative;
 }
+
 .two {
   height: 10%;
 }
+
 .three {
   position: absolute;
   left: 5%;
   right: 5%;
   height: 80%;
 }
+
 .xiangmu {
   position: absolute;
   left: 20%;
+}
+
+.card-wrapper {
+  position: fixed;
+  bottom: 0;
+  margin-top: 20px; /* 与上面内容的间距 */
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
 }
 </style>
