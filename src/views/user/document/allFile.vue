@@ -1,6 +1,6 @@
 <template>
     <v-card style="padding-bottom: 0; margin-bottom: 0">
-        <v-toolbar
+        <!-- <v-toolbar
           dark
           :src="getUrl(user.topic)"
         >
@@ -12,7 +12,7 @@
             <v-icon>mdi-close</v-icon>
           </v-btn>
           <v-toolbar-title>共享文档</v-toolbar-title>
-        </v-toolbar>
+        </v-toolbar> -->
 
         <v-tabs
           v-model="tab"
@@ -922,6 +922,7 @@ import Cookies from "js-cookie"
         return res;
       },
       close() {
+        console.log('21312313213213212313213')
         this.$emit('close');
       },
       open() {

@@ -1,48 +1,38 @@
 <template>
   <v-app id="main_page">
-    <v-app-bar app clipped-left ref="appBar" color="white" dark extension-height="36" :absolute="true" :src=topic>
-      <v-toolbar-title style="font-weight: bold">JiHub<span v-if="existManager()"> - Admin
+    <v-app-bar app clipped-left ref="appBar" color="white" dark extension-height="50" :absolute="true" :src=topic>
+      <v-toolbar-title style="font-weight: bold"> <span style="font-size: 32px;">JiHub</span><span v-if="existManager()">
+          - Admin
           Override</span></v-toolbar-title>
 
       <v-spacer></v-spacer>
 
 
       <template>
-        <v-badge
-            :content="this.noticeList.length"
-            :value="this.noticeList.length > 0"
-            color="red"
-            overlap
-        >
-          <v-icon v-if="existUser()" @click="checkClock">mdi-clock-outline</v-icon>
+        <v-badge :content="noticeList.length" :value="noticeList.length > 0" color="red" overlap class="mr-4">
+          <v-icon v-if="existUser()" @click="checkClock" style="font-size: 40px;">mdi-clock-outline</v-icon>
         </v-badge>
       </template>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn link href="/allProject/" v-if="existUser()" icon color="white" v-bind="attrs" v-on="on">
-            <v-icon>mdi-home</v-icon>
-          </v-btn>
-        </template>
-        <span>主页</span>
-      </v-tooltip>
-      <v-tooltip bottom>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn v-if="existManager()" icon color="white" v-bind="attrs" v-on="on" @click="gotoManagerPage">
+          <v-btn v-if="existManager()" icon color="white" v-bind="attrs" v-on="on" @click="gotoManagerPage"
+            style="font-size: 24px;">
             <v-icon>mdi-link-variant</v-icon>
           </v-btn>
         </template>
-        <span>管理端</span>
+        <span style="font-size: 24px;">管理端</span>
       </v-tooltip>
 
       <v-menu offset-y :close-on-content-click="false">
         <template v-slot:activator="{ on, attrs }">
-          <v-chip ref="userPage" v-if="user" outlined v-bind="attrs" v-on="on">{{ user.name }}</v-chip>
-          <v-icon v-if="user" v-bind="attrs" v-on="on">mdi-account</v-icon>
-          <v-icon v-else v-bind="attrs" v-on="on">mdi-account-remove</v-icon>
+          <v-chip ref="userPage" v-if="user" outlined v-bind="attrs" v-on="on" style="font-size: 20px;">{{ user.name }}</v-chip>
+          <div v-bind="attrs" v-on="on">
+        <v-img :src="getIdenticon(user.name, 40, 'user')" contain width="50" height="50" style="border-radius: 50%;"></v-img>
+        </div>
         </template>
         <v-card v-if="user" min-width="300px">
           <v-img gradient="transparent 0%, rgba(255, 255, 255, 80%) 80%, white 100%"
-                 :src="getIdenticon(user.name, 300, 'user')" class="shades--text black--text align-end">
+            :src="getIdenticon(user.name, 300, 'user')" class="shades--text black--text align-end">
             <v-card-title style="font-weight: bold; font-size: xx-large;">欢迎, {{ user.name }}</v-card-title>
           </v-img>
 
@@ -66,68 +56,17 @@
 
       <template v-if="showLabel()" v-slot:extension>
         <v-tab link to="/allProject/">
-          <v-icon middle>mdi-home-outline</v-icon>
-          主页
+          <v-icon large>mdi-home-outline</v-icon>
+          <span style="font-size: 24px;">主页</span>
         </v-tab>
-        <v-menu :open-on-hover="true" :close-on-click="false" :close-on-content-click="false"
-                transition="scroll-y-transition" v-if="user.projects.length" offset-y>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn text v-bind="attrs" v-on="on">
-              项目
-              <v-icon v-if="attrs['aria-expanded'] === 'false'" right>
-                mdi-menu-down
-              </v-icon>
-              <v-icon v-else>
-                mdi-menu-up
-              </v-icon>
-            </v-btn>
-          </template>
 
-          <v-card min-width="200px">
-            <v-list nav rounded class="grey lighten-3">
-              <v-subheader>最近项目</v-subheader>
-              <v-list-item-group color="primary">
-                <v-list-item two-line v-for="item in user.projects.slice(0, 5)" :key="item.id" @click="getProj(item)">
-                  <v-list-item-avatar>
-                    <v-avatar size="40" color="indigo">
-                      <!--                        <span class="white&#45;&#45;text text-h5">{{ item.projectName[0] }}</span>-->
-                      <v-img :src="getIdenticon(item.projectName, 40, 'proj')"></v-img>
-                    </v-avatar>
-                  </v-list-item-avatar>
-                  <v-list-item-content>
-                    <v-list-item-title style="font-weight: bold">{{ item.projectName }}</v-list-item-title>
-                    <v-list-item-subtitle> {{ item.projectIntro === '' ? '暂无简介' : item.projectIntro }}
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
-
-            <v-divider></v-divider>
-
-            <v-list class="grey lighten-3">
-              <v-list-item-group color="primary" v-model="whatisclicked">
-
-                <router-link :to="{ path: '/allProject/' }" custom v-slot="{ navigate }">
-                  <v-list-item @click="navigate" @keypress.enter="navigate" link>
-                    查看所有项目
-                  </v-list-item>
-                </router-link>
-                <v-list-item @click="setupDialog = true; whatisclicked = null" link>
-                  新建项目
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
-          </v-card>
-
-        </v-menu>
 
 
         <v-menu :open-on-hover="true" :close-on-click="false" :close-on-content-click="false"
-                transition="scroll-y-transition" v-if="user.projects.length" offset-y>
+          transition="scroll-y-transition" v-if="user.projects.length" offset-y>
           <template v-slot:activator="{ on, attrs }">
             <v-btn text v-bind="attrs" v-on="on">
-              规划端
+              <span style="font-size: 24px;">规划</span>
               <v-icon v-if="attrs['aria-expanded'] === 'false'" right>
                 mdi-menu-down
               </v-icon>
@@ -149,21 +88,187 @@
                   <v-list-item-title>任务列表</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <router-link :to="{ path: '/allProject/' }" custom v-slot="{ navigate }">
-                <v-list-item @click="navigate" @keypress.enter="navigate" link>
-                  人员列表
+
+              <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/allPerson'">
+                <v-list-item-avatar>
+                  <v-icon :color="getDarkColor(user.topic)">mdi-account-outline</v-icon>
+                </v-list-item-avatar>
+
+                <v-list-item-content>
+                  <v-list-item-title>人员列表</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-list-item :style="'color: ' + getDarkColor(user.topic)" @click="gotoPic">
+                <v-list-item-avatar>
+                  <v-icon :color="getDarkColor(user.topic)">mdi-align-vertical-bottom</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>图表展示</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/userAuth'">
+                <v-list-item-avatar>
+                  <v-icon :color="getDarkColor(user.topic)">mdi-account-lock-open</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>权限管理</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </v-card>
+
+        </v-menu>
+
+
+        <v-menu :open-on-hover="true" :close-on-click="false" :close-on-content-click="false"
+          transition="scroll-y-transition" v-if="user.projects.length" offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn text v-bind="attrs" v-on="on">
+              <span style="font-size: 24px;">开发</span>
+              <v-icon v-if="attrs['aria-expanded'] === 'false'" right>
+                mdi-menu-down
+              </v-icon>
+              <v-icon v-else>
+                mdi-menu-up
+              </v-icon>
+            </v-btn>
+          </template>
+
+          <v-card min-width="200px">
+            <v-list class="grey lighten-3">
+              <v-list-item-group>
+                <v-list-item :style="'color: ' + getDarkColor(user.topic)"
+                  @click="codeReviewExpanded = !codeReviewExpanded" class="parent-item">
+                  <v-list-item-avatar>
+                    <v-icon :color="getDarkColor(user.topic)">mdi-account-edit</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title>代码评审</v-list-item-title>
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-icon>{{ codeReviewExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+                  </v-list-item-action>
                 </v-list-item>
-              </router-link>
-              <router-link :to="{ path: '/allProject/' }" custom v-slot="{ navigate }">
-                <v-list-item @click="navigate" @keypress.enter="navigate" link>
-                  图表展示
-                </v-list-item>
-              </router-link>
-              <router-link :to="{ path: '/allProject/' }" custom v-slot="{ navigate }">
-                <v-list-item @click="navigate" @keypress.enter="navigate" link>
-                  权限管理
-                </v-list-item>
-              </router-link>
+                <v-expand-transition>
+                  <div v-if="codeReviewExpanded" class="child-items">
+                    <v-list-item link :to="'/commitReview'" style="padding-left: 40px">
+                      <v-list-item-avatar>
+                        <v-icon :color="getDarkColor(user.topic)">mdi-source-branch-check</v-icon>
+                      </v-list-item-avatar>
+                      <v-list-item-content>
+                        <v-list-item-title>Commit评审</v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item link :to="'/prReview'" style="padding-left: 40px">
+                      <v-list-item-avatar>
+                        <v-icon :color="getDarkColor(user.topic)">mdi-source-pull</v-icon>
+                      </v-list-item-avatar>
+                      <v-list-item-content>
+                        <v-list-item-title>PR评审</v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item link :to="'/newPR'" style="padding-left: 40px">
+                      <v-list-item-avatar>
+                        <v-icon :color="getDarkColor(user.topic)">mdi-check-circle-outline</v-icon>
+                      </v-list-item-avatar>
+                      <v-list-item-content>
+                        <v-list-item-title>新建PR</v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </div>
+                </v-expand-transition>
+              </v-list-item-group>
+
+
+              <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/dev'">
+                <v-list-item-avatar>
+                  <v-icon :color="getDarkColor(user.topic)">mdi-microsoft-visual-studio-code</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>代码</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/user/ai/diagnosis'">
+                <v-list-item-avatar>
+                  <v-icon :color="getDarkColor(user.topic)">mdi-atom-variant</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>代码诊断</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/user/ai/testdata'">
+                <v-list-item-avatar>
+                  <v-icon :color="getDarkColor(user.topic)">mdi-palette-outline</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>生成测试数据</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/user/database'">
+                <v-list-item-avatar>
+                  <v-icon :color="getDarkColor(user.topic)">mdi-database</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>团队数据库</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </v-card>
+
+        </v-menu>
+
+        <v-menu :open-on-hover="true" :close-on-click="false" :close-on-content-click="false"
+          transition="scroll-y-transition" v-if="user.projects.length" offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn text v-bind="attrs" v-on="on">
+              <span style="font-size: 24px;">沟通</span>
+              <v-icon v-if="attrs['aria-expanded'] === 'false'" right>
+                mdi-menu-down
+              </v-icon>
+              <v-icon v-else>
+                mdi-menu-up
+              </v-icon>
+            </v-btn>
+          </template>
+
+          <v-card min-width="200px">
+            <v-list class="grey lighten-3">
+
+              <!-- <v-dialog width="1300" v-model="dialog" fullscreen transition="dialog-bottom-transition" hide-overlay>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-list-item :style="'color: ' + getDarkColor(user.topic)">
+                    <v-list-item-avatar>
+                      <v-icon :color="getDarkColor(user.topic)">mdi-file-document-outline</v-icon>
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title v-bind="attrs" v-on="on">共享文档</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </template>
+                <AllFile @close="closeDocument" @open="openDocument"></AllFile>
+              </v-dialog> -->
+              <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/allFile'">
+                <v-list-item-avatar>
+                  <v-icon :color="getDarkColor(user.topic)">mdi-file-document-outline</v-icon>
+                </v-list-item-avatar>
+
+                <v-list-item-content>
+                  <v-list-item-title>共享文档</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/user/chat'">
+                <v-list-item-avatar>
+                  <v-icon :color="getDarkColor(user.topic)">mdi-account-group-outline</v-icon>
+                </v-list-item-avatar>
+
+                <v-list-item-content>
+                  <v-list-item-title>讨论室</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
             </v-list>
           </v-card>
 
@@ -185,273 +290,82 @@
         <!-- </v-tabs> -->
       </template>
     </v-app-bar>
-
-    <v-navigation-drawer v-model="drawer" app clipped permanent
-                         v-if="((user && proj && showLabel()) || (user && user.auth !== 1)) && this.scrollUp">
+    <v-navigation-drawer
+      v-model="drawer"
+      app
+      clipped
+      permanent
+      v-if="((user && user.auth !== 1)) "
+    >
       <!-- <div style="background-color: aqua;width: 100%;">
 
       </div> -->
-      <v-list v-if="user.auth === 1" style="padding: 0">
-        <v-list-item :style="getLinearGradient(user.topic)" two-line class="px-2">
-          <v-list-item-avatar size="40" color="indigo">
-            <!--            <span class="white&#45;&#45;text text-h5">{{ this.proj.projectName[0] }}</span>-->
-            <v-img :src="getIdenticon(this.proj.projectName, 40, 'proj')"></v-img>
-          </v-list-item-avatar>
-          <v-list-item-content class="px-3">
-            <!-- <v-img src="https://randomuser.me/api/portraits/women/85.jpg"></v-img> -->
-            <v-list-item-title class="text-h5">
-              <strong :style="'color: ' + getDarkColor(user.topic)">{{ this.proj.projectName }}</strong>
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              {{ this.proj.projectIntro == '' ? '暂无简介' : this.proj.projectIntro }}
-            </v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-list-item link to="/profile" :style="getLinearGradient(user.topic)" two-line>
-          <v-list-item-content>
-            <v-list-item-title class="text-h5">
-              <strong :style="'color: ' + getDarkColor(user.topic)">{{ this.user.name }}</strong>
-            </v-list-item-title>
-            <v-list-item-subtitle>{{ this.user.email }}</v-list-item-subtitle>
-          </v-list-item-content>
-          <v-list-item-avatar size="40">
-            <v-img :src="getIdenticon(this.user.name, 40, 'user')"></v-img>
-          </v-list-item-avatar>
-        </v-list-item>
-      </v-list>
-      <v-list subheader v-if="user.auth === 1">
-        <v-subheader inset
-                     style="color: white; font-size: large; margin-left: 0px; padding-top: 0; background-color: black">
-          规划
-        </v-subheader>
-        <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/allTask'">
-          <v-list-item-avatar>
-            <v-icon :color="getDarkColor(user.topic)">mdi-ballot-outline</v-icon>
-          </v-list-item-avatar>
-
-          <v-list-item-content>
-            <v-list-item-title>任务列表</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/allPerson'">
-          <v-list-item-avatar>
-            <v-icon :color="getDarkColor(user.topic)">mdi-account-outline</v-icon>
-          </v-list-item-avatar>
-
-          <v-list-item-content>
-            <v-list-item-title>人员列表</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item :style="'color: ' + getDarkColor(user.topic)" @click="gotoPic">
-          <v-list-item-avatar>
-            <v-icon :color="getDarkColor(user.topic)">mdi-align-vertical-bottom</v-icon>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-title>图表展示</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/userAuth'"
-                     v-if="this.user.id === this.proj.managerId">
-          <v-list-item-avatar>
-            <v-icon :color="getDarkColor(user.topic)">mdi-account-lock-open</v-icon>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-title>权限管理</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-subheader inset
-                     style="color: white; font-size: large; margin-left: 0; padding-top: 0; background-color: black">开发
-        </v-subheader>
-        <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/dev'">
-          <v-list-item-avatar>
-            <v-icon :color="getDarkColor(user.topic)">mdi-align-vertical-center</v-icon>
-          </v-list-item-avatar>
-
-          <v-list-item-content>
-            <v-list-item-title>代码</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-list-item-group>
-          <v-list-item :style="'color: ' + getDarkColor(user.topic)" @click="codeReviewExpanded = !codeReviewExpanded"
-                       class="parent-item">
-            <v-list-item-avatar>
-              <v-icon :color="getDarkColor(user.topic)">mdi-account-edit</v-icon>
-            </v-list-item-avatar>
-            <v-list-item-content>
-              <v-list-item-title>代码评审</v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-icon>{{ codeReviewExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
-            </v-list-item-action>
-          </v-list-item>
-          <v-expand-transition>
-            <div v-if="codeReviewExpanded" class="child-items">
-              <v-list-item link :to="'/commitReview'" style="padding-left: 40px">
-                <v-list-item-avatar>
-                  <v-icon :color="getDarkColor(user.topic)">mdi-check-circle-outline</v-icon>
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title>Commit评审</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-list-item link :to="'/prReview'" style="padding-left: 40px">
-                <v-list-item-avatar>
-                  <v-icon :color="getDarkColor(user.topic)">mdi-source-pull</v-icon>
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title>PR评审</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-list-item link :to="'/newPR'" style="padding-left: 40px">
-                <v-list-item-avatar>
-                  <v-icon :color="getDarkColor(user.topic)">mdi-check-circle-outline</v-icon>
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title>新建PR</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </div>
-          </v-expand-transition>
-        </v-list-item-group>
-
-        <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/user/ai/diagnosis'">
-          <v-list-item-avatar>
-            <v-icon :color="getDarkColor(user.topic)">mdi-atom-variant</v-icon>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-title>代码诊断</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/user/ai/testdata'">
-          <v-list-item-avatar>
-            <v-icon :color="getDarkColor(user.topic)">mdi-palette-outline</v-icon>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-title>生成测试数据</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/user/database'">
-          <v-list-item-avatar>
-            <v-icon :color="getDarkColor(user.topic)">mdi-database</v-icon>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-title>团队数据库</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-subheader inset
-                     style="color: white; font-size: large; margin-left: 0; padding-top: 0; background-color: black">沟通
-        </v-subheader>
-        <v-dialog
-            width="1300"
-            v-model="dialog"
-            fullscreen
-            transition="dialog-bottom-transition"
-            hide-overlay
-        >
-          <template v-slot:activator="{on, attrs}">
-            <v-list-item :style="'color: ' + getDarkColor(user.topic)">
-              <v-list-item-avatar>
-                <v-icon :color="getDarkColor(user.topic)">mdi-file-document-outline</v-icon>
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title v-bind="attrs" v-on="on">共享文档</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </template>
-          <AllFile @close="closeDocument" @open="openDocument"></AllFile>
-        </v-dialog>
-        <v-list-item :style="'color: ' + getDarkColor(user.topic)" link :to="'/user/chat'">
-          <v-list-item-avatar>
-            <v-icon :color="getDarkColor(user.topic)">mdi-account-group-outline</v-icon>
-          </v-list-item-avatar>
-
-          <v-list-item-content>
-            <v-list-item-title>讨论室</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-
       <v-list subheader v-if="user.auth !== 1">
         <v-list-item link to="/manager/home">
-          <v-list-item-icon>
-            <v-icon>mdi-home-outline</v-icon>
-          </v-list-item-icon>
+          <v-list-item-icon><v-icon>mdi-home-outline</v-icon></v-list-item-icon>
           <v-list-item-title>主页</v-list-item-title>
         </v-list-item>
         <v-list-item link to="/manager/userMessages">
-          <v-list-item-icon>
-            <v-icon>mdi-account-multiple</v-icon>
-          </v-list-item-icon>
+          <v-list-item-icon
+          ><v-icon>mdi-account-multiple</v-icon></v-list-item-icon
+          >
           <v-list-item-title>用户信息</v-list-item-title>
         </v-list-item>
         <v-list-item link to="/manager/loginMessages">
-          <v-list-item-icon>
-            <v-icon>mdi-history</v-icon>
-          </v-list-item-icon>
+          <v-list-item-icon><v-icon>mdi-history</v-icon></v-list-item-icon>
           <v-list-item-title>用户登录信息</v-list-item-title>
         </v-list-item>
         <v-list-item link to="/manager/projectMessages">
-          <v-list-item-icon>
-            <v-icon>mdi-book-edit-outline</v-icon>
-          </v-list-item-icon>
+          <v-list-item-icon
+          ><v-icon>mdi-book-edit-outline</v-icon></v-list-item-icon
+          >
           <v-list-item-title>项目信息</v-list-item-title>
         </v-list-item>
         <v-list-item link to="/manager/userAuthority">
-          <v-list-item-icon>
-            <v-icon>mdi-gavel</v-icon>
-          </v-list-item-icon>
+          <v-list-item-icon
+          ><v-icon>mdi-gavel</v-icon></v-list-item-icon
+          >
           <v-list-item-title>用户权限管理</v-list-item-title>
         </v-list-item>
         <v-list-item link to="/manager/assistantAuthority" v-if="user.auth === 3">
-          <v-list-item-icon>
-            <v-icon>mdi-mouse</v-icon>
-          </v-list-item-icon>
+          <v-list-item-icon><v-icon>mdi-mouse</v-icon></v-list-item-icon>
           <v-list-item-title>助教权限管理</v-list-item-title>
         </v-list-item>
         <v-list-item link to="/manager/assistantMessages" v-else>
-          <v-list-item-icon>
-            <v-icon>mdi-mouse</v-icon>
-          </v-list-item-icon>
+          <v-list-item-icon><v-icon>mdi-mouse</v-icon></v-list-item-icon>
           <v-list-item-title>查看助教</v-list-item-title>
         </v-list-item>
         <v-list-item link to="/manager/teacherMessages">
-          <v-list-item-icon>
-            <v-icon>mdi-group</v-icon>
-          </v-list-item-icon>
+          <v-list-item-icon><v-icon>mdi-group</v-icon></v-list-item-icon>
           <v-list-item-title>查看教师</v-list-item-title>
         </v-list-item>
       </v-list>
-      <!--        <v-list>-->
-      <!--        <v-list-item-group v-if="user.status === 'C'">-->
-      <!--          <v-list-item link to="/manager">-->
-      <!--            <v-list-item-icon-->
-      <!--              ><v-icon>mdi-home-outline</v-icon></v-list-item-icon-->
-      <!--            >-->
-      <!--            <v-list-item-title>主页</v-list-item-title>-->
-      <!--          </v-list-item>-->
-      <!--          <v-list-item link to="/manager/userMessages">-->
-      <!--            <v-list-item-icon-->
-      <!--              ><v-icon>mdi-account-multiple</v-icon></v-list-item-icon-->
-      <!--            >-->
-      <!--            <v-list-item-title>用户信息</v-list-item-title>-->
-      <!--          </v-list-item>-->
-      <!--          <v-list-item link to="/manager/loginMessages">-->
-      <!--            <v-list-item-icon><v-icon>mdi-history</v-icon></v-list-item-icon>-->
-      <!--            <v-list-item-title>用户登录信息</v-list-item-title>-->
-      <!--          </v-list-item>-->
-      <!--          <v-list-item link to="/manager/projectMessages">-->
-      <!--            <v-list-item-icon-->
-      <!--              ><v-icon>mdi-book-edit-outline</v-icon></v-list-item-icon-->
-      <!--            >-->
-      <!--            <v-list-item-title>项目信息</v-list-item-title>-->
-      <!--          </v-list-item>-->
-      <!--        </v-list-item-group>-->
-      <!--      </v-list>-->
+<!--        <v-list>-->
+<!--        <v-list-item-group v-if="user.status === 'C'">-->
+<!--          <v-list-item link to="/manager">-->
+<!--            <v-list-item-icon-->
+<!--              ><v-icon>mdi-home-outline</v-icon></v-list-item-icon-->
+<!--            >-->
+<!--            <v-list-item-title>主页</v-list-item-title>-->
+<!--          </v-list-item>-->
+<!--          <v-list-item link to="/manager/userMessages">-->
+<!--            <v-list-item-icon-->
+<!--              ><v-icon>mdi-account-multiple</v-icon></v-list-item-icon-->
+<!--            >-->
+<!--            <v-list-item-title>用户信息</v-list-item-title>-->
+<!--          </v-list-item>-->
+<!--          <v-list-item link to="/manager/loginMessages">-->
+<!--            <v-list-item-icon><v-icon>mdi-history</v-icon></v-list-item-icon>-->
+<!--            <v-list-item-title>用户登录信息</v-list-item-title>-->
+<!--          </v-list-item>-->
+<!--          <v-list-item link to="/manager/projectMessages">-->
+<!--            <v-list-item-icon-->
+<!--              ><v-icon>mdi-book-edit-outline</v-icon></v-list-item-icon-->
+<!--            >-->
+<!--            <v-list-item-title>项目信息</v-list-item-title>-->
+<!--          </v-list-item>-->
+<!--        </v-list-item-group>-->
+<!--      </v-list>-->
 
     </v-navigation-drawer>
     <el-dialog title="创建项目" :visible.sync="setupDialog" width="50%" :before-close="handleClose">
@@ -472,41 +386,41 @@
     <el-dialog title="我的提醒" :visible.sync="clockDialog" width="50%">
       <v-simple-table>
         <thead>
-        <tr>
-          <th class="text-left" style="width: 60px">
-            已读
-          </th>
-          <th class="text-left" style="width: 50px">
-            Id
-          </th>
-          <th class="text-left">
-            内容
-          </th>
-          <th class="text-left">
-            时间
-          </th>
-        </tr>
+          <tr>
+            <th class="text-left" style="width: 60px">
+              已读
+            </th>
+            <th class="text-left" style="width: 50px">
+              Id
+            </th>
+            <th class="text-left">
+              内容
+            </th>
+            <th class="text-left">
+              时间
+            </th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="notice in noticeList" :key="notice.noticeId"
+          <tr v-for="notice in noticeList" :key="notice.noticeId"
             :style="{ backgroundColor: notice.read === 'N' ? '#ffffff' : '#f0f0f0' }"
             @mouseenter="arr[notice.taskId] = true" @mouseleave="arr[notice.taskId] = false">
-          <td>
-            <v-icon v-if="notice.read === 'N'" @click="handleReadNotice(notice.noticeId)">mdi-checkbox-marked</v-icon>
-          </td>
-          <td>{{ notice.noticeId }}</td>
-          <td>{{ notice.content }}</td>
-          <td>{{ new Date(notice.create_time).toLocaleString() }}</td>
-          <td>
-            <v-icon @click="handleDeleteNotice(notice.noticeId)">mdi-delete</v-icon>
-          </td>
-        </tr>
+            <td>
+              <v-icon v-if="notice.read === 'N'" @click="handleReadNotice(notice.noticeId)">mdi-checkbox-marked</v-icon>
+            </td>
+            <td>{{ notice.noticeId }}</td>
+            <td>{{ notice.content }}</td>
+            <td>{{ new Date(notice.create_time).toLocaleString() }}</td>
+            <td>
+              <v-icon @click="handleDeleteNotice(notice.noticeId)">mdi-delete</v-icon>
+            </td>
+          </tr>
         </tbody>
       </v-simple-table>
     </el-dialog>
 
     <v-main>
-      <router-view v-if="showRouterView"/>
+      <router-view v-if="showRouterView" />
     </v-main>
 
 
@@ -519,12 +433,11 @@
     </el-dialog>
 
   </v-app>
-
 </template>
 
 <script>
 import Cookies from "js-cookie"
-import {computed} from "vue"
+import { computed } from "vue"
 import {
   newProject, showTaskList, watchAllProject, getEmail, showNoticeList, removeNotice,
   userReleaseDocLock, readNotice
@@ -546,15 +459,15 @@ if (user === undefined) { // 用户未登录
   }
 } else { // 用户已登录
   let userpath = (window.location.pathname !== "/workDetail" && window.location.pathname !== "/allFile" &&
-      window.location.pathname !== "/allPerson" && window.location.pathname !== "/allTask" &&
-      window.location.pathname !== "/picture" && !window.location.pathname.startsWith("/plan") &&
-      !window.location.pathname.startsWith("/allProject") && window.location.pathname !== "/home" &&
-      !window.location.pathname.startsWith("/dev") && window.location.pathname !== "/profile" &&
-      window.location.pathname !== "topic" &&
-      !window.location.pathname.startsWith("/user") && !window.location.pathname.startsWith("/commitReview") &&
-      !window.location.pathname.startsWith("/prReview")) // 合法的普通用户路径
+    window.location.pathname !== "/allPerson" && window.location.pathname !== "/allTask" &&
+    window.location.pathname !== "/picture" && !window.location.pathname.startsWith("/plan") &&
+    !window.location.pathname.startsWith("/allProject") && window.location.pathname !== "/home" &&
+    !window.location.pathname.startsWith("/dev") && window.location.pathname !== "/profile" &&
+    window.location.pathname !== "topic" &&
+    !window.location.pathname.startsWith("/user") && !window.location.pathname.startsWith("/commitReview") &&
+    !window.location.pathname.startsWith("/prReview")) // 合法的普通用户路径
   let managerpath = (window.location.pathname !== "/profile" &&
-      window.location.pathname !== "topic" && !window.location.pathname.startsWith("/manager")) // 合法的纯管理员路径（位于管理端）
+    window.location.pathname !== "topic" && !window.location.pathname.startsWith("/manager")) // 合法的纯管理员路径（位于管理端）
   user = JSON.parse(user)
   proj = undefined;
   if (user !== undefined) {
@@ -609,11 +522,11 @@ export default {
     if (doc !== undefined && doc !== 'undefined') {
       doc = JSON.parse(doc);
       console.log(proj);
-      userReleaseDocLock({userId: user.id, projectId: JSON.parse(proj).projectId, docId: doc.id}).then(
-          res => {
-            console.log("userReleaseDocLock");
-            console.log(res);
-          }
+      userReleaseDocLock({ userId: user.id, projectId: JSON.parse(proj).projectId, docId: doc.id }).then(
+        res => {
+          console.log("userReleaseDocLock");
+          console.log(res);
+        }
       )
     }
     Notification.requestPermission()
@@ -728,41 +641,41 @@ export default {
     },
     updateNoticeList() {
       console.log("updating NoticeList...")
-      showNoticeList({userId: this.user.id}).then(
-          res => {
-            this.noticeList = res['data']['data']
-            this.noticeList.forEach(item => {
-              // 如果两个时间小于5秒，就弹出提醒
-              if (Math.abs(new Date(item.deadline) - new Date()) < 5000) {
-                console.log(Math.abs(new Date(item.deadline) - new Date()))
-                this.$message({
-                  showClose: true,
-                  message: "有到期的截止日期！",
-                  type: "warning",
-                  duration: 0,
+      showNoticeList({ userId: this.user.id }).then(
+        res => {
+          this.noticeList = res['data']['data']
+          this.noticeList.forEach(item => {
+            // 如果两个时间小于5秒，就弹出提醒
+            if (Math.abs(new Date(item.deadline) - new Date()) < 5000) {
+              console.log(Math.abs(new Date(item.deadline) - new Date()))
+              this.$message({
+                showClose: true,
+                message: "有到期的截止日期！",
+                type: "warning",
+                duration: 0,
+              });
+              if ("Notification" in window) {
+                Notification.requestPermission().then(function (permission) {
+                  if (permission === "granted") {
+                    let notification = new Notification("有到期的截止日期！", {
+                      body: "请及时处理！"
+                    });
+                  }
                 });
-                if ("Notification" in window) {
-                  Notification.requestPermission().then(function (permission) {
-                    if (permission === "granted") {
-                      let notification = new Notification("有到期的截止日期！", {
-                        body: "请及时处理！"
-                      });
-                    }
-                  });
-                }
               }
-            })
-            console.log(this.noticeList);
-          }
+            }
+          })
+          console.log(this.noticeList);
+        }
       )
     },
     checkClock() {
       this.clockDialog = true;
-      showNoticeList({userId: this.user.id}).then(
-          res => {
-            this.noticeList = res['data']['data'];
-            console.log(this.noticeList);
-          }
+      showNoticeList({ userId: this.user.id }).then(
+        res => {
+          this.noticeList = res['data']['data'];
+          console.log(this.noticeList);
+        }
       )
     },
     closeDocument() {
@@ -772,82 +685,79 @@ export default {
       this.dialog = true;
     },
     getEmail(id) {
-      getEmail({id: id}).then(
-          res => {
-            console.log("getEmail");
-            console.log(res);
-            console.log(id);
-            return res['data']['data'];
-          }
+      getEmail({ id: id }).then(
+        res => {
+          console.log("getEmail");
+          console.log(res);
+          console.log(id);
+          return res['data']['data'];
+        }
       )
     },
     get_project() {
       Cookies.remove("proj");
       console.log("get_project");
-      watchAllProject({userId: this.user.id}).then(
-          res => {
-            this.projectData = res['data']['data'];
-            console.log(this.projectData);
-          }
+      watchAllProject({ userId: this.user.id }).then(
+        res => {
+          this.projectData = res['data']['data'];
+          console.log(this.projectData);
+        }
       )
     },
     getTaskList() {
       console.log(this.user.id);
       console.log(this.selectedProj);
-      showTaskList({userId: this.user.id, projectId: this.proj.projectId}).then(
-          res => {
-            console.log("getTaskList");
-            console.log(res);
-            this.tasks = res['data']['data'];
-            console.log(this.tasks);
-          }
+      showTaskList({ userId: this.user.id, projectId: this.proj.projectId }).then(
+        res => {
+          console.log("getTaskList");
+          console.log(res);
+          this.tasks = res['data']['data'];
+          console.log(this.tasks);
+        }
       );
     },
     gotoPic() {
-      showTaskList({userId: this.user.id, projectId: this.proj.projectId}).then(
-          res => {
-            console.log("getTaskList");
-            console.log(res);
-            this.tasks = res['data']['data'];
-            console.log(this.tasks);
-            let projectItem = [];
-            let projectItemStart = [];
-            let projectItemEnd = [];
-            let workloads = [];
-            let expectedDates = [];
-            let actualDates = [];
-            let projectState = [];
-            console.log(this.tasks);
-            for (let i = 0; i < this.tasks.length; i++) {
-              for (let j = 0; j < this.tasks[i].subTaskList.length; j++) {
-                projectItem.push(this.tasks[i].subTaskList[j].subTaskName);
-                projectItemStart.push(this.tasks[i].subTaskList[j].start_time.slice(0, 10));
-                projectItemEnd.push(this.tasks[i].subTaskList[j].deadline.slice(0, 10));
-                workloads.push(parseInt(this.tasks[i].subTaskList[j].contribute));
-                expectedDates.push(this.tasks[i].subTaskList[j].deadline.slice(0, 10));
-                actualDates.push(this.tasks[i].subTaskList[j].complete_time.slice(0, 10));
-                projectState.push(this.tasks[i].subTaskList[j].status);
-              }
+      showTaskList({ userId: this.user.id, projectId: this.proj.projectId }).then(
+        res => {
+          console.log("getTaskList");
+          console.log(res);
+          this.tasks = res['data']['data'];
+          console.log(this.tasks);
+          let projectItem = [];
+          let projectItemStart = [];
+          let projectItemEnd = [];
+          let workloads = [];
+          let expectedDates = [];
+          let actualDates = [];
+          let projectState = [];
+          console.log(this.tasks);
+          for (let i = 0; i < this.tasks.length; i++) {
+            for (let j = 0; j < this.tasks[i].subTaskList.length; j++) {
+              projectItem.push(this.tasks[i].subTaskList[j].subTaskName);
+              projectItemStart.push(this.tasks[i].subTaskList[j].start_time.slice(0, 10));
+              projectItemEnd.push(this.tasks[i].subTaskList[j].deadline.slice(0, 10));
+              workloads.push(parseInt(this.tasks[i].subTaskList[j].contribute));
+              expectedDates.push(this.tasks[i].subTaskList[j].deadline.slice(0, 10));
+              actualDates.push(this.tasks[i].subTaskList[j].complete_time.slice(0, 10));
+              projectState.push(this.tasks[i].subTaskList[j].status);
             }
-            console.log(this.tasks);
-            console.log(projectItem);
-            console.log(projectItemStart);
-            console.log(projectItemEnd);
-            if (projectItem.length == 0) {
-              this.$message({
-                type: 'info',
-                message: '您还没有任务'
-              })
-              return;
+          }
+          console.log(this.tasks); console.log(projectItem); console.log(projectItemStart); console.log(projectItemEnd);
+          if (projectItem.length == 0) {
+            this.$message({
+              type: 'info',
+              message: '您还没有任务'
+            })
+            return;
+          }
+          this.$router.push({
+            path: '/picture'
+            , query: {
+              projectItem: projectItem, projectItemStart: projectItemStart, projectItemEnd: projectItemEnd,
+              workloads: workloads, expectedDates: expectedDates, actualDates: actualDates, projectState: projectState
             }
-            this.$router.push({
-              path: '/picture'
-              , query: {
-                projectItem: projectItem, projectItemStart: projectItemStart, projectItemEnd: projectItemEnd,
-                workloads: workloads, expectedDates: expectedDates, actualDates: actualDates, projectState: projectState
-              }
-            });
           });
+        });
     },
     getProj(item) {
       console.log("getProj");
@@ -902,20 +812,20 @@ export default {
       console.log(this.$route.path);
 
       console.log(this.user !== null && this.proj !== undefined &&
-          !window.location.pathname.startsWith("/manager") &&
-          this.$route.path !== "/allProject/" &&
-          !window.location.pathname.startsWith("/login") &&
-          !window.location.pathname.startsWith("/register"));
+        !window.location.pathname.startsWith("/manager") &&
+        this.$route.path !== "/allProject/" &&
+        !window.location.pathname.startsWith("/login") &&
+        !window.location.pathname.startsWith("/register"));
 
       return (
-          this.user !== null && this.user !== undefined &&
-          this.proj !== null && this.proj !== undefined &&
-          !window.location.pathname.startsWith("/manager") &&
-          this.$route.path !== "/allProject/" &&
-          !window.location.pathname.startsWith("/login") &&
-          !window.location.pathname.startsWith("/register") &&
-          !window.location.pathname.startsWith("/profile") &&
-          !window.location.pathname.startsWith("/topic")
+        this.user !== null && this.user !== undefined &&
+        this.proj !== null && this.proj !== undefined &&
+        !window.location.pathname.startsWith("/manager") &&
+        this.$route.path !== "/allProject/" &&
+        !window.location.pathname.startsWith("/login") &&
+        !window.location.pathname.startsWith("/register") &&
+        !window.location.pathname.startsWith("/profile") &&
+        !window.location.pathname.startsWith("/topic")
       );
     },
     // getSelectedProj() {
@@ -935,11 +845,10 @@ export default {
     },
     handleClose(done) {
       this.$confirm("确认关闭？")
-          .then(() => {
-            done();
-          })
-          .catch(() => {
-          });
+        .then(() => {
+          done();
+        })
+        .catch(() => { });
       this.whatisclicked = null
     },
     cancelSetupProject() {
@@ -954,11 +863,11 @@ export default {
       // console.log(this.search);
       // console.log("submit");
       this.whatisclicked = null
-      watchAllProject({userId: this.user.id}).then(
-          res => {
-            this.projectData = res['data']['data'];
-            console.log(this.projectData);
-          }
+      watchAllProject({ userId: this.user.id }).then(
+        res => {
+          this.projectData = res['data']['data'];
+          console.log(this.projectData);
+        }
       )
       if (this.form.name.trim() === "") {
         this.$message({
@@ -977,13 +886,13 @@ export default {
         }
       }
       this.setupDialog = false;
-      newProject({projectName: this.form.name, projectIntro: this.form.intro, userId: this.user.id}).then(
-          res => {
-            console.log(this.user.id);
-            console.log(res);
-            this.updateUserProj();
-            this.get_project();
-          }
+      newProject({ projectName: this.form.name, projectIntro: this.form.intro, userId: this.user.id }).then(
+        res => {
+          console.log(this.user.id);
+          console.log(res);
+          this.updateUserProj();
+          this.get_project();
+        }
       );
       this.form = {
         name: '',
@@ -992,34 +901,33 @@ export default {
     },
     handleReadNotice(noticeId) {
       this.$confirm("确认已读？")
-          .then(() => {
-            readNotice({noticeId: noticeId, userId: this.user.id}).then(
+        .then(() => {
+          readNotice({ noticeId: noticeId, userId: this.user.id }).then(
+            res => {
+              showNoticeList({ userId: this.user.id }).then(
                 res => {
-                  showNoticeList({userId: this.user.id}).then(
-                      res => {
-                        this.noticeList = res.data.data
-                      }
-                  )
+                  this.noticeList = res.data.data
                 }
-            )
-          })
+              )
+            }
+          )
+        })
     },
     handleDeleteNotice(noticeId) {
       this.$confirm("确认删除提醒？")
-          .then(() => {
-            removeNotice({noticeId: noticeId}).then(
+        .then(() => {
+          removeNotice({ noticeId: noticeId }).then(
+            res => {
+              showNoticeList({ userId: this.user.id }).then(
                 res => {
-                  showNoticeList({userId: this.user.id}).then(
-                      res => {
-                        this.noticeList = res['data']['data'];
-                        console.log(this.noticeList);
-                      }
-                  )
+                  this.noticeList = res['data']['data'];
+                  console.log(this.noticeList);
                 }
-            )
-          })
-          .catch(() => {
-          });
+              )
+            }
+          )
+        })
+        .catch(() => { });
     },
     changeSelectedProj(proj) {
       this.selectedProj = proj;
@@ -1027,24 +935,24 @@ export default {
     updateUserProj() {
       if (this.user !== undefined) {
         axios
-            .post("/api/plan/watchAllProject", {
-              userId: this.user.id,
-            })
-            .then((res) => {
-              console.log("updateProj");
-              console.log(res);
-              if (res.data.errcode === 0) {
-                this.user.projects = res['data']['data'];
-                Cookies.set("user", JSON.stringify(this.user));
-              } else {
-                alert(
-                    "updateUserProj failure! with non 0 errcode " + res.data.errcode
-                );
-              }
-            })
-            .catch((err) => {
-              alert("updateUserProj failure! with error " + err);
-            });
+          .post("/api/plan/watchAllProject", {
+            userId: this.user.id,
+          })
+          .then((res) => {
+            console.log("updateProj");
+            console.log(res);
+            if (res.data.errcode === 0) {
+              this.user.projects = res['data']['data'];
+              Cookies.set("user", JSON.stringify(this.user));
+            } else {
+              alert(
+                "updateUserProj failure! with non 0 errcode " + res.data.errcode
+              );
+            }
+          })
+          .catch((err) => {
+            alert("updateUserProj failure! with error " + err);
+          });
       }
     },
     isScrollTop() {
