@@ -22,6 +22,7 @@
               style="width: 100%"
               :show-header="false"
           >
+
             <el-table-column prop="repoRemotePath">
               <template v-slot="scope">
                 <a :href="'https://github.com/' + scope.row.repoRemotePath">{{ scope.row.repoRemotePath }}</a>
