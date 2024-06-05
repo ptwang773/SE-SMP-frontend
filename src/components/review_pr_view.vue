@@ -16,7 +16,7 @@ export default {
           this.reviewers = res.data.data
         } else {
           console.log(res)
-          alert('/api/plan/showProjectReviewers error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
+          this.isReviewer = false
         }
       }).catch((err) => {
         alert('/api/plan/showProjectReviewers error' + err)
@@ -137,7 +137,8 @@ export default {
         visible: false,
       },
       reviewers: [],
-      statsPerDay: {}
+      statsPerDay: {},
+      isReviewer: true
     }
   }, watch: {
     selectedBranch() {
@@ -190,8 +191,9 @@ export default {
               }}</v-chip></span>
             </td>
             <td>{{ pr.prTime.slice(0, 10) }} {{ pr.prTime.slice(11, -1) }}</td>
-            <td @click.stop>
+            <td @click.stop style="width: 80px">
               <span v-if="pr.reviewerName">{{ pr.reviewerName }}</span>
+              <span v-else-if="!isReviewer"> 暂无 </span>
               <el-button v-else @click="selectReviewer(pr)"> 分配审核人员</el-button>
             </td>
           </tr>

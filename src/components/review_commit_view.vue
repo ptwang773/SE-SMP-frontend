@@ -32,6 +32,7 @@ export default {
         visible: false,
       },
       reviewers: [],
+      isReviewer: true
     }
   },
   methods: {
@@ -44,7 +45,7 @@ export default {
           this.reviewers = res.data.data
         } else {
           console.log(res)
-          alert('/api/plan/showProjectReviewers error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
+          this.isReviewer = false
         }
       }).catch((err) => {
         alert('/api/plan/showProjectReviewers error' + err)
@@ -243,9 +244,10 @@ export default {
                   </v-tooltip>
               </td>
               <td>{{new Date(commit.time).toLocaleString()}}</td>
-              <td @click.stop>
+              <td @click.stop style="width: 80px">
               <span v-if="commit.reviewerName">{{ commit.reviewerName }}</span>
-              <el-button v-else @click="selectReviewer(commit)"> 分配审核人员</el-button>
+                <span v-else-if="!isReviewer"> 暂无 </span>
+              <el-button v-else @click="selectReviewer(commit)"> 分配审核人员 </el-button>
               </td>
           </tr>
           </tbody>

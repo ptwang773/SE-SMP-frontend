@@ -283,6 +283,13 @@ export default {
               })
               return
             }
+            if (this.messageInput === '') {
+              this.$message({
+                type: 'error',
+                message: '消息不能为空'
+              })
+              return
+            }
             console.log('will send: ' + this.messageInput)
             this.chatRooms[this.selectedRoom].ws.send(JSON.stringify({
                 sender: this.user.id,
