@@ -190,7 +190,7 @@
       checkCommit(commit) {
         console.log(commit)
         this.$router.push({
-          path: '/commitReview/' + this.projId + '/' + this.repoId + '/' + this.prDetail.branch + '/' + commit.sha,
+          path: '/commitReview/' + this.projId + '/' + this.repoId + '/' + this.prDetail.branch + '/' + commit.sha + "?branchName=" + this.prDetail.branch + "&projId=" + this.projId + "&repoId=" + this.repoId + "&commitSha=" + commit.sha,
           query: {
             commit: commit,
             branchName: this.prDetail.branch,
@@ -318,7 +318,7 @@
 
 
       <div style="margin-top: 20px">
-        <h3>提交记录 ({{this.commits.length}})</h3>
+        <b style="font-size: 0.6cm">提交记录 ({{this.commits.length}})</b><span style="color: rgb(128,128,128); font-size: 0.4cm">&nbsp;*您可以点击表项跳转到相应commit</span>
       </div>
       <v-row>
         <v-col cols="8">
@@ -331,7 +331,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="commit in commits" :key="commit.sha">
+            <tr v-for="commit in commits" :key="commit.sha" @click="checkCommit(commit)">
               <td class="need-mono">{{commit.author}}</td>
               <td class="need-mono">
                 <v-tooltip bottom>
