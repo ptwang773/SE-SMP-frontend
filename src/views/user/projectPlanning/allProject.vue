@@ -166,7 +166,6 @@ import {
 import Cookies from "js-cookie";
 import getIdenticon from "@/utils/identicon";
 import topicSetting from "@/utils/topic-setting";
-import projectTable from "@/views/user/projectPlanning/mainPage/projectTable.vue"
 
 export default {
   // inject: ['user', 'selectedProj'],
@@ -180,7 +179,6 @@ export default {
     updateUserProj: {default: null},
   },
   components: {
-    projectTable,
   },
   provide() {
     return {

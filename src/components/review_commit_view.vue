@@ -11,6 +11,29 @@ export default {
       return commit
     }
   },
+  data() {
+    return {
+      commitHistoryBusy: true,
+      commitHistory: [
+        {
+
+        }
+      ],
+      commitStatus:[
+
+      ],
+      statsPerDay: {},
+      tempReviewerName: '',
+      selectForm: {
+        prId: '',
+        projectId:'',
+        reviewerId: '',
+        sha:'',
+        visible: false,
+      },
+      reviewers: [],
+    }
+  },
   methods: {
     updateReviewers() {
       axios.post('/api/plan/showProjectReviewers', {
@@ -137,14 +160,16 @@ export default {
       selectReviewer(commit) {
       this.selectForm.sha = commit.hash;
       this.selectForm.visible = true;
+      console.log(commit.reviewerName)
     },
     submitForm() {
-      axios.post('/api/develop/assignPrReviewer', {
+      axios.post('/api/develop/assignCommitReviewer', {
         userId: this.user.id,
         projectId: this.proj.id,
         repoId: this.selectedRepo.id,
         reviewerId: this.selectForm.reviewerId,
-        sha:this.selectForm.sha
+        sha:this.selectForm.sha,
+        branch: this.selectedBranch.name
       }).then((res) => {
         if (res.data.errcode === 0) {
           this.$message({
@@ -153,6 +178,7 @@ export default {
           })
           this.selectForm.visible = false;
           this.selectForm.reviewerId = undefined;
+          location.reload()
         } else {
           console.log(res)
           alert('/api/plan/showProjectReviewers error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
@@ -163,28 +189,7 @@ export default {
     },
     getIdenticon,
   },
-  data() {
-    return {
-      commitHistoryBusy: true,
-      commitHistory: [
-        {
-
-        }
-      ],
-      commitStatus:[
-
-      ],
-      statsPerDay: {},
-      selectForm: {
-        prId: '',
-        projectId:'',
-        reviewerId: '',
-        sha:'',
-        visible: false,
-      },
-      reviewers: [],
-    }
-  }, watch: {
+   watch: {
     selectedBranch() {
         this.updateCommitHistory()
     }
@@ -265,7 +270,7 @@ export default {
             </div>
           </el-radio-group> </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="submitForm">提交</el-button>
+            <el-button type="primary" @click="submitForm" style="color: white">提交</el-button>
           </el-form-item>
       </el-form>
     </el-dialog>

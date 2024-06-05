@@ -102,6 +102,7 @@ export default {
           })
           this.selectForm.visible = false;
           this.selectForm.reviewerId = undefined;
+          location.reload()
         } else {
           console.log(res)
           alert('/api/plan/showProjectReviewers error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
@@ -114,6 +115,7 @@ export default {
   },
   data() {
     return {
+      tempReviewerName: '',
       prListBusy: false,
       prList: [
         {
@@ -218,7 +220,7 @@ export default {
             </div>
           </el-radio-group> </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="submitForm">提交</el-button>
+            <el-button type="primary" @click="submitForm" style="color: white">提交</el-button>
           </el-form-item>
       </el-form>
     </el-dialog>

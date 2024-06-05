@@ -178,7 +178,18 @@ export default {
       console.log(this.selectedAuthority)
       let userId = this.userAuthorityDialogMessage.id
       let managerId = this.user.id
-      axios.post("/api/management/changeUserAuthority", {
+      axios.post("/api/management/isProjectAdmin", {
+        userId: userId,
+        managerId: managerId
+      })
+          .then((res) => {
+            if (res.data.data === 1) {
+              this.$message({
+                type: 'error',
+                message: '该用户参加了项目，无法授权为管理员'
+              })
+            } else {
+              axios.post("/api/management/changeUserAuthority", {
         managerId: managerId,
         userId: userId,
         changeToAuthority: this.selectedAuthority
@@ -231,6 +242,8 @@ export default {
             this.userAuthorityDialogMessage = ''
             this.selectedAuthority = ''
             console.error(err);
+          })
+            }
           })
     },
     // 打开用户个人信息窗口

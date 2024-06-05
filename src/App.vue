@@ -9,7 +9,7 @@
 
 
       <template>
-        <v-badge :content="noticeList.length" :value="noticeList.length > 0" color="red" overlap class="mr-4">
+        <v-badge :content="this.showNoReadNotice" :value="this.showNoReadNotice > 0" color="red" overlap class="mr-4">
           <v-icon v-if="existUser()" @click="checkClock" style="font-size: 40px;">mdi-clock-outline</v-icon>
         </v-badge>
       </template>
@@ -152,7 +152,7 @@
                 </v-list-item>
                 <v-expand-transition>
                   <div v-if="codeReviewExpanded" class="child-items">
-                    <v-list-item link :to="'/commitReview'" style="padding-left: 40px">
+                    <v-list-item link :to="'/commitReview'" style="padding-left: 30px">
                       <v-list-item-avatar>
                         <v-icon :color="getDarkColor(user.topic)">mdi-source-branch-check</v-icon>
                       </v-list-item-avatar>
@@ -160,7 +160,7 @@
                         <v-list-item-title>Commit评审</v-list-item-title>
                       </v-list-item-content>
                     </v-list-item>
-                    <v-list-item link :to="'/prReview'" style="padding-left: 40px">
+                    <v-list-item link :to="'/prReview'" style="padding-left: 30px">
                       <v-list-item-avatar>
                         <v-icon :color="getDarkColor(user.topic)">mdi-source-pull</v-icon>
                       </v-list-item-avatar>
@@ -168,7 +168,7 @@
                         <v-list-item-title>PR评审</v-list-item-title>
                       </v-list-item-content>
                     </v-list-item>
-                    <v-list-item link :to="'/newPR'" style="padding-left: 40px">
+                    <v-list-item link :to="'/newPR'" style="padding-left: 30px">
                       <v-list-item-avatar>
                         <v-icon :color="getDarkColor(user.topic)">mdi-check-circle-outline</v-icon>
                       </v-list-item-avatar>
@@ -403,10 +403,10 @@
         </thead>
         <tbody>
           <tr v-for="notice in noticeList" :key="notice.noticeId"
-            :style="{ backgroundColor: notice.read === 'N' ? '#ffffff' : '#f0f0f0' }"
             @mouseenter="arr[notice.taskId] = true" @mouseleave="arr[notice.taskId] = false">
             <td>
               <v-icon v-if="notice.read === 'N'" @click="handleReadNotice(notice.noticeId)">mdi-checkbox-marked</v-icon>
+              <v-icon v-else color="green">mdi-checkbox-marked</v-icon>
             </td>
             <td>{{ notice.noticeId }}</td>
             <td>{{ notice.content }}</td>
@@ -516,6 +516,8 @@ export default {
     })
     this.updateUserProj();
     this.updateTopic();
+    this.createCheckClock()
+
     let doc = Cookies.get("doc");
     console.log("cookies");
     console.log(doc);
@@ -538,6 +540,7 @@ export default {
     }
 
     this.getTaskList()
+    this.createCheckClock()
 
     console.log('setting interval...')
     this.updateNoticeList()
@@ -584,6 +587,9 @@ export default {
       scrollUp: true,
       clockList: [],
       noticeList: [],
+      noReadNoticeList: [],
+      showNoReadNotice: '',
+      checkNoReadNotice: false,
       arr: [],
       whatisclicked: null,
       codeReviewExpanded: false
@@ -675,6 +681,21 @@ export default {
         res => {
           this.noticeList = res['data']['data'];
           console.log(this.noticeList);
+        }
+      )
+    },
+    createCheckClock() {
+      showNoticeList({ userId: this.user.id }).then(
+        res => {
+          this.noticeList = res['data']['data'];
+          console.log(this.noticeList);
+          for (let i = 0; i < this.noticeList.length; i++) {
+            if (this.noticeList.at(i).read === 'N') {
+              this.noReadNoticeList.push(this.noticeList.at(i))
+            }
+          }
+          this.showNoReadNotice = this.noReadNoticeList.length
+          console.log(this.noReadNoticeList)
         }
       )
     },
@@ -907,6 +928,7 @@ export default {
               showNoticeList({ userId: this.user.id }).then(
                 res => {
                   this.noticeList = res.data.data
+                  this.showNoReadNotice--
                 }
               )
             }
@@ -921,6 +943,12 @@ export default {
               showNoticeList({ userId: this.user.id }).then(
                 res => {
                   this.noticeList = res['data']['data'];
+                  for (let i = 0; i < this.noReadNoticeList.length; i++) {
+                    if (this.noReadNoticeList.at(i).noticeId === noticeId) {
+                      this.showNoReadNotice--
+                      break
+                    }
+                  }
                   console.log(this.noticeList);
                 }
               )
