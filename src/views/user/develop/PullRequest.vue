@@ -1,67 +1,74 @@
 <template>
     <v-app>
         <v-container>
-            <v-row>
-                <h1>请求进行代码评审 - {{ selectedProj.projectName }}</h1>
-            </v-row>
-            <v-row>
-                <h2>代码仓库：</h2>
-            </v-row>
-            <v-row>
-                <el-select v-model="curRepoId" placeholder="请选择">
-                    <el-option v-for="item in repos" :key="item.value" :label="item.label" :value="item.value">
-                    </el-option>
-                </el-select>
-            </v-row>
-            <v-row>
-                <v-col cols="5">
-                    <v-row>
-                        <h3>源分支：</h3>
-                    </v-row>
-                    <v-row>
-                        <el-select v-model="srcBranch" placeholder="请选择">
-                            <el-option v-for="item in branches" :key="item.value" :label="item.label" :value="item.value">
-                            </el-option>
-                        </el-select>
-                    </v-row>
-                </v-col>
-                <v-col cols="5">
-                    <v-row>
-                        <h3>目标分支：</h3>
-                    </v-row>
-                    <v-row>
-                        <el-select v-model="dstBranch" placeholder="请选择">
-                            <el-option v-for="item in  branches" :key="item.value" :label="item.label" :value="item.value">
-                            </el-option>
-                        </el-select>
-                    </v-row>
-                </v-col>
-            </v-row>
-            <v-row>
-                <v-col cols="7"><el-input v-model="title" placeholder="请输入标题"></el-input></v-col>
-
-            </v-row>
-            <v-row>
-                <div class="editor">
-                    <mavon-editor v-model="html" ref="md" style="min-height: 600px" />
-                </div>
-            </v-row>
-            <v-row>
-                <el-button type="primary" @click="handle_submit">新建</el-button>
-                <el-button type="primary" @click="handle_cancel">取消</el-button>
-            </v-row>
+            <v-col cols="12">
+                <v-card>
+                    <v-card-title>
+                        <h2>请求进行代码评审 - {{ selectedProj.projectName }}</h2>
+                    </v-card-title>
+                    <v-card-text class="pa-4">
+                        <v-row>
+                            <v-col cols="12">
+                              <div class="d-flex align-center">
+                                <h2 class="mb-0 mr-2">代码仓库：</h2>
+                                <el-select v-model="curRepoId" placeholder="请选择">
+                                  <el-option v-for="item in repos" :key="item.value" :label="item.label" :value="item.value">
+                                  </el-option>
+                                </el-select>
+                              </div>
+                            </v-col>
+                        </v-row>
+                        <v-row>
+                            <v-col cols="5">
+                                <v-select
+                                    v-model="srcBranch"
+                                    label="源分支"
+                                    placeholder="请选择"
+                                    :items="branches"
+                                    item-text="label"
+                                    item-value="value"
+                                >
+                                </v-select>
+                            </v-col>
+                            <v-col cols="5">
+                                <v-select
+                                    v-model="dstBranch"
+                                    label="目标分支"
+                                    :items="branches"
+                                    item-text="label"
+                                    item-value="value"
+                                >
+                                </v-select>
+                            </v-col>
+                        </v-row>
+                        <v-row>
+                            <v-col cols="7">
+                                <v-text-field v-model="title" label="标题" placeholder="请输入标题"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row>
+                            <v-col cols="12">
+                                <mavon-editor v-model="html" ref="md" style="min-height: 600px" />
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn color="primary" @click="handle_submit">新建</v-btn>
+                        <v-btn @click="handle_cancel">取消</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-col>
         </v-container>
     </v-app>
 </template>
-    
-    
+
 <script>
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import '@wangeditor/editor/dist/css/style.css';
 import topicSetting from "@/utils/topic-setting";
 import axios from 'axios';
-import { mavonEditor } from "mavon-editor";
 import "mavon-editor/dist/css/index.css";
+import introJs from "intro.js";
 export default {
     created() {
         if (this.selectedProj !== null)
@@ -74,48 +81,6 @@ export default {
         selectedProj: { default: null },
         changeSelectedProj: { default: null }
     },
-    // provide() {
-    //     return {
-    //         proj: computed(() => {
-    //             return {
-    //                 id: this.selectedProj.projectId,
-    //                 name: this.selectedProj.projectName,
-    //                 intro: this.selectedProj.projectIntro
-    //             }
-    //         }),
-    //         bindRepos: computed(() => this.bindRepos),
-    //         bindReposBusy: computed(() => this.bindReposBusy),
-    //         updateBindRepos: this.updateBindRepos,
-    //     }
-    // },
-    // async created() {
-    //     var _this = this;
-    //     this.editorConfig.MENU_CONF['uploadImage'] = {
-    //         server: '',
-    //         async customUpload(file, insertFn) {
-    //             const formData = new FormData();
-    //             formData.append('file', file);
-    //             await _this.$axios({
-    //                 method: 'post',
-    //                 url: 'upload_file/',
-    //                 data: formData
-    //             }).then(async (res) => {
-    //                 if (res.data.status != 200) {
-    //                     let _msg = _this.$message.error({
-    //                                     labels: 'error',
-    //                                     message: String(res.data.msg)
-    //                                 });
-    //                 } else {
-    //                     let _msg = _this.$message.success({
-    //                                     labels: 'success',
-    //                                     message: "上传成功！"
-    //                                 });
-    //                     insertFn(res.data.data.url, '图片' + String(res.data.data.id), '');
-    //                 }
-    //             })
-    //         }
-    //     }
-    // },
 
     components: { Editor, Toolbar },
     data() {
@@ -175,7 +140,6 @@ export default {
                     });
                 }
                 axios.post('/api/develop/gitPr', {
-
                     userId: this.userId,
                     projectId: this.projectId,
                     repoId: this.curRepoId,
@@ -232,6 +196,8 @@ export default {
                     }
                     this.curRepoId = this.bindRepos[0].id;
                     this.curRepoName = this.bindRepos[0].repo;
+                } else if (res.data.errcode === 3) {
+                    this.startTour()
                 } else {
                     this.bindReposBusy = false;
                     alert('/api/develop/getBindRepos error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
@@ -240,8 +206,6 @@ export default {
                 alert('/api/develop/getBindRepos error' + err)
                 this.bindReposBusy = false;
             })
-
-
         },
 
         updateBranch() {
@@ -252,15 +216,11 @@ export default {
                 repoId: this.curRepoId
             }).then((res) => {
                 if (res.data.errcode === 0) {
-                    var branch = res.data.data;
-                    console.log('ggggggggggggggggggggggggg');
-                    console.log(branch);
-                    for (var i = 0; i < branch.length; i++) {
-                        var newBranch = { label: branch[i].branchName, value: branch[i].branchName };
-                        this.branches.push(newBranch);
-                    }
-                    console.log('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh');
-                    console.log(this.branches);
+                  const branch = res.data.data;
+                  for (let i = 0; i < branch.length; i++) {
+                    const newBranch = {label: branch[i].branchName, value: branch[i].branchName};
+                    this.branches.push(newBranch);
+                  }
                 } else {
                     this.bindReposBusy = false;
                     alert('/api/develop/getBindRepos error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
@@ -269,11 +229,31 @@ export default {
                 alert('/api/develop/getBindRepos error' + err)
             })
         },
-        // projSelected(proj) {
-        //     console.log(JSON.stringify(this.selectedProj) + '<-' + JSON.stringify(proj));
-        //     this.selectedProj = proj;
-        //     console.log(JSON.stringify(this.selectedProj));
-        // },
+        startTour() {
+          let app = this.$root.$children[0]
+          let userPage = app.$refs.userPage.$el
+          introJs().setOptions({
+            'prevLabel' : '上一步',
+            'nextLabel' : '下一步',
+            'doneLabel' : '知道了',
+            steps: [
+              {
+                intro: "欢迎来到开发端！",
+              },
+              {
+                intro: "您还没有绑定token!",
+              },
+              {
+                element: userPage,
+                intro: "点击进入用户主页设置token!",
+                position: "left"
+              },
+            ],
+            showStepNumbers: true,
+            exitOnEsc: true,
+            exitOnOverlayClick: false
+          }).start();
+        },
         getTopicColor: topicSetting.getColor,
         getRadialGradient: topicSetting.getRadialGradient,
 
@@ -291,8 +271,8 @@ export default {
     }
 }
 </script>
-    
-    
+
+
 <style scoped>
 .base {
     margin: 30px;

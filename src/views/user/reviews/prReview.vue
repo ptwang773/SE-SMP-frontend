@@ -8,6 +8,7 @@ import reviewView1 from "@/components/review_view1.vue"
 import axios from 'axios'
 import topicSetting from "@/utils/topic-setting";
 import Cookies from "js-cookie";
+import introJs from "intro.js";
 
 export default {
     name: "Dev",
@@ -23,8 +24,6 @@ export default {
             bindRepos: [],
             bindReposBusy: true,
             curUserId: ''
-            // my_ghusername: 'trickeye',
-            // my_ghuseremail: '20373866@buaa.edu.cn',
         }
     },
     created() {
@@ -73,6 +72,8 @@ export default {
                         }
                     })
                     this.bindReposBusy = false;
+                } else if (res.data.errcode === 3) {
+                    this.startTour()
                 } else {
                     this.bindReposBusy = false;
                     alert('/api/reviews/getBindRepos error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
@@ -82,11 +83,31 @@ export default {
                 this.bindReposBusy = false;
             })
         },
-        // projSelected(proj) {
-        //     console.log(JSON.stringify(this.selectedProj) + '<-' + JSON.stringify(proj));
-        //     this.selectedProj = proj;
-        //     console.log(JSON.stringify(this.selectedProj));
-        // },
+        startTour() {
+          let app = this.$root.$children[0]
+          let userPage = app.$refs.userPage.$el
+          introJs().setOptions({
+            'prevLabel' : '上一步',
+            'nextLabel' : '下一步',
+            'doneLabel' : '知道了',
+            steps: [
+              {
+                intro: "欢迎来到开发端！",
+              },
+              {
+                intro: "您还没有绑定token!",
+              },
+              {
+                element: userPage,
+                intro: "点击进入用户主页设置token!",
+                position: "left"
+              },
+            ],
+            showStepNumbers: true,
+            exitOnEsc: true,
+            exitOnOverlayClick: false
+          }).start();
+        },
         getTopicColor: topicSetting.getColor,
         getRadialGradient: topicSetting.getRadialGradient
     }
