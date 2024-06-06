@@ -149,7 +149,6 @@ import {
 import Cookies from "js-cookie";
 import getIdenticon from "@/utils/identicon";
 import topicSetting from "@/utils/topic-setting";
-import projectTable from "@/views/user/projectPlanning/mainPage/projectTable.vue"
 import dayjs from "dayjs" //时间库
 import Test from "./test.vue"; //你自己的gantt条容器
 import TestLeft from "./test-left.vue"; //你自己的行名称组件
@@ -187,7 +186,6 @@ export default {
     updateUserProj: { default: null },
   },
   components: {
-    projectTable,
     Test,
     TestLeft
   },
