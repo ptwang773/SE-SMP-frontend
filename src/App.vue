@@ -672,7 +672,7 @@ export default {
               }
             }
           })
-          console.log(this.noticeList);
+          console.log(this.noReadNoticeList);
         }
       )
     },
@@ -692,6 +692,11 @@ export default {
           console.log(this.noticeList);
           for (let i = 0; i < this.noticeList.length; i++) {
             if (this.noticeList.at(i).read === 'N') {
+              for(let j = 0; j < this.noReadNoticeList.length; j++) {
+                if (this.noReadNoticeList.at(j).noticeId === this.noticeList.at(i).noticeId) {
+                  return
+                }
+              }
               this.noReadNoticeList.push(this.noticeList.at(i))
             }
           }
@@ -703,6 +708,7 @@ export default {
       if (notice.url !== '') {
         this.$router.push(notice.url)
       }
+      this.clockDialog = false
     },
     closeDocument() {
       this.dialog = false;

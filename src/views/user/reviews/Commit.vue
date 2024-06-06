@@ -71,6 +71,7 @@ export default {
           }
         })
     this.getCommitDetailBusy = false
+    this.updateReviewers()
   },
   data() {
     return {
@@ -95,9 +96,62 @@ export default {
       fileDiff: [],
       reviewer: '',
       role: [],
+      reviewers: [],
+      selectForm: {
+        prId: '',
+        projectId:'',
+        reviewerId: '',
+        sha:'',
+        visible: false,
+      },
     }
   },
   methods: {
+    selectReviewer() {
+      this.selectForm.sha = this.commitSha;
+      this.selectForm.visible = true;
+    },
+    updateReviewers() {
+      axios.post('/api/plan/showProjectReviewers', {
+        userId: this.user.id,
+        projectId: this.projId,
+      }).then((res) => {
+        if (res.data.errcode === 0) {
+          this.reviewers = res.data.data
+        } else {
+          console.log(res)
+          this.isReviewer = false
+        }
+      }).catch((err) => {
+        alert('/api/plan/showProjectReviewers error' + err)
+      })
+    },
+    submitForm() {
+      axios.post('/api/develop/assignCommitReviewer', {
+        userId: this.user.id,
+        projectId: this.projId,
+        repoId: this.repoId,
+        reviewerId: this.selectForm.reviewerId,
+        sha:this.selectForm.sha,
+        branch: this.branchName
+      }).then((res) => {
+        if (res.data.errcode === 0) {
+          this.$message({
+            type: 'success',
+            message: '成功分配审核人员'
+          })
+          this.selectForm.visible = false;
+          this.selectForm.reviewerId = undefined;
+          location.reload()
+        } else {
+          console.log(res)
+          alert('/api/plan/assignCommitReviewer error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
+        }
+      }).catch((err) => {
+        alert('/api/plan/assignCommitReviewer error' + err)
+      })
+    },
+    getIdenticon,
     getTimes() {
       let year = new Date().getFullYear(); //获取当前时间的年份
       let month = new Date().getMonth() + 1; //获取当前时间的月份
@@ -210,7 +264,6 @@ export default {
           return '其他项目人员'
         }
       },
-      getIdenticon,
   }
 }
 </script>
@@ -219,7 +272,7 @@ export default {
   <div v-if="getCommitDetailBusy" v-loading="getCommitDetailBusy"></div>
   <div style="margin: 15px" v-else>
     <el-page-header @back="goBack" content="commit评审" style="margin-top: 40px"></el-page-header>
-    <h1 style="margin-top: 20px; margin-left: 20px">Commit</h1>
+    <h1 style="margin-top: 20px; margin-left: 20px; margin-bottom: 20px">Commit</h1>
     <div style="margin-bottom: 10px; margin-left: 20px; display: inline-block">
       <v-chip :color="getColor(this.commitDetails.status)" dark v-if="this.getCommitDetailBusy === false">
         {{ transform(this.commitDetails.status) }}
@@ -237,11 +290,18 @@ export default {
     </div>
     <el-card style="margin-top: 15px; margin-bottom: 15px">
       <h3>{{this.commitDetails.commit_message}}</h3>
-      <div style="font-size:0.4cm; margin-top:10px; padding-bottom: 10px">branch: <b>{{this.branchName}}</b></div>
+      <div style="font-size:0.4cm; margin-top:10px; padding-bottom: 10px;">branch: <b>{{this.branchName}}</b>
+        <div v-if="!this.commitDetails.reviewerName && isProjectReviewer" style="margin-top: 10px">
+          <el-button type="primary" style="color: white" @click="this.selectReviewer" v-if="this.reviewers.length > 0">+分配审核人员</el-button>
+          <el-button type="primary" style="color: white" @click="this.selectReviewer" v-else disabled>+分配审核人员</el-button>
+        </div>
+        <div v-else-if="this.commitDetails.reviewerName" style="margin-top: 10px"> 该项目审核人员：{{this.commitDetails.reviewerName}} </div>
+        <div v-else style="margin-top: 10px"> 该项目暂未分配审核人员 </div>
+      </div>
       <div></div>
       <v-divider style="margin-bottom: 15px"></v-divider>
       <b style="margin-top: 20px">{{this.commitDetails.committer_name}}</b> committed at {{this.commitDetails.commit_time.slice(0,10) + " " + this.commitDetails.commit_time.slice(11,-1)}}
-      <div></div>`
+      <div></div>
       <div style="display: inline-block; margin-top: 20px"
            v-if="this.isProjectReviewer !== 0 && this.commitDetails.status === null && this.getCommitDetailBusy === false">
         <v-chip :color="'green'" dark style="margin-right: 30px" @click="reviewCommit(1)">
@@ -309,7 +369,25 @@ export default {
         </div>
     </div>
 
-
+  <el-dialog title="分配审核人员" :visible.sync="selectForm.visible" width="40%">
+      <el-form :model="selectForm" ref="form" label-width="140px">
+        <el-form-item>
+          <el-radio-group v-model="selectForm.reviewerId">
+            <div style="display: flex; align-items: center;">
+            <el-radio v-for="item in reviewers" :label="item.userId" :key="item.userId">
+              <div style="display: flex; align-items: center;">
+                  <img :src="getIdenticon(item.userName, 50, 'user')" alt="User Avatar"
+                    style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                  <span>{{ item.userName }}</span>
+                </div>
+            </el-radio>
+            </div>
+          </el-radio-group> </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="submitForm" style="color: white">提交</el-button>
+          </el-form-item>
+      </el-form>
+    </el-dialog>
 
 
   </div>

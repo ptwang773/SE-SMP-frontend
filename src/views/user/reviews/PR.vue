@@ -2,6 +2,7 @@
   import axios from "axios";
   import topicSetting from "@/utils/topic-setting";
   import {marked} from "marked";
+  import getIdenticon from "@/utils/identicon";
   export default {
     components: {
       marked
@@ -17,6 +18,7 @@
       this.getTaskList();
       this.getAssociatedTaskList();
       this.getUserRole();
+      this.updateReviewers()
     },
     inject: {
       user: {default: null},
@@ -50,7 +52,15 @@
         isProjectReviewer: false,
         reviewStatus: '',
         associatedTasks: [],
-        body: ''
+        body: '',
+        reviewers: [],
+        selectForm: {
+          prId: '',
+          projectId:'',
+          reviewerId: '',
+          sha:'',
+          visible: false,
+        },
       }
     },
     methods: {
@@ -58,6 +68,50 @@
         return marked
       },
       getDarkColor: topicSetting.getDarkColor,
+      selectReviewer() {
+        this.selectForm.prId = this.prId
+        this.selectForm.visible = true;
+      },
+      updateReviewers() {
+        axios.post('/api/plan/showProjectReviewers', {
+          userId: this.user.id,
+          projectId: this.projId,
+        }).then((res) => {
+          if (res.data.errcode === 0) {
+            this.reviewers = res.data.data
+          } else {
+            console.log(res)
+            this.isReviewer = false
+          }
+        }).catch((err) => {
+          alert('/api/plan/showProjectReviewers error' + err)
+        })
+      },
+      submitForm() {
+        axios.post('/api/develop/assignPrReviewer', {
+          userId: this.user.id,
+          projectId: this.projId,
+          prId: this.prId,
+          repoId: this.repoId,
+          reviewerId: this.selectForm.reviewerId
+        }).then((res) => {
+          if (res.data.errcode === 0) {
+            this.$message({
+              type: 'success',
+              message: '成功分配审核人员'
+            })
+            this.selectForm.visible = false;
+            this.selectForm.reviewerId = undefined;
+            location.reload()
+          } else {
+            console.log(res)
+            alert('/api/plan/showProjectReviewers error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
+          }
+        }).catch((err) => {
+          alert('/api/plan/showProjectReviewers error' + err)
+        })
+      },
+    getIdenticon,
       getUserRole() {
         axios.post("api/develop/isProjectReviewer", {
           userId: this.user.id,
@@ -269,7 +323,16 @@
 <div style="margin: 15px">
   <el-page-header @back="goBack" content="PR评审" style="margin-top: 40px"></el-page-header>
   <h1 style="margin-top: 20px; margin-left: 20px"><v-chip label >!{{this.prId}}</v-chip>  {{this.prDetail.title}}</h1>
+
   <div style="margin: 10px 0 0 20px">
+    <div>
+      <div v-if="!this.prDetail.reviewerName && isProjectReviewer" style="margin-top: 10px; margin-bottom: 10px">
+        <el-button type="primary" style="color: white" @click="this.selectReviewer" v-if="this.reviewers.length > 0">+分配审核人员</el-button>
+        <el-button type="primary" style="color: white" @click="this.selectReviewer" v-else disabled>+分配审核人员</el-button>
+      </div>
+        <div v-else-if="this.prDetail.reviewerName" style="margin-top: 10px; margin-bottom: 10px"> 该项目审核人员：{{this.prDetail.reviewerName}} </div>
+        <div v-else style="margin-top: 10px; margin-bottom: 10px"> 该项目暂未分配审核人员 </div>
+    </div>
     <v-chip :color="getColor(reviewStatus)" dark small label v-if="!getPrDetailBusy">
       <v-icon small>mdi-source-pull</v-icon>{{ transform(reviewStatus) }}
     </v-chip>
@@ -394,6 +457,26 @@
       </v-container>
     </template>
   </v-dialog>
+
+  <el-dialog title="分配审核人员" :visible.sync="selectForm.visible" width="40%">
+      <el-form :model="selectForm" ref="form" label-width="140px">
+        <el-form-item>
+          <el-radio-group v-model="selectForm.reviewerId">
+            <div style="display: flex; align-items: center;">
+            <el-radio v-for="item in reviewers" :label="item.userId" :key="item.userId">
+              <div style="display: flex; align-items: center;">
+                  <img :src="getIdenticon(item.userName, 50, 'user')" alt="User Avatar"
+                    style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                  <span>{{ item.userName }}</span>
+                </div>
+            </el-radio>
+            </div>
+          </el-radio-group> </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="submitForm" style="color: white">提交</el-button>
+          </el-form-item>
+      </el-form>
+    </el-dialog>
 </div>
 </template>
 

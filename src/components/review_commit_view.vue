@@ -192,28 +192,7 @@ export default {
     },
     getIdenticon,
   },
-  data() {
-    return {
-      commitHistoryBusy: true,
-      commitHistory: [
-        {
-
-        }
-      ],
-      commitStatus:[
-
-      ],
-      statsPerDay: {},
-      selectForm: {
-        prId: '',
-        projectId:'',
-        reviewerId: '',
-        sha:'',
-        visible: false,
-      },
-      reviewers: [],
-    }
-  }, watch: {
+   watch: {
     selectedBranch() {
         this.updateCommitHistory()
     }
