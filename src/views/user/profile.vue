@@ -216,6 +216,12 @@ export default {
           message: "用户名或邮箱不能为空"
         });
         return;
+      } else if (name.length > 8) {
+        this.$message({
+          type: 'error',
+          message: "用户名不能超过8个字符"
+        });
+        return
       }
       console.log(name)
       console.log(email)

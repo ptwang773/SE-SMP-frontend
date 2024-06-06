@@ -481,6 +481,12 @@ export default {
           message: "项目名不能为空！",
         });
         return;
+      } else if (this.form.name.length > 16) {
+        this.$message({
+          type: "error",
+          message: "项目名称不能超过16个字符！",
+        });
+        return;
       }
       for (let i = 0; i < this.projectData.length; i++) {
         if (this.form.name === this.projectData[i].projectName) {

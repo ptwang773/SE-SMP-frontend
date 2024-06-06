@@ -928,6 +928,12 @@ export default {
           message: '任务名不可为空！'
         });
         return;
+      } else if (this.newFatherForm.name.length > 16) {
+        this.$message({
+          type: 'error',
+          message: '任务名不能超过16个字符！'
+        });
+        return;
       }
       for (let i = 0; i < this.tasks.length; i++) {
         if (this.tasks[i].taskName === this.newFatherForm.name) {

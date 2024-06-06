@@ -384,6 +384,7 @@
     </el-dialog>
 
     <el-dialog title="我的提醒" :visible.sync="clockDialog" width="50%">
+      <b style="color: rgb(128,128,128);">您可以点击跳转到对应页面</b>
       <v-simple-table>
         <thead>
           <tr>
@@ -403,7 +404,7 @@
         </thead>
         <tbody>
           <tr v-for="notice in noticeList" :key="notice.noticeId"
-            @mouseenter="arr[notice.taskId] = true" @mouseleave="arr[notice.taskId] = false">
+            @mouseenter="arr[notice.taskId] = true" @mouseleave="arr[notice.taskId] = false" @click="jumpTo(notice)">
             <td>
               <v-icon v-if="notice.read === 'N'" @click="handleReadNotice(notice.noticeId)">mdi-checkbox-marked</v-icon>
               <v-icon v-else color="green">mdi-checkbox-marked</v-icon>
@@ -696,6 +697,12 @@ export default {
           }
         }
       )
+    },
+    jumpTo(notice) {
+      console.log(notice.url)
+      if (notice.url !== '') {
+        this.$router.push(notice.url)
+      }
     },
     closeDocument() {
       this.dialog = false;
