@@ -43,6 +43,7 @@ export default {
     })
         .then((response) => {
           if (response.data.errcode !== 0) {
+            console.log(response.data)
             console.log("error in getting commit details")
             alert("请检查账号的Token是否已绑定及绑定的Token是否正确")
             this.$router.go(-1)

@@ -95,21 +95,22 @@ export default {
                       today.setDate(today.getDate() - 1)
                   }
 
-                  this.commitHistory = res.data.data.map((cur, index) => {
-                      let time = new Date(cur.commitTime)
-                      let str = (time.getMonth() + 1) + '.' + time.getDate()
-                      if (str in statsPerDay)
-                          statsPerDay[str] += 1
-                      return {
-                          id: index,
-                          committer: cur.author,
-                          committerEmail: cur.authorEmail,
-                          hash: cur.commithash,
-                          message: cur.commitMessage,
-                          time: cur.commitTime,
-                          status: cur.status
-                      }
-                  })
+                  // this.commitHistory = res.data.data.map((cur, index) => {
+                  //     let time = new Date(cur.commitTime)
+                  //     let str = (time.getMonth() + 1) + '.' + time.getDate()
+                  //     if (str in statsPerDay)
+                  //         statsPerDay[str] += 1
+                  //     return {
+                  //         id: index,
+                  //         committer: cur.author,
+                  //         committerEmail: cur.authorEmail,
+                  //         hash: cur.commithash,
+                  //         message: cur.commitMessage,
+                  //         time: cur.commitTime,
+                  //         status: cur.status
+                  //     }
+                  // })
+                this.commitHistory = res.data.data
                   this.commitHistoryBusy = false
 
                   this.statsPerDay = {
@@ -131,12 +132,12 @@ export default {
       reviewSelectedCommit(commit) {
         console.log(commit)
         this.$router.push({
-          path: '/commitReview/' + this.proj.id + '/' + this.selectedRepo.id + '/' + this.selectedBranch.name + '/' + commit.hash,
+          path: '/commitReview/' + this.proj.id + '/' + this.selectedRepo.id + '/' + this.selectedBranch.name + '/' + commit.commithash,
           query: {
             branchName: this.selectedBranch.name,
             projId: this.proj.id,
             repoId: this.selectedRepo.id,
-            commitSha: commit.hash
+            commitSha: commit.commithash
           }
         })
       },
@@ -159,6 +160,7 @@ export default {
         }
       },
       selectReviewer(commit) {
+      console.log(this.commitHistory)
       this.selectForm.sha = commit.hash;
       this.selectForm.visible = true;
       console.log(commit.reviewerName)
@@ -249,8 +251,8 @@ export default {
           </thead>
           <tbody>
           <tr v-for="commit in commitHistory.slice(0)" :key="commit.id" @click="reviewSelectedCommit(commit)">
-              <td class="need-mono">{{commit.committer}}</td>
-              <td>{{commit.message}}</td>
+              <td class="need-mono">{{commit.author}}</td>
+              <td>{{commit.commitMessage}}</td>
               <td>
                 <v-chip :color="getColor(commit.status)" dark small>
                   {{ transform(commit.status) }}
@@ -259,12 +261,12 @@ export default {
               <td class="need-mono">
                   <v-tooltip bottom>
                       <template v-slot:activator="{on, attrs}">
-                        <span v-bind="attrs" v-on="on"><v-chip small label>{{commit.hash.slice(0,6)}}</v-chip></span>
+                        <span v-bind="attrs" v-on="on"><v-chip small label>{{commit.commithash.slice(0,6)}}</v-chip></span>
                       </template>
-                      <span>{{commit.hash}}</span>
+                      <span>{{commit.commithash}}</span>
                   </v-tooltip>
               </td>
-              <td>{{new Date(commit.time).toLocaleString()}}</td>
+              <td>{{new Date(commit.commitTime).toLocaleString()}}</td>
               <td @click.stop style="width: 80px">
               <span v-if="commit.reviewerName">{{ commit.reviewerName }}</span>
                 <span v-else-if="!isReviewer"> 暂无 </span>

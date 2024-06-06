@@ -9,7 +9,7 @@
 
 
       <template>
-        <v-badge :content="this.showNoReadNotice" :value="this.showNoReadNotice > 0" color="red" overlap class="mr-4">
+        <v-badge :content="this.noReadNoticeList.length" :value="this.noReadNoticeList.length > 0" color="red" overlap class="mr-4">
           <v-icon v-if="existUser()" @click="checkClock" style="font-size: 40px;">mdi-clock-outline</v-icon>
         </v-badge>
       </template>
@@ -694,8 +694,6 @@ export default {
               this.noReadNoticeList.push(this.noticeList.at(i))
             }
           }
-          this.showNoReadNotice = this.noReadNoticeList.length
-          console.log(this.noReadNoticeList)
         }
       )
     },
@@ -928,7 +926,7 @@ export default {
               showNoticeList({ userId: this.user.id }).then(
                 res => {
                   this.noticeList = res.data.data
-                  this.showNoReadNotice--
+                  this.noReadNoticeList.splice(0, 1)
                 }
               )
             }
@@ -945,7 +943,7 @@ export default {
                   this.noticeList = res['data']['data'];
                   for (let i = 0; i < this.noReadNoticeList.length; i++) {
                     if (this.noReadNoticeList.at(i).noticeId === noticeId) {
-                      this.showNoReadNotice--
+                      this.noReadNoticeList.splice(0, 1)
                       break
                     }
                   }

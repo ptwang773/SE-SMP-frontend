@@ -686,8 +686,8 @@ export default {
         </v-card>
         <div class="commit-div">
           <div>
-            <el-button size="medium" class="commit-button" @click="cancelEdit">取消修改</el-button>
-            <el-button type="primary" size="medium" @click="openForm" class="commit-button">创建提交</el-button>
+            <p> <el-button size="medium" class="commit-button" @click="cancelEdit">取消修改</el-button></p>
+           <p><el-button type="primary" size="medium" @click="openForm" class="commit-button" style="color: white">创建提交</el-button></p>
           </div>
         </div>
         <el-dialog :title="commitForm.title" :visible.sync="commitVisible" width="40%">
@@ -753,7 +753,7 @@ export default {
             </el-tab-pane>
           </el-tabs>
           <el-dropdown class="moreButton" @command="handleCommand">
-            <el-button type="primary">
+            <el-button type="primary" style="color: white">
               更多功能<i class="el-icon-arrow-down el-icon--right"></i>
             </el-button>
             <el-dropdown-menu slot="dropdown">
@@ -773,17 +773,13 @@ export default {
                 </el-form>
               </el-dialog>
         </div>
-        <div v-show="filePathList.length === 0" style="height: 10%">
+        <div v-show="filePathList.length === 0" style="height: 10%; position: relative">
           <el-dropdown class="moreButton">
-            <el-button type="primary">
+            <el-button type="primary" style="color: white">
               更多功能<i class="el-icon-arrow-down el-icon--right"></i>
             </el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>黄金糕</el-dropdown-item>
-              <el-dropdown-item>狮子头</el-dropdown-item>
-              <el-dropdown-item>螺蛳粉</el-dropdown-item>
-              <el-dropdown-item>双皮奶</el-dropdown-item>
-              <el-dropdown-item>蚵仔煎</el-dropdown-item>
+              <el-dropdown-item>请先选择文件</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
