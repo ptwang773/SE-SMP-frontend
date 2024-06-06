@@ -398,19 +398,26 @@
               内容
             </th>
             <th class="text-left">
+              链接
+            </th>
+            <th class="text-left">
               时间
             </th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="notice in noticeList" :key="notice.noticeId"
-            @mouseenter="arr[notice.taskId] = true" @mouseleave="arr[notice.taskId] = false" @click="jumpTo(notice)">
+            @mouseenter="arr[notice.taskId] = true" @mouseleave="arr[notice.taskId] = false">
             <td>
               <v-icon v-if="notice.read === 'N'" @click="handleReadNotice(notice.noticeId)">mdi-checkbox-marked</v-icon>
               <v-icon v-else color="green">mdi-checkbox-marked</v-icon>
             </td>
             <td>{{ notice.noticeId }}</td>
             <td>{{ notice.content }}</td>
+            <td>  <v-btn icon color="blue" v-bind="attrs" v-on="on" @click="gotoProjectDetailPage(item)">
+                <v-icon @click="jumpTo(notice)">mdi-link-variant</v-icon>
+              </v-btn>
+            </td>
             <td>{{ new Date(notice.create_time).toLocaleString() }}</td>
             <td>
               <v-icon @click="handleDeleteNotice(notice.noticeId)">mdi-delete</v-icon>
