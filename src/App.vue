@@ -974,12 +974,12 @@ export default {
               Cookies.set("user", JSON.stringify(this.user));
             } else {
               alert(
-                "updateUserProj failure! with non 0 errcode " + res.data.errcode
+                "watchAllProject failure! with non 0 errcode " + res.data.errcode
               );
             }
           })
           .catch((err) => {
-            alert("updateUserProj failure! with error " + err);
+            alert("watchAllProject failure! with error " + err);
           });
       }
     },

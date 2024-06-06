@@ -1,5 +1,6 @@
 import Vue from 'vue'
 
+import vGanttChart from 'v-gantt-chart';
 import App from './App.vue'
 import router from './router'
 import ElementUI from 'element-ui'
@@ -38,6 +39,7 @@ Vue.use(mavonEditor);
 Vue.config.productionTip = false
 Vue.component('AllTask', AllTask);
 Vue.component('AllFile', AllFile);
+Vue.use(vGanttChart);
 new Vue({
   router,
   vuetify,

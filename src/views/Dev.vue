@@ -69,7 +69,8 @@ export default {
                     })
                     this.bindReposBusy = false;
                 } else if (res.data.errcode === 3) {
-                    this.startTour()
+                    this.bindReposBusy = false;
+                    this.startTour();
                 } else {
                     this.bindReposBusy = false;
                     alert('/api/reviews/getBindRepos error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)

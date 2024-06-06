@@ -182,15 +182,36 @@ export default {
           location.reload()
         } else {
           console.log(res)
-          alert('/api/plan/showProjectReviewers error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
+          alert('/api/plan/assignCommitReviewer error with not 0 err code (' + res.data.errcode + ') ' + res.data.message)
         }
       }).catch((err) => {
-        alert('/api/plan/showProjectReviewers error' + err)
+        alert('/api/plan/assignCommitReviewer error' + err)
       })
     },
     getIdenticon,
   },
-   watch: {
+  data() {
+    return {
+      commitHistoryBusy: true,
+      commitHistory: [
+        {
+
+        }
+      ],
+      commitStatus:[
+
+      ],
+      statsPerDay: {},
+      selectForm: {
+        prId: '',
+        projectId:'',
+        reviewerId: '',
+        sha:'',
+        visible: false,
+      },
+      reviewers: [],
+    }
+  }, watch: {
     selectedBranch() {
         this.updateCommitHistory()
     }

@@ -3,22 +3,40 @@
     <div class="one">
       <h1 style="position: absolute; left: 5%; top: 10%">项目</h1>
     </div>
+    <div style="margin-bottom: 70px; justify-content: center; /* 水平居中 */ display: flex;">
+      <div class="block" style="margin-left: 50%;">
+        <span class="demonstration">选择项目 {{ '    ' }}</span>
+        <el-select  style="margin-right: 5%;" v-model="curProj" placeholder="请选择">
+          <el-option v-for="item in projects" :key="item.id" :label="item.name" :value="item.id">
+          </el-option>
+        </el-select>
+        <span class="demonstration">选择时间范围  {{ '    ' }}</span>
+        <el-date-picker v-model="startEnd" type="daterange" range-separator="至" start-placeholder="开始日期"
+          end-placeholder="结束日期" format="yyyy-MM-dd" :picker-options="pickerOptions" unlink-panels>
+        </el-date-picker>
+      </div>
+      <div style="width: 90%; margin-top: 30px; justify-content: center; /* 水平居中 */ display: flex;">
+        <v-gantt-chart style="margin-left: 5%;" :startTime="startTime" :endTime="endTime" :datas="datas" :scale="1440"
+          :cellHeight="50" :cellWidth="100">
+          <template v-slot:block="{ data, item }">
+            <!-- 你的容器块组件 -->
+            <Test :data="data" :item="item"></Test>
+          </template>
+          <template v-slot:left="{ data }">
+            <!-- 你的行名组件 -->
+            <TestLeft :data="data"></TestLeft>
+          </template>
+          <template v-slot:title> 任务日程表 </template>
+        </v-gantt-chart>
+      </div>
+    </div>
     <div class="three">
-      <v-data-table
-          :headers="headers"
-          :items="projectData"
-          :single-expand="true"
-          :items-per-page="5"
-          show-expand
-          :expanded.sync="expanded"
-          class="elevation-1"
-          item-key="projectId"
-          :search="search"
-          :custom-filter="filterOnlyCapsText"
-      >
+      <v-data-table :headers="headers" :items="projectData" :single-expand="true" :items-per-page="5" show-expand
+        :expanded.sync="expanded" class="elevation-1" item-key="projectId" :search="search"
+        :custom-filter="filterOnlyCapsText">
         <template v-slot:no-data>
           <div style="text-align: center;">
-            <img src="../../../assets/search.png" height="150px" width="150px"/>
+            <img src="../../../assets/search.png" height="150px" width="150px" />
           </div>
           <div style="font-size:20px;font-weight: bold">
             没有找到数据
@@ -30,7 +48,7 @@
         </template>
         <template v-slot:no-results>
           <div style="text-align: center;">
-            <img src="../../../assets/search.png" height="150px" width="150px"/>
+            <img src="../../../assets/search.png" height="150px" width="150px" />
           </div>
           <div style="font-size:20px;font-weight: bold">
             没有找到数据
@@ -38,26 +56,16 @@
         </template>
         <template v-slot:top>
           <div style="width: 100%; height: 100%; position: relative">
-            <v-text-field
-                v-model="search"
-                label="请输入项目名称进行查询"
-                class="mx-4"
-                style="width: 30%; display: inline-block"
-            ></v-text-field>
-            <v-btn
-                style="
+            <v-text-field v-model="search" label="请输入项目名称进行查询" class="mx-4"
+              style="width: 30%; display: inline-block"></v-text-field>
+            <v-btn style="
                 top: 20%;
                 right: 2%;
                 height: 60%;
                 width: 10%;
                 position: absolute;
-              "
-                depressed
-                :color="getTopicColor(user.topic)"
-                @click="setupDialog = true"
-            >创建项目
-            </v-btn
-            >
+              " depressed :color="getTopicColor(user.topic)" @click="setupDialog = true">创建项目
+            </v-btn>
           </div>
         </template>
         <template v-slot:expanded-item="{ headers, item }">
@@ -94,26 +102,13 @@
       </v-data-table>
     </div>
 
-    <el-dialog
-        title="创建项目"
-        :visible.sync="setupDialog"
-        width="50%"
-    >
-      <el-form
-          :label-position="labelPosition"
-          label-width="80px"
-          :model="form"
-          ref="form"
-      >
+    <el-dialog title="创建项目" :visible.sync="setupDialog" width="50%">
+      <el-form :label-position="labelPosition" label-width="80px" :model="form" ref="form">
         <el-form-item label="项目名称">
           <el-input v-model="form.name"></el-input>
         </el-form-item>
         <el-form-item label="活动概述">
-          <el-input
-              type="textarea"
-              v-model="form.intro"
-              :autosize="{ minRows: 5, maxRows: 10 }"
-          ></el-input>
+          <el-input type="textarea" v-model="form.intro" :autosize="{ minRows: 5, maxRows: 10 }"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -122,26 +117,13 @@
       </span>
     </el-dialog>
 
-    <el-dialog
-        title="编辑项目"
-        :visible.sync="editDialog"
-        width="50%"
-    >
-      <el-form
-          :label-position="labelPosition"
-          label-width="80px"
-          :model="form"
-          ref="form"
-      >
+    <el-dialog title="编辑项目" :visible.sync="editDialog" width="50%">
+      <el-form :label-position="labelPosition" label-width="80px" :model="form" ref="form">
         <el-form-item label="项目名称">
           <el-input v-model="form.name"></el-input>
         </el-form-item>
         <el-form-item label="活动概述">
-          <el-input
-              type="textarea"
-              v-model="form.intro"
-              :autosize="{ minRows: 5, maxRows: 10 }"
-          ></el-input>
+          <el-input type="textarea" v-model="form.intro" :autosize="{ minRows: 5, maxRows: 10 }"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -149,9 +131,9 @@
         <el-button type="primary" @click="editProject">确 定</el-button>
       </span>
     </el-dialog>
-    <div class="card-wrapper">
+    <!-- <div class="card-wrapper">
       <project-table class="component"/>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -161,11 +143,16 @@ import {
   modifyProject,
   newProject,
   watchAllProject,
+  showTaskList,
   modifyProjectStatus,
 } from "@/api/user";
 import Cookies from "js-cookie";
 import getIdenticon from "@/utils/identicon";
 import topicSetting from "@/utils/topic-setting";
+import projectTable from "@/views/user/projectPlanning/mainPage/projectTable.vue"
+import dayjs from "dayjs" //时间库
+import Test from "./test.vue"; //你自己的gantt条容器
+import TestLeft from "./test-left.vue"; //你自己的行名称组件
 
 export default {
   // inject: ['user', 'selectedProj'],
@@ -173,12 +160,36 @@ export default {
   created() {
     this.get_project();
   },
+  watch: {
+    startEnd(newValue, oldValue) {
+      // 在 message 数据变化时执行的操作
+
+      //var dates = newValue.split(',');
+
+      // 解析起始日期和结束日期
+      var startDate = new Date(newValue[0]);
+      var endDate = new Date(newValue[1]);
+
+      // 格式化日期
+      var formattedStartDate = this.formatDate(startDate);
+      var formattedEndDate = this.formatDate(endDate);
+      this.startTime = formattedStartDate;
+      this.endTime = formattedEndDate;
+      console.log(this.startTime + '  ' + this.endTime)
+    },
+    curProj(){
+      this.getTaskList();
+    }
+  },
   inject: {
-    user: {default: null},
-    selectedProj: {default: null},
-    updateUserProj: {default: null},
+    user: { default: null },
+    selectedProj: { default: null },
+    updateUserProj: { default: null },
   },
   components: {
+    projectTable,
+    Test,
+    TestLeft
   },
   provide() {
     return {
@@ -188,6 +199,54 @@ export default {
   },
   data() {
     return {
+      tasks:[],
+      projects:[],
+      curProj:'',
+      startEnd: ['2024-01-01', '2024-12-31'],
+      startTime: '2024-01-01',//时间轴开始时间
+      endTime: '2024-12-31',
+      datas: [
+        {
+          id: 'arrayOne',
+          name: 'sala',
+          gtArray: [
+            {
+              name: 'itemOne',
+              start: '2024-06-06',
+              end: '2024-06-09'
+              // ...其他属性
+            },
+            {
+              name: 'itemTwo',
+              start: '2024-06-10',
+              end: '2024-06-12'
+              // ...其他属性
+            }
+          ],
+          //...其他属性
+        },
+
+        {
+          id: 'arrayTwo',
+          name: 'sala',
+          gtArray: [
+            {
+              name: 'itemOne',
+              start: '2024-06-06',
+              end: '2024-06-09'
+              // ...其他属性
+            },
+            {
+              name: 'itemTwo',
+              start: '2024-06-10',
+              end: '2024-06-12'
+              // ...其他属性
+            }
+          ],
+          //...其他属性
+        }
+        //... 其他数组数据
+      ],
       labelPosition: "left",
       headers: [
         {
@@ -196,11 +255,11 @@ export default {
           sortable: false,
           value: "projectName",
         },
-        {text: "状态", value: "state"},
-        {text: "创建时间", value: "deadline", sortable: true},
-        {text: "负责人", value: "managerName"},
-        {text: "", value: "actions", sortable: false},
-        {text: "", value: "data-table-expand"},
+        { text: "状态", value: "state" },
+        { text: "创建时间", value: "deadline", sortable: true },
+        { text: "负责人", value: "managerName" },
+        { text: "", value: "actions", sortable: false },
+        { text: "", value: "data-table-expand" },
       ],
       projectData: [
         // {
@@ -232,6 +291,46 @@ export default {
   },
   methods: {
     getIdenticon,
+    setDatas() {
+      this.datas = [];
+      for (var i = 0; i < this.tasks.length; i++) {
+        var item = {
+          id: this.tasks[i].taskId,
+          name: this.tasks[i].taskName,
+          gtArray: []
+        };
+        var subList = this.tasks[i].subTaskList;
+        for (var j = 0; j < subList.length; j++) {
+          var subTask = {
+            name: subList[j].subTaskName,
+            start: subList[j].start_time.substring(0, 10),
+            end: subList[j].deadline.substring(0, 10),
+            intro: subList[j].intro,
+            status: subList[j].status,
+            label: subList[j].subTaskLabel,
+            id: subList[j].managerId,
+            managerName: subList[j].managerName
+          }
+          item.gtArray.push(subTask);
+        }
+        this.datas.push(item);
+      }
+    },
+    getTaskList() {
+      showTaskList({ userId: this.user.id, projectId: this.curProj }).then(
+        res => {
+          console.log("showTaskList");
+          console.log(res);
+          this.tasks = res['data']['data'];
+          this.setDatas();
+          this.tasks.forEach((task) => {
+            this.$set(task, 'displayReviews', false);
+          })
+          console.log(this.tasks);
+          console.log(this.tasks[0].subTaskList)
+        }
+      );
+    },
     getProj(project) {
       console.log("getProj");
       console.log(JSON.stringify(project));
@@ -251,19 +350,28 @@ export default {
       console.log(value);
       var s = item["projectName"];
       return (
-          s != null &&
-          search != null &&
-          typeof s === "string" &&
-          s.toString().toLocaleUpperCase().indexOf(search.toLocaleUpperCase()) !==
-          -1
+        s != null &&
+        search != null &&
+        typeof s === "string" &&
+        s.toString().toLocaleUpperCase().indexOf(search.toLocaleUpperCase()) !==
+        -1
       );
     },
     get_project() {
       Cookies.remove("proj");
       console.log("get_project");
-      watchAllProject({userId: this.user.id}).then((res) => {
+      watchAllProject({ userId: this.user.id }).then((res) => {
         this.projectData = res["data"]["data"];
         console.log(this.projectData);
+        this.projects = [];
+        if(this.projectData.length > 0) {
+          this.curProj = this.projectData[0].projectId;
+        }
+        for(var i = 0; i < this.projectData.length; i++) {
+          var item = {id:this.projectData[i].projectId,
+                      name:this.projectData[i].projectName};
+          this.projects.push(item);
+        }
       });
     },
     handleEdit(row) {
@@ -278,25 +386,25 @@ export default {
         cancelButtonText: "取消",
         type: "warning",
       })
-          .then(() => {
-            this.$message({
-              type: "success",
-              message: "删除成功!",
-            });
-            deleteProject({
-              projectId: row.projectId,
-              userId: this.user.id,
-            }).then((res) => {
-              this.get_project();
-              this.updateUserProj();
-            });
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消删除",
-            });
+        .then(() => {
+          this.$message({
+            type: "success",
+            message: "删除成功!",
           });
+          deleteProject({
+            projectId: row.projectId,
+            userId: this.user.id,
+          }).then((res) => {
+            this.get_project();
+            this.updateUserProj();
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
     },
     handleState(item) {
       if (item.state == "B") {
@@ -311,26 +419,26 @@ export default {
         cancelButtonText: "取消",
         type: "warning",
       })
-          .then(() => {
-            this.$message({
-              type: "success",
-              message: "项目已完成!",
-            });
-            modifyProjectStatus({
-              projectId: row.projectId,
-              userId: this.user.id,
-              status: "A",
-            }).then((res) => {
-              console.log(res);
-              this.get_project();
-            });
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消",
-            });
+        .then(() => {
+          this.$message({
+            type: "success",
+            message: "项目已完成!",
           });
+          modifyProjectStatus({
+            projectId: row.projectId,
+            userId: this.user.id,
+            status: "A",
+          }).then((res) => {
+            console.log(res);
+            this.get_project();
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消",
+          });
+        });
     },
     handleNotComplete(row) {
       this.$confirm("确定重新进行项目?", "提示", {
@@ -338,26 +446,26 @@ export default {
         cancelButtonText: "取消",
         type: "warning",
       })
-          .then(() => {
-            this.$message({
-              type: "warning",
-              message: "项目已恢复进行!",
-            });
-            modifyProjectStatus({
-              projectId: row.projectId,
-              userId: this.user.id,
-              status: "B",
-            }).then((res) => {
-              console.log(res);
-              this.get_project();
-            });
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消",
-            });
+        .then(() => {
+          this.$message({
+            type: "warning",
+            message: "项目已恢复进行!",
           });
+          modifyProjectStatus({
+            projectId: row.projectId,
+            userId: this.user.id,
+            status: "B",
+          }).then((res) => {
+            console.log(res);
+            this.get_project();
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消",
+          });
+        });
     },
     cancelSetupProject() {
       this.setupDialog = false;
@@ -411,8 +519,8 @@ export default {
       }
       for (let i = 0; i < this.projectData.length; i++) {
         if (
-            this.form.name === this.projectData[i].projectName &&
-            this.form.id != this.projectData[i].projectId
+          this.form.name === this.projectData[i].projectName &&
+          this.form.id != this.projectData[i].projectId
         ) {
           this.$message({
             type: "error",
@@ -483,11 +591,13 @@ export default {
 .card-wrapper {
   position: fixed;
   bottom: 0;
-  margin-top: 20px; /* 与上面内容的间距 */
+  margin-top: 20px;
+  /* 与上面内容的间距 */
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 5px;
   background-color: #f9f9f9;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  /* 添加阴影效果 */
 }
 </style>

@@ -29,6 +29,7 @@
     "parse-diff": "^0.11.1",
     "qs": "^6.11.1",
     "v-code-diff": "^1.11.0",
+    "v-gantt-chart": "^1.6.3",
     "vue": "^2.7.7",
     "vue-axios": "^3.5.2",
     "vue-codemirror": "^4.0.6",
