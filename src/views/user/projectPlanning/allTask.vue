@@ -1,11 +1,11 @@
 <template>
   <div v-if="this.selectedProj == null" style="width: 100%; height: 100%;"></div>
-  <div v-else style="width: 100%; height: 100%;">
+  <div v-else style="width: 100%; height: 100%;" >
     <div class="one">
       <h1 style="position:absolute;left:5%;top:10%">任务列表</h1>
     </div>
-    <div style="margin-bottom: 70px; justify-content: center; /* 水平居中 */ display: flex;">
-      <div class="block" style="margin-left: 60%;">
+    <div>
+      <div class="block" style="margin-left: 60%; ">
         <span class="demonstration">选择时间范围</span>
         <el-date-picker v-model="startEnd" type="daterange" range-separator="至"
           start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-dd" :picker-options="pickerOptions" unlink-panels>
@@ -26,21 +26,21 @@
       </v-gantt-chart>
       </div>
     </div>
-    <div class="three">
-      <v-text-field v-model="search" label="搜索任务" style="width:400px"></v-text-field>
-      <v-btn depressed :color="getTopicColor(user.topic)" style="position:absolute;top:1%;right:30%;height:4%;width:10%;"
+    <div class="three" style="box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, 0.04);margin-top: 40px;">
+      <v-text-field v-model="search" label="搜索任务" style="width:300px; margin-left: 5%;" ></v-text-field>
+      <v-btn depressed :color="getTopicColor(user.topic)" style="position:absolute;top:1%;right:34%;height:4%;width:10%;"
         @click="gotoPic">
         <v-icon left> mdi-align-vertical-bottom
         </v-icon>
         图表展示
       </v-btn>
-      <v-btn depressed :color="getTopicColor(user.topic)" style="position:absolute;top:1%;right:17%;height:4%;width:11%;"
+      <v-btn depressed :color="getTopicColor(user.topic)" style="position:absolute;top:1%;right:19%;height:4%;width:11%;"
         @click="checkMyTask" v-if="checkMyFlag === false">查看我的任务
       </v-btn>
-      <v-btn depressed :color="getTopicColor(user.topic)" style="position:absolute;top:1%;right:17%;height:4%;width:10%;"
+      <v-btn depressed :color="getTopicColor(user.topic)" style="position:absolute;top:1%;right:19%;height:4%;width:10%;"
         @click="checkAllTask" v-else>查看全部任务
       </v-btn>
-      <v-btn depressed :color="getTopicColor(user.topic)" style="position:absolute;top:1%;right:1%;height:4%;width:10%;"
+      <v-btn depressed :color="getTopicColor(user.topic)" style="position:absolute;top:1%;right:5%;height:4%;width:10%;"
         @click="setupFather = true">创建新的冲刺
       </v-btn>
       <div style="display: flex; flex-direction: column;">
@@ -49,8 +49,8 @@
   
 </v-gantt-chart>
         </div>   -->
-        <div>
-          <v-data-iterator style="width:100%;position: absolute;" :items="tasks" item-key="taskId" hide-default-footer>
+        <div style="display: flex; justify-content: center;">
+          <v-data-iterator style="width:90%;position: absolute; margin-top: 10px;" :items="tasks" item-key="taskId" hide-default-footer>
             <template v-slot:no-data>
               <div style="text-align: center;">
                 <img src="../../../assets/notask.png" height="400px" width="325px" />
@@ -735,28 +735,35 @@ export default {
     generateLabel,
     getLabelColor,
     getIdenticon,
-    setDatas(){
-        this.datas = [];
-        for(var i = 0; i < this.tasks.length; i++) {
-          var item = {id: this.tasks[i].taskId,
-                      name: this.tasks[i].taskName,
-                      gtArray:[]};
-          var subList = this.tasks[i].subTaskList;
-          for(var j = 0; j < subList.length; j++) {
-            var subTask = {name: subList[j].subTaskName,
-                          start: subList[j].start_time.substring(0, 10),
-                          end: subList[j].deadline.substring(0, 10),
-                          intro: subList[j].intro,
-                          status: subList[j].status,
-                          label: subList[j].subTaskLabel,
-                          id: subList[j].managerId,
-                          managerName: subList[j].managerName
-                        }
-                        item.gtArray.push(subTask);
-          }
-          this.datas.push(item);
+    setDatas() {
+      this.datas = [];
+      for (var i = 0; i < this.tasks.length; i++) {
+        var subList = this.tasks[i].subTaskList;
+        for (var j = 0; j < subList.length; j++) {
+          var newItem = {
+            id: this.tasks[i].taskId,
+            name: this.tasks[i].taskName,
+            isFirst: false,
+            gtArray: []
+        };
+        var subTask = {
+          name: subList[j].subTaskName,
+          start: subList[j].start_time.substring(0, 10),
+          end: subList[j].deadline.substring(0, 10),
+          intro: subList[j].intro,
+          status: subList[j].status,
+          label: subList[j].subTaskLabel,
+          id: subList[j].managerId,
+          managerName: subList[j].managerName
         }
-    },
+        newItem.gtArray.push(subTask);
+        if (j == 0) {
+          newItem.isFirst = true;
+        }
+        this.datas.push(newItem);
+      }
+    }
+  },
     formatDateRange(dateRangeStr) {
     // 将日期范围字符串分割成起始日期和结束日期
     var dates = dateRangeStr.split(',');

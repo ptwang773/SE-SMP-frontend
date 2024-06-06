@@ -1,6 +1,9 @@
 <template>
     <div class="name">
-        <div class="carId" style="display: flex; justify-content: center;">{{ data.name }}</div>
+        <div class="carId" style="display: flex; justify-content: center;">
+            <span v-if="data.isFirst">冲刺：{{ data.name }}</span>
+            <v-icon v-else style="margin-left: 10%;">mdi-arrow-right-bottom</v-icon>
+        </div>
     </div>
 </template>
   

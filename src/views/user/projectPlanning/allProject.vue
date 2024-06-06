@@ -5,12 +5,12 @@
     </div>
     <div style="margin-bottom: 70px; justify-content: center; /* 水平居中 */ display: flex;">
       <div class="block" style="margin-left: 50%;">
-        <span class="demonstration">选择项目 {{ '    ' }}</span>
-        <el-select  style="margin-right: 5%;" v-model="curProj" placeholder="请选择">
+        <span class="demonstration">选择项目 {{ ' ' }}</span>
+        <el-select style="margin-right: 5%;" v-model="curProj" placeholder="请选择">
           <el-option v-for="item in projects" :key="item.id" :label="item.name" :value="item.id">
           </el-option>
         </el-select>
-        <span class="demonstration">选择时间范围  {{ '    ' }}</span>
+        <span class="demonstration">选择时间范围 {{ ' ' }}</span>
         <el-date-picker v-model="startEnd" type="daterange" range-separator="至" start-placeholder="开始日期"
           end-placeholder="结束日期" format="yyyy-MM-dd" :picker-options="pickerOptions" unlink-panels>
         </el-date-picker>
@@ -176,7 +176,7 @@ export default {
       this.endTime = formattedEndDate;
       console.log(this.startTime + '  ' + this.endTime)
     },
-    curProj(){
+    curProj() {
       this.getTaskList();
     }
   },
@@ -197,9 +197,9 @@ export default {
   },
   data() {
     return {
-      tasks:[],
-      projects:[],
-      curProj:'',
+      tasks: [],
+      projects: [],
+      curProj: '',
       startEnd: ['2024-01-01', '2024-12-31'],
       startTime: '2024-01-01',//时间轴开始时间
       endTime: '2024-12-31',
@@ -292,281 +292,287 @@ export default {
     setDatas() {
       this.datas = [];
       for (var i = 0; i < this.tasks.length; i++) {
-        var item = {
-          id: this.tasks[i].taskId,
-          name: this.tasks[i].taskName,
-          gtArray: []
-        };
         var subList = this.tasks[i].subTaskList;
         for (var j = 0; j < subList.length; j++) {
-          var subTask = {
-            name: subList[j].subTaskName,
-            start: subList[j].start_time.substring(0, 10),
-            end: subList[j].deadline.substring(0, 10),
-            intro: subList[j].intro,
-            status: subList[j].status,
-            label: subList[j].subTaskLabel,
-            id: subList[j].managerId,
-            managerName: subList[j].managerName
-          }
-          item.gtArray.push(subTask);
+          var newItem = {
+            id: this.tasks[i].taskId,
+            name: this.tasks[i].taskName,
+            isFirst: false,
+            gtArray: []
+        };
+        var subTask = {
+          name: subList[j].subTaskName,
+          start: subList[j].start_time.substring(0, 10),
+          end: subList[j].deadline.substring(0, 10),
+          intro: subList[j].intro,
+          status: subList[j].status,
+          label: subList[j].subTaskLabel,
+          id: subList[j].managerId,
+          managerName: subList[j].managerName
         }
-        this.datas.push(item);
-      }
-    },
-    getTaskList() {
-      showTaskList({ userId: this.user.id, projectId: this.curProj }).then(
-        res => {
-          console.log("showTaskList");
-          console.log(res);
-          this.tasks = res['data']['data'];
-          this.setDatas();
-          this.tasks.forEach((task) => {
-            this.$set(task, 'displayReviews', false);
-          })
-          console.log(this.tasks);
-          console.log(this.tasks[0].subTaskList)
+        newItem.gtArray.push(subTask);
+        if (j == 0) {
+          newItem.isFirst = true;
         }
-      );
-    },
-    getProj(project) {
-      console.log("getProj");
-      console.log(JSON.stringify(project));
-      let manager = Cookies.get("manager")
-      if (project.access === "B" && manager === undefined) { // 项目禁用，且不是管理员跳转
-        this.$message({
-          type: 'error',
-          message: "该项目已被禁用"
-        });
-      } else {
-        Cookies.set("proj", JSON.stringify(project));
-        window.location.href = "/allTask";
+        this.datas.push(newItem);
       }
-      // this.proj = Cookies.get(proj);
-    },
-    filterOnlyCapsText(value, search, item) {
-      console.log(value);
-      var s = item["projectName"];
-      return (
-        s != null &&
-        search != null &&
-        typeof s === "string" &&
-        s.toString().toLocaleUpperCase().indexOf(search.toLocaleUpperCase()) !==
-        -1
-      );
-    },
-    get_project() {
-      Cookies.remove("proj");
-      console.log("get_project");
-      watchAllProject({ userId: this.user.id }).then((res) => {
-        this.projectData = res["data"]["data"];
-        console.log(this.projectData);
-        this.projects = [];
-        if(this.projectData.length > 0) {
-          this.curProj = this.projectData[0].projectId;
-        }
-        for(var i = 0; i < this.projectData.length; i++) {
-          var item = {id:this.projectData[i].projectId,
-                      name:this.projectData[i].projectName};
-          this.projects.push(item);
-        }
-      });
-    },
-    handleEdit(row) {
-      this.form.id = row.projectId;
-      this.form.name = row.projectName;
-      this.form.intro = row.projectIntro;
-      this.editDialog = true;
-    },
-    handleDelete(row) {
-      this.$confirm("此操作将永久删除该项目, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          this.$message({
-            type: "success",
-            message: "删除成功!",
-          });
-          deleteProject({
-            projectId: row.projectId,
-            userId: this.user.id,
-          }).then((res) => {
-            this.get_project();
-            this.updateUserProj();
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除",
-          });
-        });
-    },
-    handleState(item) {
-      if (item.state == "B") {
-        this.handleComplete(item);
-      } else if (item.state == "A") {
-        this.handleNotComplete(item);
-      }
-    },
-    handleComplete(row) {
-      this.$confirm("确定已完成项目?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          this.$message({
-            type: "success",
-            message: "项目已完成!",
-          });
-          modifyProjectStatus({
-            projectId: row.projectId,
-            userId: this.user.id,
-            status: "A",
-          }).then((res) => {
-            console.log(res);
-            this.get_project();
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消",
-          });
-        });
-    },
-    handleNotComplete(row) {
-      this.$confirm("确定重新进行项目?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          this.$message({
-            type: "warning",
-            message: "项目已恢复进行!",
-          });
-          modifyProjectStatus({
-            projectId: row.projectId,
-            userId: this.user.id,
-            status: "B",
-          }).then((res) => {
-            console.log(res);
-            this.get_project();
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消",
-          });
-        });
-    },
-    cancelSetupProject() {
-      this.setupDialog = false;
-      this.form = {
-        name: "",
-        intro: "",
-      };
-    },
-    setupProject() {
-      // console.log(this.search);
-      // console.log("submit");
-      if (this.form.name.trim() === "") {
-        this.$message({
-          type: "error",
-          message: "项目名不能为空！",
-        });
-        return;
-      } else if (this.form.name.length > 16) {
-        this.$message({
-          type: "error",
-          message: "项目名称不能超过16个字符！",
-        });
-        return;
-      }
-      for (let i = 0; i < this.projectData.length; i++) {
-        if (this.form.name === this.projectData[i].projectName) {
-          this.$message({
-            type: "error",
-            message: "已存在同名项目",
-          });
-          return;
-        }
-      }
-      this.setupDialog = false;
-      newProject({
-        projectName: this.form.name,
-        projectIntro: this.form.intro,
-        userId: this.user.id,
-      }).then((res) => {
-        console.log(this.user.id);
-        console.log(res);
-        this.updateUserProj();
-        this.get_project();
-      });
-      this.form = {
-        name: "",
-        intro: "",
-      };
-    },
-    editProject() {
-      if (this.form.name.trim() === "") {
-        this.$message({
-          type: "error",
-          message: "项目名不能为空！",
-        });
-        return;
-      }
-      for (let i = 0; i < this.projectData.length; i++) {
-        if (
-          this.form.name === this.projectData[i].projectName &&
-          this.form.id != this.projectData[i].projectId
-        ) {
-          this.$message({
-            type: "error",
-            message: "已存在同名项目",
-          });
-          return;
-        }
-      }
-      this.editDialog = false;
-      modifyProject({
-        projectId: this.form.id,
-        projectName: this.form.name,
-        projectIntro: this.form.intro,
-      }).then((res) => {
-        this.get_project();
-        this.updateUserProj();
-      });
-      this.form = {
-        name: "",
-        intro: "",
-      };
-    },
-    transform(state) {
-      if (state === "A") {
-        return "已完成";
-      } else if (state === "B") {
-        return "进行中";
-      } else if (state === "C") {
-        return "未开始";
-      } else if (state === "D") {
-        return "不合法";
-      }
-    },
-    getColor(state) {
-      if (state === "A") {
-        return "blue";
-      } else if (state === "B") {
-        return "green";
-      }
-    },
-    getTopicColor: topicSetting.getColor
+    }
   },
+  getTaskList() {
+    showTaskList({ userId: this.user.id, projectId: this.curProj }).then(
+      res => {
+        console.log("showTaskList");
+        console.log(res);
+        this.tasks = res['data']['data'];
+        this.setDatas();
+        this.tasks.forEach((task) => {
+          this.$set(task, 'displayReviews', false);
+        })
+        console.log(this.tasks);
+        console.log(this.tasks[0].subTaskList)
+      }
+    );
+  },
+  getProj(project) {
+    console.log("getProj");
+    console.log(JSON.stringify(project));
+    let manager = Cookies.get("manager")
+    if (project.access === "B" && manager === undefined) { // 项目禁用，且不是管理员跳转
+      this.$message({
+        type: 'error',
+        message: "该项目已被禁用"
+      });
+    } else {
+      Cookies.set("proj", JSON.stringify(project));
+      window.location.href = "/allTask";
+    }
+    // this.proj = Cookies.get(proj);
+  },
+  filterOnlyCapsText(value, search, item) {
+    console.log(value);
+    var s = item["projectName"];
+    return (
+      s != null &&
+      search != null &&
+      typeof s === "string" &&
+      s.toString().toLocaleUpperCase().indexOf(search.toLocaleUpperCase()) !==
+      -1
+    );
+  },
+  get_project() {
+    Cookies.remove("proj");
+    console.log("get_project");
+    watchAllProject({ userId: this.user.id }).then((res) => {
+      this.projectData = res["data"]["data"];
+      console.log(this.projectData);
+      this.projects = [];
+      if (this.projectData.length > 0) {
+        this.curProj = this.projectData[0].projectId;
+      }
+      for (var i = 0; i < this.projectData.length; i++) {
+        var item = {
+          id: this.projectData[i].projectId,
+          name: this.projectData[i].projectName
+        };
+        this.projects.push(item);
+      }
+    });
+  },
+  handleEdit(row) {
+    this.form.id = row.projectId;
+    this.form.name = row.projectName;
+    this.form.intro = row.projectIntro;
+    this.editDialog = true;
+  },
+  handleDelete(row) {
+    this.$confirm("此操作将永久删除该项目, 是否继续?", "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    })
+      .then(() => {
+        this.$message({
+          type: "success",
+          message: "删除成功!",
+        });
+        deleteProject({
+          projectId: row.projectId,
+          userId: this.user.id,
+        }).then((res) => {
+          this.get_project();
+          this.updateUserProj();
+        });
+      })
+      .catch(() => {
+        this.$message({
+          type: "info",
+          message: "已取消删除",
+        });
+      });
+  },
+  handleState(item) {
+    if (item.state == "B") {
+      this.handleComplete(item);
+    } else if (item.state == "A") {
+      this.handleNotComplete(item);
+    }
+  },
+  handleComplete(row) {
+    this.$confirm("确定已完成项目?", "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    })
+      .then(() => {
+        this.$message({
+          type: "success",
+          message: "项目已完成!",
+        });
+        modifyProjectStatus({
+          projectId: row.projectId,
+          userId: this.user.id,
+          status: "A",
+        }).then((res) => {
+          console.log(res);
+          this.get_project();
+        });
+      })
+      .catch(() => {
+        this.$message({
+          type: "info",
+          message: "已取消",
+        });
+      });
+  },
+  handleNotComplete(row) {
+    this.$confirm("确定重新进行项目?", "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    })
+      .then(() => {
+        this.$message({
+          type: "warning",
+          message: "项目已恢复进行!",
+        });
+        modifyProjectStatus({
+          projectId: row.projectId,
+          userId: this.user.id,
+          status: "B",
+        }).then((res) => {
+          console.log(res);
+          this.get_project();
+        });
+      })
+      .catch(() => {
+        this.$message({
+          type: "info",
+          message: "已取消",
+        });
+      });
+  },
+  cancelSetupProject() {
+    this.setupDialog = false;
+    this.form = {
+      name: "",
+      intro: "",
+    };
+  },
+  setupProject() {
+    // console.log(this.search);
+    // console.log("submit");
+    if (this.form.name.trim() === "") {
+      this.$message({
+        type: "error",
+        message: "项目名不能为空！",
+      });
+      return;
+    } else if (this.form.name.length > 16) {
+      this.$message({
+        type: "error",
+        message: "项目名称不能超过16个字符！",
+      });
+      return;
+    }
+    for (let i = 0; i < this.projectData.length; i++) {
+      if (this.form.name === this.projectData[i].projectName) {
+        this.$message({
+          type: "error",
+          message: "已存在同名项目",
+        });
+        return;
+      }
+    }
+    this.setupDialog = false;
+    newProject({
+      projectName: this.form.name,
+      projectIntro: this.form.intro,
+      userId: this.user.id,
+    }).then((res) => {
+      console.log(this.user.id);
+      console.log(res);
+      this.updateUserProj();
+      this.get_project();
+    });
+    this.form = {
+      name: "",
+      intro: "",
+    };
+  },
+  editProject() {
+    if (this.form.name.trim() === "") {
+      this.$message({
+        type: "error",
+        message: "项目名不能为空！",
+      });
+      return;
+    }
+    for (let i = 0; i < this.projectData.length; i++) {
+      if (
+        this.form.name === this.projectData[i].projectName &&
+        this.form.id != this.projectData[i].projectId
+      ) {
+        this.$message({
+          type: "error",
+          message: "已存在同名项目",
+        });
+        return;
+      }
+    }
+    this.editDialog = false;
+    modifyProject({
+      projectId: this.form.id,
+      projectName: this.form.name,
+      projectIntro: this.form.intro,
+    }).then((res) => {
+      this.get_project();
+      this.updateUserProj();
+    });
+    this.form = {
+      name: "",
+      intro: "",
+    };
+  },
+  transform(state) {
+    if (state === "A") {
+      return "已完成";
+    } else if (state === "B") {
+      return "进行中";
+    } else if (state === "C") {
+      return "未开始";
+    } else if (state === "D") {
+      return "不合法";
+    }
+  },
+  getColor(state) {
+    if (state === "A") {
+      return "blue";
+    } else if (state === "B") {
+      return "green";
+    }
+  },
+  getTopicColor: topicSetting.getColor
+},
 };
 </script>
 
@@ -603,5 +609,4 @@ export default {
   background-color: #f9f9f9;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   /* 添加阴影效果 */
-}
-</style>
+}</style>

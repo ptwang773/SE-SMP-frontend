@@ -666,7 +666,7 @@ export default {
     </v-row> -->
     <v-row style="margin-top: 20px">
       <!-- <v-col :cols="fileContentReady ? 2 : 3"> -->
-      <v-col :cols=3>
+      <v-col :cols="fileContentReady ? 2 : 3">
         <div class="tabs-menu">
           <h2>文件树</h2>
         </div>
@@ -685,7 +685,7 @@ export default {
           <v-skeleton-loader v-else type="list-item-three-line@5" class="mt-2"></v-skeleton-loader>
         </v-card>
         <div class="commit-div">
-          <div>
+          <div style="display: flex; justify-content: center;">
             <p> <el-button size="medium" class="commit-button" @click="cancelEdit">取消修改</el-button></p>
            <p><el-button type="primary" size="medium" @click="openForm" class="commit-button" style="color: white">创建提交</el-button></p>
           </div>
@@ -713,7 +713,7 @@ export default {
         </el-dialog>
       </v-col>
       <!-- <v-col :cols="fileContentReady ? 7 : 9"> -->
-      <v-col :cols=9>
+      <v-col :cols="fileContentReady ? 7 : 9">
         <!--  <h2>
               <v-scroll-y-transition>
                 <span>
@@ -788,7 +788,7 @@ export default {
         </v-card>
       </v-col>
 
-      <!--  <v-col cols="3" v-if="fileContentReady">
+       <v-col cols="3" v-if="fileContentReady">
             <h2 :style="'text-decoration: none; color: ' + getTopicColor(user.topic)">代码助手</h2>
             <v-card max-height="calc(100vh - 300px)" min-height="calc(100vh - 300px)" class="overflow-y-auto overflow-x-hidden">
               <v-card-title :style="getLinearGradient(user.topic)"><strong>欢迎来到代码助手</strong></v-card-title>
@@ -814,7 +814,7 @@ export default {
                 <v-spacer></v-spacer>
                 <v-btn width="" outlined :color="getTopicColor(user.topic)" @click="diagWholeFile"><v-icon>mdi-code-braces</v-icon>对整个文件</v-btn>
               </v-card-actions>
-              <v-divider></v-divider>
+              <!-- <v-divider></v-divider>
               <v-card-text>或者如果您想在GitHub操作，或查看源文件？</v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -827,11 +827,11 @@ export default {
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn width="" outlined :color="getTopicColor(user.topic)" @click="() => downloadStrAsFile(fileContent, this.tree[0]['name'])"><v-icon>mdi-download</v-icon>下载整个文件</v-btn>
-              </v-card-actions>
+              </v-card-actions> -->
 
               <v-row style="height: 5rem"></v-row>
             </v-card>
-          </v-col> -->
+          </v-col>
     </v-row>
     <el-dialog :visible.sync="showDialog" width="70%" :before-close="hideContribution" @opened="drawFileP">
       <div style="position: relative;width: 100%;height: 300px">
