@@ -12,7 +12,7 @@
         </el-date-picker>
       </div>
       <div style="width: 90%; margin-top: 30px; justify-content: center; /* 水平居中 */ display: flex;" >
-        <v-gantt-chart  style="margin-left: 5%;" :startTime="startTime" :endTime="endTime" :datas="datas" :scale="1440" :cellHeight="50"
+        <v-gantt-chart  style="margin-left: 5%;" :startTime="startTime" :endTime="endTime" :datas="filterDatas" :scale="1440" :cellHeight="50"
         :cellWidth="100">
         <template v-slot:block="{ data, item }">
           <!-- 你的容器块组件 -->
@@ -564,6 +564,7 @@ export default {
     this.startTime = formattedStartDate;
     this.endTime = formattedEndDate;
     console.log(this.startTime + '  ' + this.endTime)
+    this.filter();
     }
   },
   created() {
@@ -585,6 +586,7 @@ export default {
     startEnd: ['2024-01-01', '2024-12-31'],
     startTime: '2024-01-01',//时间轴开始时间
     endTime: '2024-12-31',
+    filterDatas:[],
     datas: [
       {
         id: 'arrayOne',
@@ -735,6 +737,18 @@ export default {
     generateLabel,
     getLabelColor,
     getIdenticon,
+    filter() {
+      this.filterDatas = [];
+      for(var i = 0; i < this.datas.length; i++) {
+        var s = this.datas[i].gtArray[0].start;
+        var e = this.datas[i].gtArray[0].end;
+        if(e < this.startTime || s > this.endTime) {
+          continue;
+        }else {
+          this.filterDatas.push(this.datas[i]);
+        }
+      }
+    },
     setDatas() {
       this.datas = [];
       for (var i = 0; i < this.tasks.length; i++) {
@@ -763,6 +777,7 @@ export default {
         this.datas.push(newItem);
       }
     }
+    this.filter();
   },
     formatDateRange(dateRangeStr) {
     // 将日期范围字符串分割成起始日期和结束日期

@@ -4,7 +4,7 @@
       <h1 style="position: absolute; left: 5%; top: 10%">项目</h1>
     </div>
     <div style="margin-bottom: 70px; justify-content: center; /* 水平居中 */ display: flex;">
-      <div class="block" style="margin-left: 50%;">
+      <div class="block" style="margin-left: 40%;">
         <span class="demonstration">选择项目 {{ ' ' }}</span>
         <el-select style="margin-right: 5%;" v-model="curProj" placeholder="请选择">
           <el-option v-for="item in projects" :key="item.id" :label="item.name" :value="item.id">
@@ -16,7 +16,7 @@
         </el-date-picker>
       </div>
       <div style="width: 90%; margin-top: 30px; justify-content: center; /* 水平居中 */ display: flex;">
-        <v-gantt-chart style="margin-left: 5%;" :startTime="startTime" :endTime="endTime" :datas="datas" :scale="1440"
+        <v-gantt-chart style="margin-left: 5%;" :startTime="startTime" :endTime="endTime" :datas="filterDatas" :scale="1440"
           :cellHeight="50" :cellWidth="100">
           <template v-slot:block="{ data, item }">
             <!-- 你的容器块组件 -->
@@ -175,6 +175,7 @@ export default {
       this.startTime = formattedStartDate;
       this.endTime = formattedEndDate;
       console.log(this.startTime + '  ' + this.endTime)
+      this.filter();
     },
     curProj() {
       this.getTaskList();
@@ -200,9 +201,10 @@ export default {
       tasks: [],
       projects: [],
       curProj: '',
-      startEnd: ['2024-01-01', '2024-12-31'],
-      startTime: '2024-01-01',//时间轴开始时间
+      startEnd: ['2023-01-01', '2024-12-31'],
+      startTime: '2023-01-01',//时间轴开始时间
       endTime: '2024-12-31',
+      filterDatas:[],
       datas: [
         {
           id: 'arrayOne',
@@ -289,6 +291,25 @@ export default {
   },
   methods: {
     getIdenticon,
+    formatDate(date) {
+    var year = date.getFullYear();
+    var month = (date.getMonth() + 1).toString().padStart(2, '0');
+    var day = date.getDate().toString().padStart(2, '0');
+
+    return year + '-' + month + '-' + day;
+},
+    filter() {
+      this.filterDatas = [];
+      for(var i = 0; i < this.datas.length; i++) {
+        var s = this.datas[i].gtArray[0].start;
+        var e = this.datas[i].gtArray[0].end;
+        if(e < this.startTime || s > this.endTime) {
+          continue;
+        }else {
+          this.filterDatas.push(this.datas[i]);
+        }
+      }
+    },
     setDatas() {
       this.datas = [];
       for (var i = 0; i < this.tasks.length; i++) {
@@ -317,6 +338,7 @@ export default {
         this.datas.push(newItem);
       }
     }
+    this.filter();
   },
   getTaskList() {
     showTaskList({ userId: this.user.id, projectId: this.curProj }).then(

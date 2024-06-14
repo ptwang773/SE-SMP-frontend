@@ -161,7 +161,8 @@ export default {
       },
       selectReviewer(commit) {
       console.log(this.commitHistory)
-      this.selectForm.sha = commit.hash;
+      console.log
+      this.selectForm.sha = commit.commithash;
       this.selectForm.visible = true;
       console.log(commit.reviewerName)
     },
